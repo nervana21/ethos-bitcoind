@@ -28,7 +28,7 @@ This async example (using [Tokio](https://tokio.rs)) demonstrates integration te
 
 ```toml
 [dependencies]
-ethos-bitcoind = "30.2.1"
+ethos-bitcoind = "30.2.2"
 tokio = { version = "1", features = ["full"] }
 ```
 
