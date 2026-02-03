@@ -100,6 +100,9 @@ impl BitcoinNodeManager {
     /// Get the RPC port for this node manager
     pub fn rpc_port(&self) -> u16 { self.rpc_port }
 
+    /// Gets the test configuration used by this node manager
+    pub fn config(&self) -> &TestConfig { &self.config }
+
     /// Get the RPC username from the configuration
     pub fn rpc_username(&self) -> &str { &self.config.rpc_username }
 
