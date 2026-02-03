@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
-use ethos_bitcoind::node::NodeManager;
-use ethos_bitcoind::{BitcoinClient, BitcoinNodeManager, DefaultTransport};
+use ethos_bitcoind::{BitcoinClient, BitcoinNodeManager, DefaultTransport, NodeManager};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

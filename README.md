@@ -35,8 +35,7 @@ tokio = { version = "1", features = ["full"] }
 ```rust
 use std::sync::Arc;
 
-use ethos_bitcoind::node::NodeManager;
-use ethos_bitcoind::{BitcoinClient, DefaultTransport, BitcoinNodeManager};
+use ethos_bitcoind::{BitcoinClient, DefaultTransport, NodeManager, BitcoinNodeManager};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

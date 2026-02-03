@@ -26,7 +26,7 @@ pub use bitcoin::{Address, Amount, BlockHash, Network, ScriptBuf, Txid};
 pub use bitcoin_core_client::BitcoinTestClient;
 pub use client_trait::BitcoinClient;
 pub use config::Config;
-pub use node::BitcoinNodeManager;
+pub use node::{BitcoinNodeManager, NodeManager};
 pub use test_config::TestConfig;
 pub use transport::{DefaultTransport, RpcClient, TransportError};
 pub use types::*;
