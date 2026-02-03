@@ -46,8 +46,8 @@ pub async fn clear_banned(transport: &dyn TransportTrait) -> Result<Value, Trans
 }
 
 /// Immediately disconnects from the specified peer node.
-/// Strictly one out of \\\'address" and \\\'nodeid" can be provided to identify the node.
-/// To disconnect by nodeid, either set \\\'address" to the empty string, or call using the named \\\'nodeid" argument only.
+/// Strictly one out of 'address' and 'nodeid' can be provided to identify the node.
+/// To disconnect by nodeid, either set 'address' to the empty string, or call using the named 'nodeid' argument only.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.disconnectnode(...).await`
@@ -85,7 +85,7 @@ pub async fn get_added_node_info(
     Ok(raw)
 }
 
-/// Provides information about the node\\\'s address manager by returning the number of addresses in the ````new```` and ````tried```` tables and their sum for all networks.
+/// Provides information about the node's address manager by returning the number of addresses in the `new` and `tried` tables and their sum for all networks.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getaddrmaninfo(...).await`

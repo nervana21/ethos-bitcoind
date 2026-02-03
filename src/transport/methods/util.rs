@@ -29,12 +29,12 @@ pub async fn create_multisig(
 
 /// Derives one or more addresses corresponding to an output descriptor.
 /// Examples of output descriptors are:
-/// pkh(<pubkey>)                                     P2PKH outputs for the given pubkey
-/// wpkh(<pubkey>)                                    Native segwit P2PKH outputs for the given pubkey
-/// sh(multi(<n>,<pubkey>,<pubkey>,...))              P2SH-multisig outputs for the given threshold and pubkeys
-/// raw(<hex script>)                                 Outputs whose output script equals the specified hex-encoded bytes
-/// tr(<pubkey>,multi_a(<n>,<pubkey>,<pubkey>,...))   P2TR-multisig outputs for the given threshold and pubkeys
-/// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+/// pkh(&lt;pubkey&gt;)                                     P2PKH outputs for the given pubkey
+/// wpkh(&lt;pubkey&gt;)                                    Native segwit P2PKH outputs for the given pubkey
+/// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))              P2SH-multisig outputs for the given threshold and pubkeys
+/// raw(&lt;hex script&gt;)                                 Outputs whose output script equals the specified hex-encoded bytes
+/// tr(&lt;pubkey&gt;,multi_a(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))   P2TR-multisig outputs for the given threshold and pubkeys
+/// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
 /// or more path elements separated by "/", where "h" represents a hardened child key.
 /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
 /// # Usage

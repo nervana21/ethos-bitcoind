@@ -1,7 +1,7 @@
 //! Parameter structs for RPC method calls
 use serde::Serialize;
 
-/// Mark in-wallet transaction <txid> as abandoned
+/// Mark in-wallet transaction &lt;txid&gt; as abandoned
 /// This will mark this transaction and all its in-wallet descendants as abandoned which will allow
 /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
 /// It only works on transactions which are not included in a block and are not currently in the mempool.
@@ -32,9 +32,9 @@ pub struct AddconnectionParams {
 pub struct AddnodeParams {
     /// The IP address/hostname optionally followed by :port of the peer to connect to
     pub node: String,
-    /// \'add" to add a node to the list, \'remove" to remove a node from the list, \'onetry" to try a connection to the node once
+    /// 'add' to add a node to the list, 'remove' to remove a node from the list, 'onetry' to try a connection to the node once
     pub command: String,
-    /// Attempt to connect using BIP324 v2 transport protocol (ignored for \'remove" command)
+    /// Attempt to connect using BIP324 v2 transport protocol (ignored for 'remove' command)
     pub v2transport: Option<bool>,
 }
 
@@ -68,12 +68,12 @@ pub struct BackupwalletParams {
 /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
 /// It may add a new change output if one does not already exist.
 /// All inputs in the original transaction will be included in the replacement transaction.
-/// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+/// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
 /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
 /// The user can specify a confirmation target for estimatesmartfee.
 /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
 /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-/// returned by getnetworkinfo) to enter the node\\\'s mempool.
+/// returned by getnetworkinfo) to enter the node's mempool.
 /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
 #[derive(Debug, Serialize)]
 pub struct BumpfeeParams {
@@ -131,14 +131,14 @@ pub struct CreatemultisigParams {
 
 /// Creates a transaction in the Partially Signed Transaction format.
 /// Implements the Creator role.
-/// Note that the transaction\\\'s inputs are not signed, and
+/// Note that the transaction's inputs are not signed, and
 /// it is not stored in the wallet or transmitted to the network.
 #[derive(Debug, Serialize)]
 pub struct CreatepsbtParams {
     /// The inputs
     pub inputs: Vec<serde_json::Value>,
     /// The outputs specified as key-value pairs.
-    /// Each key may only appear once, i.e. there can only be one \'data" output, and no address may be duplicated.
+    /// Each key may only appear once, i.e. there can only be one 'data' output, and no address may be duplicated.
     /// At least one output of either type must be specified.
     /// For compatibility reasons, a dictionary, which holds the key-value pairs directly, is also
     /// accepted as second parameter.
@@ -155,14 +155,14 @@ pub struct CreatepsbtParams {
 /// Create a transaction spending the given inputs and creating new outputs.
 /// Outputs can be addresses or data.
 /// Returns hex-encoded raw transaction.
-/// Note that the transaction\\\'s inputs are not signed, and
+/// Note that the transaction's inputs are not signed, and
 /// it is not stored in the wallet or transmitted to the network.
 #[derive(Debug, Serialize)]
 pub struct CreaterawtransactionParams {
     /// The inputs
     pub inputs: Vec<serde_json::Value>,
     /// The outputs specified as key-value pairs.
-    /// Each key may only appear once, i.e. there can only be one \'data" output, and no address may be duplicated.
+    /// Each key may only appear once, i.e. there can only be one 'data' output, and no address may be duplicated.
     /// At least one output of either type must be specified.
     /// For compatibility reasons, a dictionary, which holds the key-value pairs directly, is also
     /// accepted as second parameter.
@@ -197,7 +197,7 @@ pub struct CreatewalletParams {
     pub external_signer: Option<bool>,
 }
 
-/// Creates the wallet\\\'s descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
+/// Creates the wallet's descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
 #[derive(Debug, Serialize)]
 pub struct CreatewalletdescriptorParams {
@@ -236,19 +236,19 @@ pub struct DecodescriptParams {
 
 /// Derives one or more addresses corresponding to an output descriptor.
 /// Examples of output descriptors are:
-/// pkh(<pubkey>)                                     P2PKH outputs for the given pubkey
-/// wpkh(<pubkey>)                                    Native segwit P2PKH outputs for the given pubkey
-/// sh(multi(<n>,<pubkey>,<pubkey>,...))              P2SH-multisig outputs for the given threshold and pubkeys
-/// raw(<hex script>)                                 Outputs whose output script equals the specified hex-encoded bytes
-/// tr(<pubkey>,multi_a(<n>,<pubkey>,<pubkey>,...))   P2TR-multisig outputs for the given threshold and pubkeys
-/// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+/// pkh(&lt;pubkey&gt;)                                     P2PKH outputs for the given pubkey
+/// wpkh(&lt;pubkey&gt;)                                    Native segwit P2PKH outputs for the given pubkey
+/// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))              P2SH-multisig outputs for the given threshold and pubkeys
+/// raw(&lt;hex script&gt;)                                 Outputs whose output script equals the specified hex-encoded bytes
+/// tr(&lt;pubkey&gt;,multi_a(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))   P2TR-multisig outputs for the given threshold and pubkeys
+/// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
 /// or more path elements separated by "/", where "h" represents a hardened child key.
 /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
 #[derive(Debug, Serialize)]
 pub struct DeriveaddressesParams {
     /// The descriptor.
     pub descriptor: String,
-    /// If a ranged descriptor is used, this specifies the end or the range (in [begin,end] notation) to derive.
+    /// If a ranged descriptor is used, this specifies the end or the range (in \[begin,end\] notation) to derive.
     pub range: Option<serde_json::Value>,
 }
 
@@ -276,8 +276,8 @@ pub struct DescriptorprocesspsbtParams {
 }
 
 /// Immediately disconnects from the specified peer node.
-/// Strictly one out of \\\'address" and \\\'nodeid" can be provided to identify the node.
-/// To disconnect by nodeid, either set \\\'address" to the empty string, or call using the named \\\'nodeid" argument only.
+/// Strictly one out of 'address' and 'nodeid' can be provided to identify the node.
+/// To disconnect by nodeid, either set 'address' to the empty string, or call using the named 'nodeid' argument only.
 #[derive(Debug, Serialize)]
 pub struct DisconnectnodeParams {
     /// The IP address/port of the node
@@ -299,7 +299,7 @@ pub struct DumptxoutsetParams {
 }
 
 /// Simply echo back the input arguments. This command is for testing.
-/// It will return an internal bug report when arg9=\\\'trigger_internal_bug" is passed.
+/// It will return an internal bug report when arg9='trigger_internal_bug' is passed.
 /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
 #[derive(Debug, Serialize)]
 pub struct EchoParams {
@@ -324,7 +324,7 @@ pub struct EchoipcParams {
 }
 
 /// Simply echo back the input arguments. This command is for testing.
-/// It will return an internal bug report when arg9=\\\'trigger_internal_bug" is passed.
+/// It will return an internal bug report when arg9='trigger_internal_bug' is passed.
 /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
 #[derive(Debug, Serialize)]
 pub struct EchojsonParams {
@@ -340,7 +340,7 @@ pub struct EchojsonParams {
     pub arg9: Option<String>,
 }
 
-/// Encrypts the wallet with \\\'passphrase\\\'. This is for first time encryption.
+/// Encrypts the wallet with 'passphrase'. This is for first time encryption.
 /// After this, any calls that interact with private keys such as sending or signing
 /// will require the passphrase to be set prior to making these calls.
 /// Use the walletpassphrase call for this, and then walletlock call.
@@ -506,10 +506,10 @@ pub struct GetbalanceParams {
     pub avoid_reuse: Option<bool>,
 }
 
-/// If verbosity is 0, returns a string that is serialized, hex-encoded data for block \\\'hash\\\'.
-/// If verbosity is 1, returns an Object with information about block <hash>.
-/// If verbosity is 2, returns an Object with information about block <hash> and information about each transaction.
-/// If verbosity is 3, returns an Object with information about block <hash> and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
+/// If verbosity is 0, returns a string that is serialized, hex-encoded data for block 'hash'.
+/// If verbosity is 1, returns an Object with information about block &lt;hash&gt;.
+/// If verbosity is 2, returns an Object with information about block &lt;hash&gt; and information about each transaction.
+/// If verbosity is 3, returns an Object with information about block &lt;hash&gt; and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
 #[derive(Debug, Serialize)]
 pub struct GetblockParams {
     /// The block hash
@@ -550,8 +550,8 @@ pub struct GetblockhashParams {
     pub height: i64,
 }
 
-/// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader \\\'hash\\\'.
-/// If verbose is true, returns an Object with information about blockheader <hash>.
+/// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.
+/// If verbose is true, returns an Object with information about blockheader &lt;hash&gt;.
 #[derive(Debug, Serialize)]
 pub struct GetblockheaderParams {
     /// The block hash
@@ -561,7 +561,7 @@ pub struct GetblockheaderParams {
 }
 
 /// Compute per block statistics for a given window. All amounts are in satoshis.
-/// It won\\\'t work for some heights with pruning.
+/// It won't work for some heights with pruning.
 #[derive(Debug, Serialize)]
 pub struct GetblockstatsParams {
     /// The block hash or height of the target block
@@ -570,13 +570,13 @@ pub struct GetblockstatsParams {
     pub stats: Option<Vec<serde_json::Value>>,
 }
 
-/// If the request parameters include a \\\'mode" key, that is used to explicitly select between the default \\\'template" request or a \\\'proposal\\\'.
+/// If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.
 /// It returns data needed to construct a block to work on.
 /// For full specification, see BIPs 22, 23, 9, and 145:
-/// https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki
-/// https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki
-/// https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes
-/// https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki
+/// <https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki>
+/// <https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki>
+/// <https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes>
+/// <https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki>
 #[derive(Debug, Serialize)]
 pub struct GetblocktemplateParams {
     /// Format of the template
@@ -599,11 +599,11 @@ pub struct GetdeploymentinfoParams {
     pub blockhash: Option<bitcoin::BlockHash>,
 }
 
-/// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the ````relevant_blocks```` output of ````scanblocks()````.
+/// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the `relevant_blocks` output of `scanblocks()`.
 /// This call may take several minutes. If you encounter timeouts, try specifying no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
 #[derive(Debug, Serialize)]
 pub struct GetdescriptoractivityParams {
-    /// The list of blockhashes to examine for activity. Order doesn\'t matter. Must be along main chain or an error is thrown.
+    /// The list of blockhashes to examine for activity. Order doesn't matter. Must be along main chain or an error is thrown.
     pub blockhashes: Vec<serde_json::Value>,
     /// The list of descriptors (scan objects) to examine for activity. Every scan object is either a string descriptor or an object:
     pub scanobjects: Vec<serde_json::Value>,
@@ -673,8 +673,8 @@ pub struct GetmempoolentryParams {
 }
 
 /// Returns the estimated network hashes per second based on the last n blocks.
-/// Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.
-/// Pass in [height] to estimate the network speed at the time when a certain block was found.
+/// Pass in \[blocks\] to override # of blocks, -1 specifies since last difficulty change.
+/// Pass in \[height\] to estimate the network speed at the time when a certain block was found.
 #[derive(Debug, Serialize)]
 pub struct GetnetworkhashpsParams {
     /// The number of previous blocks to calculate estimate from, or -1 for blocks since last difficulty change.
@@ -684,8 +684,8 @@ pub struct GetnetworkhashpsParams {
 }
 
 /// Returns a new Bitcoin address for receiving payments.
-/// If \\\'label" is specified, it is added to the address book
-/// so payments received with the address will be associated with \\\'label\\\'.
+/// If 'label' is specified, it is added to the address book
+/// so payments received with the address will be associated with 'label'.
 #[derive(Debug, Serialize)]
 pub struct GetnewaddressParams {
     /// The label name for the address to be linked to. It can also be set to the empty string "" to represent the default label. The label does not need to exist, it will be created if there is no label by the given name.
@@ -760,7 +760,7 @@ pub struct GetreceivedbyaddressParams {
     pub include_immature_coinbase: Option<bool>,
 }
 
-/// Returns the total amount received by addresses with <label> in transactions with at least [minconf] confirmations.
+/// Returns the total amount received by addresses with &lt;label&gt; in transactions with at least \[minconf\] confirmations.
 #[derive(Debug, Serialize)]
 pub struct GetreceivedbylabelParams {
     /// The selected label, may be the default label using "".
@@ -771,14 +771,14 @@ pub struct GetreceivedbylabelParams {
     pub include_immature_coinbase: Option<bool>,
 }
 
-/// Get detailed information about in-wallet transaction <txid>
+/// Get detailed information about in-wallet transaction &lt;txid&gt;
 #[derive(Debug, Serialize)]
 pub struct GettransactionParams {
     /// The transaction id
     pub txid: bitcoin::Txid,
     /// (DEPRECATED) No longer used
     pub include_watchonly: Option<bool>,
-    /// Whether to include a ``decoded`` field containing the decoded transaction (equivalent to RPC decoderawtransaction)
+    /// Whether to include a `decoded` field containing the decoded transaction (equivalent to RPC decoderawtransaction)
     pub verbose: Option<bool>,
 }
 
@@ -789,7 +789,7 @@ pub struct GettxoutParams {
     pub txid: bitcoin::Txid,
     /// vout number
     pub n: i64,
-    /// Whether to include the mempool. Note that an unspent output that is spent in the mempool won\'t appear.
+    /// Whether to include the mempool. Note that an unspent output that is spent in the mempool won't appear.
     pub include_mempool: Option<bool>,
 }
 
@@ -810,7 +810,7 @@ pub struct GettxoutproofParams {
 /// Note this call may take some time if you are not using coinstatsindex.
 #[derive(Debug, Serialize)]
 pub struct GettxoutsetinfoParams {
-    /// Which UTXO set hash should be calculated. Options: \'hash_serialized_3" (the legacy algorithm), \'muhash\', \'none\'.
+    /// Which UTXO set hash should be calculated. Options: 'hash_serialized_3' (the legacy algorithm), 'muhash', 'none'.
     pub hash_type: Option<String>,
     /// The block hash or height of the target height (only available with coinstatsindex).
     pub hash_or_height: Option<i64>,
@@ -895,7 +895,7 @@ pub struct ListdescriptorsParams {
 /// Returns the list of all labels, or labels that are assigned to addresses with a specific purpose.
 #[derive(Debug, Serialize)]
 pub struct ListlabelsParams {
-    /// Address purpose to list labels for (\'send\',\'receive\'). An empty string is the same as not providing this argument.
+    /// Address purpose to list labels for ('send','receive'). An empty string is the same as not providing this argument.
     pub purpose: Option<String>,
 }
 
@@ -904,7 +904,7 @@ pub struct ListlabelsParams {
 pub struct ListreceivedbyaddressParams {
     /// The minimum number of confirmations before payments are included.
     pub minconf: Option<i64>,
-    /// Whether to include addresses that haven\'t received any payments.
+    /// Whether to include addresses that haven't received any payments.
     pub include_empty: Option<bool>,
     /// (DEPRECATED) No longer used
     pub include_watchonly: Option<bool>,
@@ -919,7 +919,7 @@ pub struct ListreceivedbyaddressParams {
 pub struct ListreceivedbylabelParams {
     /// The minimum number of confirmations before payments are included.
     pub minconf: Option<i64>,
-    /// Whether to include labels that haven\'t received any payments.
+    /// Whether to include labels that haven't received any payments.
     pub include_empty: Option<bool>,
     /// (DEPRECATED) No longer used
     pub include_watchonly: Option<bool>,
@@ -927,14 +927,14 @@ pub struct ListreceivedbylabelParams {
     pub include_immature_coinbase: Option<bool>,
 }
 
-/// Get all transactions in blocks since block [blockhash], or all transactions if omitted.
+/// Get all transactions in blocks since block \[blockhash\], or all transactions if omitted.
 /// If "blockhash" is no longer a part of the main chain, transactions from the fork point onward are included.
 /// Additionally, if include_removed is set, transactions affecting the wallet which were removed are returned in the "removed" array.
 #[derive(Debug, Serialize)]
 pub struct ListsinceblockParams {
     /// If set, the block hash to list transactions since, otherwise list all transactions.
     pub blockhash: Option<bitcoin::BlockHash>,
-    /// Return the nth block hash from the main chain. e.g. 1 would mean the best block hash. Note: this is not used as a filter, but only affects [lastblock] in the return value
+    /// Return the nth block hash from the main chain. e.g. 1 would mean the best block hash. Note: this is not used as a filter, but only affects \[lastblock\] in the return value
     pub target_confirmations: Option<i64>,
     /// (DEPRECATED) No longer used
     pub include_watchonly: Option<bool>,
@@ -948,8 +948,8 @@ pub struct ListsinceblockParams {
 }
 
 /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
-/// Returns up to \\\'count" most recent transactions ordered from oldest to newest while skipping the first number of
-/// transactions specified in the \\\'skip" argument. A transaction can have multiple entries in this RPC response.
+/// Returns up to 'count' most recent transactions ordered from oldest to newest while skipping the first number of
+/// transactions specified in the 'skip' argument. A transaction can have multiple entries in this RPC response.
 /// For instance, a wallet transaction that pays three addresses — one wallet-owned and two external — will produce
 /// four entries. The payment to the wallet-owned address appears both as a send entry and as a receive entry.
 /// As a result, the RPC response will contain one entry in the receive category and three entries in the send category.
@@ -984,9 +984,9 @@ pub struct ListunspentParams {
 }
 
 /// Load the serialized UTXO set from a file.
-/// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network\\\'s tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
+/// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network's tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
 /// The result is a usable bitcoind instance that is current with the network tip in a matter of minutes rather than hours. UTXO snapshot are typically obtained from third-party sources (HTTP, torrent, etc.) which is reasonable since their contents are always checked by hash.
-/// You can find more information on this process in the ````assumeutxo```` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
+/// You can find more information on this process in the `assumeutxo` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
 #[derive(Debug, Serialize)]
 pub struct LoadtxoutsetParams {
     /// path to the snapshot file. If relative, will be prefixed by datadir.
@@ -1042,7 +1042,7 @@ pub struct LoggingParams {
 /// Migrate the wallet to a descriptor wallet.
 /// A new wallet backup will need to be made.
 /// The migration process will create a backup of the wallet before migrating. This backup
-/// file will be named <wallet name>-<timestamp>.legacy.bak and can be found in the directory
+/// file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory
 /// for this wallet. In the event of an incorrect migration, the backup can be restored using restorewallet.
 /// Encrypted wallets must have the passphrase provided as an argument to this call.
 /// This RPC may take a long time to complete. Increasing the RPC client timeout is recommended.
@@ -1086,7 +1086,7 @@ pub struct PrioritisetransactionParams {
 }
 
 /// Attempts to delete block and undo data up to a specified height or timestamp, if eligible for pruning.
-/// Requires ````-prune```` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via ````getblockfrompeer````), local deletion is irreversible.
+/// Requires `-prune` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via `getblockfrompeer`), local deletion is irreversible.
 #[derive(Debug, Serialize)]
 pub struct PruneblockchainParams {
     /// The block height to prune up to. May be set to a discrete height, or to a UNIX epoch time
@@ -1100,12 +1100,12 @@ pub struct PruneblockchainParams {
 /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
 /// It may add a new change output if one does not already exist.
 /// All inputs in the original transaction will be included in the replacement transaction.
-/// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+/// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
 /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
 /// The user can specify a confirmation target for estimatesmartfee.
 /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
 /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-/// returned by getnetworkinfo) to enter the node\\\'s mempool.
+/// returned by getnetworkinfo) to enter the node's mempool.
 /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
 #[derive(Debug, Serialize)]
 pub struct PsbtbumpfeeParams {
@@ -1177,17 +1177,17 @@ pub struct ScanblocksParams {
 
 /// Scans the unspent transaction output set for entries that match certain output descriptors.
 /// Examples of output descriptors are:
-/// addr(<address>)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
-/// raw(<hex script>)                    Outputs whose output script equals the specified hex-encoded bytes
-/// combo(<pubkey>)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
-/// pkh(<pubkey>)                        P2PKH outputs for the given pubkey
-/// sh(multi(<n>,<pubkey>,<pubkey>,...)) P2SH-multisig outputs for the given threshold and pubkeys
-/// tr(<pubkey>)                         P2TR
-/// tr(<pubkey>,{pk(<pubkey>)})          P2TR with single fallback pubkey in tapscript
-/// rawtr(<pubkey>)                      P2TR with the specified key as output key rather than inner
-/// wsh(and_v(v:pk(<pubkey>),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
-/// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
-/// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*\\\'" or "/*h" (hardened) to specify all
+/// addr(&lt;address&gt;)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
+/// raw(&lt;hex script&gt;)                    Outputs whose output script equals the specified hex-encoded bytes
+/// combo(&lt;pubkey&gt;)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
+/// pkh(&lt;pubkey&gt;)                        P2PKH outputs for the given pubkey
+/// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...)) P2SH-multisig outputs for the given threshold and pubkeys
+/// tr(&lt;pubkey&gt;)                         P2TR
+/// tr(&lt;pubkey&gt;,{pk(&lt;pubkey&gt;)})          P2TR with single fallback pubkey in tapscript
+/// rawtr(&lt;pubkey&gt;)                      P2TR with the specified key as output key rather than inner
+/// wsh(and_v(v:pk(&lt;pubkey&gt;),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
+/// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+/// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*'" or "/*h" (hardened) to specify all
 /// unhardened or hardened child keys.
 /// In the latter case, a range needs to be specified by below if different from 1000.
 /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
@@ -1208,7 +1208,7 @@ pub struct ScantxoutsetParams {
 #[derive(Debug, Serialize)]
 pub struct SendParams {
     /// The outputs specified as key-value pairs.
-    /// Each key may only appear once, i.e. there can only be one \'data" output, and no address may be duplicated.
+    /// Each key may only appear once, i.e. there can only be one 'data' output, and no address may be duplicated.
     /// At least one output of either type must be specified.
     /// For convenience, a dictionary, which holds the key-value pairs directly, is also accepted.
     pub outputs: Vec<serde_json::Value>,
@@ -1235,7 +1235,7 @@ pub struct SendParams {
 /// EXPERIMENTAL warning: this call may be changed in future releases.
 /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
 /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
-/// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using ````send_max```` to exclude inputs that are worth less than the fees needed to spend them.
+/// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
 #[derive(Debug, Serialize)]
 pub struct SendallParams {
     /// The sendall destinations. Each address may only appear once.
@@ -1314,11 +1314,11 @@ pub struct SendmsgtopeerParams {
 /// If -privatebroadcast is disabled, then the transaction will be put into the
 /// local mempool of the node and will be sent unconditionally to all currently
 /// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
-/// privacy by leaking the transaction\\\'s origin, as nodes will normally not
+/// privacy by leaking the transaction's origin, as nodes will normally not
 /// rebroadcast non-wallet transactions already in their mempool.
 /// If -privatebroadcast is enabled, then the transaction will be sent only via
 /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
-/// via the Tor network. This conceals the transaction\\\'s origin. The transaction
+/// via the Tor network. This conceals the transaction's origin. The transaction
 /// will only enter the local mempool when it is received back from the network.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
@@ -1330,7 +1330,7 @@ pub struct SendrawtransactionParams {
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
     pub maxfeerate: Option<serde_json::Value>,
-    /// Reject transactions with provably unspendable outputs (e.g. \'datacarrier" outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
+    /// Reject transactions with provably unspendable outputs (e.g. 'datacarrier' outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
     /// If burning funds through unspendable outputs is desired, increase this value.
     /// This check is based on heuristics and does not guarantee spendability of outputs.
     pub maxburnamount: Option<serde_json::Value>,
@@ -1348,7 +1348,7 @@ pub struct SendtoaddressParams {
     /// This is not part of the transaction, just kept in your wallet.
     pub comment: Option<String>,
     /// A comment to store the name of the person or organization
-    /// to which you\'re sending the transaction. This is not part of the
+    /// to which you're sending the transaction. This is not part of the
     /// transaction, just kept in your wallet.
     pub comment_to: Option<String>,
     /// The fee will be deducted from the amount being sent.
@@ -1383,9 +1383,9 @@ pub struct SendtoaddressParams {
 pub struct SetbanParams {
     /// The IP/Subnet (see getpeerinfo for nodes IP) with an optional netmask (default is /32 = single IP)
     pub subnet: String,
-    /// \'add" to add an IP/Subnet to the list, \'remove" to remove an IP/Subnet from the list
+    /// 'add' to add an IP/Subnet to the list, 'remove' to remove an IP/Subnet from the list
     pub command: String,
-    /// time in seconds how long (or until when if [absolute] is set) the IP is banned (0 or empty means using the default time of 24h which can also be overwritten by the -bantime startup argument)
+    /// time in seconds how long (or until when if \[absolute\] is set) the IP is banned (0 or empty means using the default time of 24h which can also be overwritten by the -bantime startup argument)
     pub bantime: Option<i64>,
     /// If set, the bantime must be an absolute timestamp expressed in UNIX epoch time
     pub absolute: Option<bool>,
@@ -1512,7 +1512,7 @@ pub struct StopParams {
 }
 
 /// Attempts to submit new block to network.
-/// See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
+/// See <https://en.bitcoin.it/wiki/BIP_0022> for full specification.
 #[derive(Debug, Serialize)]
 pub struct SubmitblockParams {
     /// the hex-encoded block data to submit
@@ -1544,7 +1544,7 @@ pub struct SubmitpackageParams {
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
     pub maxfeerate: Option<serde_json::Value>,
-    /// Reject transactions with provably unspendable outputs (e.g. \'datacarrier" outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
+    /// Reject transactions with provably unspendable outputs (e.g. 'datacarrier' outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
     /// If burning funds through unspendable outputs is desired, increase this value.
     /// This check is based on heuristics and does not guarantee spendability of outputs.
     pub maxburnamount: Option<serde_json::Value>,
@@ -1552,7 +1552,7 @@ pub struct SubmitpackageParams {
 
 /// Returns result of mempool acceptance tests indicating if raw transaction(s) (serialized, hex-encoded) would be accepted by mempool.
 /// If multiple transactions are passed in, parents must come before children and package policies apply: the transactions cannot conflict with any mempool transactions or each other.
-/// If one transaction fails, other transactions may not be fully validated (the \\\'allowed" key will be blank).
+/// If one transaction fails, other transactions may not be fully validated (the 'allowed' key will be blank).
 /// The maximum number of transactions allowed is 25.
 /// This checks if transactions violate the consensus or policy rules.
 /// See sendrawtransaction call.
@@ -1669,7 +1669,7 @@ pub struct WalletcreatefundedpsbtParams {
     /// Leave empty to add inputs automatically. See add_inputs option.
     pub inputs: Option<Vec<serde_json::Value>>,
     /// The outputs specified as key-value pairs.
-    /// Each key may only appear once, i.e. there can only be one \'data" output, and no address may be duplicated.
+    /// Each key may only appear once, i.e. there can only be one 'data' output, and no address may be duplicated.
     /// At least one output of either type must be specified.
     /// For compatibility reasons, a dictionary, which holds the key-value pairs directly, is also
     /// accepted as second parameter.
@@ -1690,7 +1690,7 @@ pub struct WalletdisplayaddressParams {
     pub address: bitcoin::Address,
 }
 
-/// Stores the wallet decryption key in memory for \\\'timeout" seconds.
+/// Stores the wallet decryption key in memory for 'timeout' seconds.
 /// This is needed prior to performing transactions related to private keys such as sending bitcoins
 /// Note:
 /// Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock
@@ -1703,7 +1703,7 @@ pub struct WalletpassphraseParams {
     pub timeout: i64,
 }
 
-/// Changes the wallet passphrase from \\\'oldpassphrase" to \\\'newpassphrase\\\'.
+/// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
 #[derive(Debug, Serialize)]
 pub struct WalletpassphrasechangeParams {
     /// The current passphrase

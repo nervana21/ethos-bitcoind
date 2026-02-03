@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 
 use crate::transport::core::{TransportError, TransportTrait};
 
-/// Mark in-wallet transaction <txid> as abandoned
+/// Mark in-wallet transaction &lt;txid&gt; as abandoned
 /// This will mark this transaction and all its in-wallet descendants as abandoned which will allow
 /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
 /// It only works on transactions which are not included in a block and are not currently in the mempool.
@@ -67,12 +67,12 @@ pub async fn backup_wallet(
 /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
 /// It may add a new change output if one does not already exist.
 /// All inputs in the original transaction will be included in the replacement transaction.
-/// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+/// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
 /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
 /// The user can specify a confirmation target for estimatesmartfee.
 /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
 /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-/// returned by getnetworkinfo) to enter the node\\\'s mempool.
+/// returned by getnetworkinfo) to enter the node's mempool.
 /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -127,7 +127,7 @@ pub async fn create_wallet(
     Ok(raw)
 }
 
-/// Creates the wallet\\\'s descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
+/// Creates the wallet's descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -147,7 +147,7 @@ pub async fn create_wallet_descriptor(
     Ok(raw)
 }
 
-/// Encrypts the wallet with \\\'passphrase\\\'. This is for first time encryption.
+/// Encrypts the wallet with 'passphrase'. This is for first time encryption.
 /// After this, any calls that interact with private keys such as sending or signing
 /// will require the passphrase to be set prior to making these calls.
 /// Use the walletpassphrase call for this, and then walletlock call.
@@ -267,8 +267,8 @@ pub async fn get_hd_keys(
 }
 
 /// Returns a new Bitcoin address for receiving payments.
-/// If \\\'label" is specified, it is added to the address book
-/// so payments received with the address will be associated with \\\'label\\\'.
+/// If 'label' is specified, it is added to the address book
+/// so payments received with the address will be associated with 'label'.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getnewaddress(...).await`
@@ -326,7 +326,7 @@ pub async fn get_received_by_address(
     Ok(raw)
 }
 
-/// Returns the total amount received by addresses with <label> in transactions with at least [minconf] confirmations.
+/// Returns the total amount received by addresses with &lt;label&gt; in transactions with at least \[minconf\] confirmations.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getreceivedbylabel(...).await`
@@ -346,7 +346,7 @@ pub async fn get_received_by_label(
     Ok(raw)
 }
 
-/// Get detailed information about in-wallet transaction <txid>
+/// Get detailed information about in-wallet transaction &lt;txid&gt;
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.gettransaction(...).await`
@@ -567,7 +567,7 @@ pub async fn list_received_by_label(
     Ok(raw)
 }
 
-/// Get all transactions in blocks since block [blockhash], or all transactions if omitted.
+/// Get all transactions in blocks since block \[blockhash\], or all transactions if omitted.
 /// If "blockhash" is no longer a part of the main chain, transactions from the fork point onward are included.
 /// Additionally, if include_removed is set, transactions affecting the wallet which were removed are returned in the "removed" array.
 /// # Usage
@@ -600,8 +600,8 @@ pub async fn list_since_block(
 }
 
 /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
-/// Returns up to \\\'count" most recent transactions ordered from oldest to newest while skipping the first number of
-/// transactions specified in the \\\'skip" argument. A transaction can have multiple entries in this RPC response.
+/// Returns up to 'count' most recent transactions ordered from oldest to newest while skipping the first number of
+/// transactions specified in the 'skip' argument. A transaction can have multiple entries in this RPC response.
 /// For instance, a wallet transaction that pays three addresses — one wallet-owned and two external — will produce
 /// four entries. The payment to the wallet-owned address appears both as a send entry and as a receive entry.
 /// As a result, the RPC response will contain one entry in the receive category and three entries in the send category.
@@ -738,7 +738,7 @@ pub async fn lock_unspent(
 /// Migrate the wallet to a descriptor wallet.
 /// A new wallet backup will need to be made.
 /// The migration process will create a backup of the wallet before migrating. This backup
-/// file will be named <wallet name>-<timestamp>.legacy.bak and can be found in the directory
+/// file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory
 /// for this wallet. In the event of an incorrect migration, the backup can be restored using restorewallet.
 /// Encrypted wallets must have the passphrase provided as an argument to this call.
 /// This RPC may take a long time to complete. Increasing the RPC client timeout is recommended.
@@ -766,12 +766,12 @@ pub async fn migrate_wallet(
 /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
 /// It may add a new change output if one does not already exist.
 /// All inputs in the original transaction will be included in the replacement transaction.
-/// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+/// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
 /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
 /// The user can specify a confirmation target for estimatesmartfee.
 /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
 /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-/// returned by getnetworkinfo) to enter the node\\\'s mempool.
+/// returned by getnetworkinfo) to enter the node's mempool.
 /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -887,7 +887,7 @@ pub async fn send(
 /// EXPERIMENTAL warning: this call may be changed in future releases.
 /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
 /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
-/// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using ````send_max```` to exclude inputs that are worth less than the fees needed to spend them.
+/// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.sendall(...).await`
@@ -1204,7 +1204,7 @@ pub async fn wallet_lock(transport: &dyn TransportTrait) -> Result<Value, Transp
     Ok(raw)
 }
 
-/// Stores the wallet decryption key in memory for \\\'timeout" seconds.
+/// Stores the wallet decryption key in memory for 'timeout' seconds.
 /// This is needed prior to performing transactions related to private keys such as sending bitcoins
 /// Note:
 /// Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock
@@ -1227,7 +1227,7 @@ pub async fn wallet_passphrase(
     Ok(raw)
 }
 
-/// Changes the wallet passphrase from \\\'oldpassphrase" to \\\'newpassphrase\\\'.
+/// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.walletpassphrasechange(...).await`

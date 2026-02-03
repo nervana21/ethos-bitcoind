@@ -86,7 +86,7 @@ pub async fn convert_to_psbt(
 
 /// Creates a transaction in the Partially Signed Transaction format.
 /// Implements the Creator role.
-/// Note that the transaction\\\'s inputs are not signed, and
+/// Note that the transaction's inputs are not signed, and
 /// it is not stored in the wallet or transmitted to the network.
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -113,7 +113,7 @@ pub async fn create_psbt(
 /// Create a transaction spending the given inputs and creating new outputs.
 /// Outputs can be addresses or data.
 /// Returns hex-encoded raw transaction.
-/// Note that the transaction\\\'s inputs are not signed, and
+/// Note that the transaction's inputs are not signed, and
 /// it is not stored in the wallet or transmitted to the network.
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -326,11 +326,11 @@ pub async fn join_psbts(
 /// If -privatebroadcast is disabled, then the transaction will be put into the
 /// local mempool of the node and will be sent unconditionally to all currently
 /// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
-/// privacy by leaking the transaction\\\'s origin, as nodes will normally not
+/// privacy by leaking the transaction's origin, as nodes will normally not
 /// rebroadcast non-wallet transactions already in their mempool.
 /// If -privatebroadcast is enabled, then the transaction will be sent only via
 /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
-/// via the Tor network. This conceals the transaction\\\'s origin. The transaction
+/// via the Tor network. This conceals the transaction's origin. The transaction
 /// will only enter the local mempool when it is received back from the network.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
@@ -403,7 +403,7 @@ pub async fn submit_package(
 
 /// Returns result of mempool acceptance tests indicating if raw transaction(s) (serialized, hex-encoded) would be accepted by mempool.
 /// If multiple transactions are passed in, parents must come before children and package policies apply: the transactions cannot conflict with any mempool transactions or each other.
-/// If one transaction fails, other transactions may not be fully validated (the \\\'allowed" key will be blank).
+/// If one transaction fails, other transactions may not be fully validated (the 'allowed' key will be blank).
 /// The maximum number of transactions allowed is 25.
 /// This checks if transactions violate the consensus or policy rules.
 /// See sendrawtransaction call.

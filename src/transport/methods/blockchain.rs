@@ -43,10 +43,10 @@ pub async fn get_best_block_hash(transport: &dyn TransportTrait) -> Result<Value
     Ok(raw)
 }
 
-/// If verbosity is 0, returns a string that is serialized, hex-encoded data for block \\\'hash\\\'.
-/// If verbosity is 1, returns an Object with information about block <hash>.
-/// If verbosity is 2, returns an Object with information about block <hash> and information about each transaction.
-/// If verbosity is 3, returns an Object with information about block <hash> and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
+/// If verbosity is 0, returns a string that is serialized, hex-encoded data for block 'hash'.
+/// If verbosity is 1, returns an Object with information about block &lt;hash&gt;.
+/// If verbosity is 2, returns an Object with information about block &lt;hash&gt; and information about each transaction.
+/// If verbosity is 3, returns an Object with information about block &lt;hash&gt; and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblock(...).await`
@@ -159,8 +159,8 @@ pub async fn get_block_hash(
     Ok(raw)
 }
 
-/// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader \\\'hash\\\'.
-/// If verbose is true, returns an Object with information about blockheader <hash>.
+/// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.
+/// If verbose is true, returns an Object with information about blockheader &lt;hash&gt;.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockheader(...).await`
@@ -180,7 +180,7 @@ pub async fn get_block_header(
 }
 
 /// Compute per block statistics for a given window. All amounts are in satoshis.
-/// It won\\\'t work for some heights with pruning.
+/// It won't work for some heights with pruning.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockstats(...).await`
@@ -266,7 +266,7 @@ pub async fn get_deployment_info(
     Ok(raw)
 }
 
-/// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the ````relevant_blocks```` output of ````scanblocks()````.
+/// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the `relevant_blocks` output of `scanblocks()`.
 /// This call may take several minutes. If you encounter timeouts, try specifying no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -514,9 +514,9 @@ pub async fn import_mempool(
 }
 
 /// Load the serialized UTXO set from a file.
-/// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network\\\'s tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
+/// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network's tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
 /// The result is a usable bitcoind instance that is current with the network tip in a matter of minutes rather than hours. UTXO snapshot are typically obtained from third-party sources (HTTP, torrent, etc.) which is reasonable since their contents are always checked by hash.
-/// You can find more information on this process in the ````assumeutxo```` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
+/// You can find more information on this process in the `assumeutxo` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.loadtxoutset(...).await`
@@ -555,7 +555,7 @@ pub async fn precious_block(
 }
 
 /// Attempts to delete block and undo data up to a specified height or timestamp, if eligible for pruning.
-/// Requires ````-prune```` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via ````getblockfrompeer````), local deletion is irreversible.
+/// Requires `-prune` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via `getblockfrompeer`), local deletion is irreversible.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.pruneblockchain(...).await`
@@ -621,17 +621,17 @@ pub async fn scan_blocks(
 
 /// Scans the unspent transaction output set for entries that match certain output descriptors.
 /// Examples of output descriptors are:
-/// addr(<address>)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
-/// raw(<hex script>)                    Outputs whose output script equals the specified hex-encoded bytes
-/// combo(<pubkey>)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
-/// pkh(<pubkey>)                        P2PKH outputs for the given pubkey
-/// sh(multi(<n>,<pubkey>,<pubkey>,...)) P2SH-multisig outputs for the given threshold and pubkeys
-/// tr(<pubkey>)                         P2TR
-/// tr(<pubkey>,{pk(<pubkey>)})          P2TR with single fallback pubkey in tapscript
-/// rawtr(<pubkey>)                      P2TR with the specified key as output key rather than inner
-/// wsh(and_v(v:pk(<pubkey>),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
-/// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
-/// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*\\\'" or "/*h" (hardened) to specify all
+/// addr(&lt;address&gt;)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
+/// raw(&lt;hex script&gt;)                    Outputs whose output script equals the specified hex-encoded bytes
+/// combo(&lt;pubkey&gt;)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
+/// pkh(&lt;pubkey&gt;)                        P2PKH outputs for the given pubkey
+/// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...)) P2SH-multisig outputs for the given threshold and pubkeys
+/// tr(&lt;pubkey&gt;)                         P2TR
+/// tr(&lt;pubkey&gt;,{pk(&lt;pubkey&gt;)})          P2TR with single fallback pubkey in tapscript
+/// rawtr(&lt;pubkey&gt;)                      P2TR with the specified key as output key rather than inner
+/// wsh(and_v(v:pk(&lt;pubkey&gt;),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
+/// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+/// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*'" or "/*h" (hardened) to specify all
 /// unhardened or hardened child keys.
 /// In the latter case, a range needs to be specified by below if different from 1000.
 /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.

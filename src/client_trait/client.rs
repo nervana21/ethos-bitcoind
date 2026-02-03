@@ -14,7 +14,7 @@ use crate::types::*;
 pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispatchExt {
     type Error;
 
-    /// Mark in-wallet transaction <txid> as abandoned
+    /// Mark in-wallet transaction &lt;txid&gt; as abandoned
     /// This will mark this transaction and all its in-wallet descendants as abandoned which will allow
     /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
     /// It only works on transactions which are not included in a block and are not currently in the mempool.
@@ -68,12 +68,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
     /// It may add a new change output if one does not already exist.
     /// All inputs in the original transaction will be included in the replacement transaction.
-    /// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+    /// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
     /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
     /// The user can specify a confirmation target for estimatesmartfee.
     /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
     /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-    /// returned by getnetworkinfo) to enter the node\\\'s mempool.
+    /// returned by getnetworkinfo) to enter the node's mempool.
     /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
     async fn bump_fee(
         &self,
@@ -119,7 +119,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// Creates a transaction in the Partially Signed Transaction format.
     /// Implements the Creator role.
-    /// Note that the transaction\\\'s inputs are not signed, and
+    /// Note that the transaction's inputs are not signed, and
     /// it is not stored in the wallet or transmitted to the network.
     async fn create_psbt(
         &self,
@@ -133,7 +133,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Create a transaction spending the given inputs and creating new outputs.
     /// Outputs can be addresses or data.
     /// Returns hex-encoded raw transaction.
-    /// Note that the transaction\\\'s inputs are not signed, and
+    /// Note that the transaction's inputs are not signed, and
     /// it is not stored in the wallet or transmitted to the network.
     async fn create_raw_transaction(
         &self,
@@ -157,7 +157,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         external_signer: Option<bool>,
     ) -> Result<CreateWalletResponse, Self::Error>;
 
-    /// Creates the wallet\\\'s descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
+    /// Creates the wallet's descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
     async fn create_wallet_descriptor(
         &self,
@@ -180,12 +180,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// Derives one or more addresses corresponding to an output descriptor.
     /// Examples of output descriptors are:
-    /// pkh(<pubkey>)                                     P2PKH outputs for the given pubkey
-    /// wpkh(<pubkey>)                                    Native segwit P2PKH outputs for the given pubkey
-    /// sh(multi(<n>,<pubkey>,<pubkey>,...))              P2SH-multisig outputs for the given threshold and pubkeys
-    /// raw(<hex script>)                                 Outputs whose output script equals the specified hex-encoded bytes
-    /// tr(<pubkey>,multi_a(<n>,<pubkey>,<pubkey>,...))   P2TR-multisig outputs for the given threshold and pubkeys
-    /// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+    /// pkh(&lt;pubkey&gt;)                                     P2PKH outputs for the given pubkey
+    /// wpkh(&lt;pubkey&gt;)                                    Native segwit P2PKH outputs for the given pubkey
+    /// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))              P2SH-multisig outputs for the given threshold and pubkeys
+    /// raw(&lt;hex script&gt;)                                 Outputs whose output script equals the specified hex-encoded bytes
+    /// tr(&lt;pubkey&gt;,multi_a(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))   P2TR-multisig outputs for the given threshold and pubkeys
+    /// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
     /// or more path elements separated by "/", where "h" represents a hardened child key.
     /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
     async fn derive_addresses(
@@ -206,8 +206,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<DescriptorProcessPsbtResponse, Self::Error>;
 
     /// Immediately disconnects from the specified peer node.
-    /// Strictly one out of \\\'address" and \\\'nodeid" can be provided to identify the node.
-    /// To disconnect by nodeid, either set \\\'address" to the empty string, or call using the named \\\'nodeid" argument only.
+    /// Strictly one out of 'address' and 'nodeid' can be provided to identify the node.
+    /// To disconnect by nodeid, either set 'address' to the empty string, or call using the named 'nodeid' argument only.
     async fn disconnect_node(
         &self,
         address: Option<bitcoin::Address>,
@@ -225,7 +225,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<DumpTxoutSetResponse, Self::Error>;
 
     /// Simply echo back the input arguments. This command is for testing.
-    /// It will return an internal bug report when arg9=\\\'trigger_internal_bug" is passed.
+    /// It will return an internal bug report when arg9='trigger_internal_bug' is passed.
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echo(
         &self,
@@ -246,7 +246,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn echoipc(&self, arg: String) -> Result<EchoipcResponse, Self::Error>;
 
     /// Simply echo back the input arguments. This command is for testing.
-    /// It will return an internal bug report when arg9=\\\'trigger_internal_bug" is passed.
+    /// It will return an internal bug report when arg9='trigger_internal_bug' is passed.
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echojson(
         &self,
@@ -262,7 +262,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         arg9: Option<String>,
     ) -> Result<EchojsonResponse, Self::Error>;
 
-    /// Encrypts the wallet with \\\'passphrase\\\'. This is for first time encryption.
+    /// Encrypts the wallet with 'passphrase'. This is for first time encryption.
     /// After this, any calls that interact with private keys such as sending or signing
     /// will require the passphrase to be set prior to making these calls.
     /// Use the walletpassphrase call for this, and then walletlock call.
@@ -380,7 +380,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         address: bitcoin::Address,
     ) -> Result<GetAddressInfoResponse, Self::Error>;
 
-    /// Provides information about the node\\\'s address manager by returning the number of addresses in the ````new```` and ````tried```` tables and their sum for all networks.
+    /// Provides information about the node's address manager by returning the number of addresses in the `new` and `tried` tables and their sum for all networks.
     async fn get_addrman_info(&self) -> Result<GetAddrmanInfoResponse, Self::Error>;
 
     /// Returns the total available balance.
@@ -400,10 +400,10 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Returns the hash of the best (tip) block in the most-work fully-validated chain.
     async fn get_best_block_hash(&self) -> Result<GetBestBlockHashResponse, Self::Error>;
 
-    /// If verbosity is 0, returns a string that is serialized, hex-encoded data for block \\\'hash\\\'.
-    /// If verbosity is 1, returns an Object with information about block <hash>.
-    /// If verbosity is 2, returns an Object with information about block <hash> and information about each transaction.
-    /// If verbosity is 3, returns an Object with information about block <hash> and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
+    /// If verbosity is 0, returns a string that is serialized, hex-encoded data for block 'hash'.
+    /// If verbosity is 1, returns an Object with information about block &lt;hash&gt;.
+    /// If verbosity is 2, returns an Object with information about block &lt;hash&gt; and information about each transaction.
+    /// If verbosity is 3, returns an Object with information about block &lt;hash&gt; and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
     async fn get_block(
         &self,
         blockhash: bitcoin::BlockHash,
@@ -441,8 +441,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Returns hash of block in best-block-chain at height provided.
     async fn get_block_hash(&self, height: i64) -> Result<GetBlockHashResponse, Self::Error>;
 
-    /// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader \\\'hash\\\'.
-    /// If verbose is true, returns an Object with information about blockheader <hash>.
+    /// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.
+    /// If verbose is true, returns an Object with information about blockheader &lt;hash&gt;.
     async fn get_block_header(
         &self,
         blockhash: bitcoin::BlockHash,
@@ -450,20 +450,20 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<GetBlockHeaderResponse, Self::Error>;
 
     /// Compute per block statistics for a given window. All amounts are in satoshis.
-    /// It won\\\'t work for some heights with pruning.
+    /// It won't work for some heights with pruning.
     async fn get_block_stats(
         &self,
         hash_or_height: i64,
         stats: Option<Vec<serde_json::Value>>,
     ) -> Result<GetBlockStatsResponse, Self::Error>;
 
-    /// If the request parameters include a \\\'mode" key, that is used to explicitly select between the default \\\'template" request or a \\\'proposal\\\'.
+    /// If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.
     /// It returns data needed to construct a block to work on.
     /// For full specification, see BIPs 22, 23, 9, and 145:
-    /// https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki
-    /// https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki
-    /// https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes
-    /// https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki>
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki>
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes>
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki>
     async fn get_block_template(
         &self,
         template_request: serde_json::Value,
@@ -491,7 +491,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         blockhash: Option<bitcoin::BlockHash>,
     ) -> Result<GetDeploymentInfoResponse, Self::Error>;
 
-    /// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the ````relevant_blocks```` output of ````scanblocks()````.
+    /// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the `relevant_blocks` output of `scanblocks()`.
     /// This call may take several minutes. If you encounter timeouts, try specifying no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
     async fn get_descriptor_activity(
         &self,
@@ -569,8 +569,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn get_net_totals(&self) -> Result<GetNetTotalsResponse, Self::Error>;
 
     /// Returns the estimated network hashes per second based on the last n blocks.
-    /// Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.
-    /// Pass in [height] to estimate the network speed at the time when a certain block was found.
+    /// Pass in \[blocks\] to override # of blocks, -1 specifies since last difficulty change.
+    /// Pass in \[height\] to estimate the network speed at the time when a certain block was found.
     async fn get_network_hashps(
         &self,
         nblocks: Option<i64>,
@@ -581,8 +581,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn get_network_info(&self) -> Result<GetNetworkInfoResponse, Self::Error>;
 
     /// Returns a new Bitcoin address for receiving payments.
-    /// If \\\'label" is specified, it is added to the address book
-    /// so payments received with the address will be associated with \\\'label\\\'.
+    /// If 'label' is specified, it is added to the address book
+    /// so payments received with the address will be associated with 'label'.
     async fn get_new_address(
         &self,
         label: Option<String>,
@@ -655,7 +655,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         include_immature_coinbase: Option<bool>,
     ) -> Result<GetReceivedByAddressResponse, Self::Error>;
 
-    /// Returns the total amount received by addresses with <label> in transactions with at least [minconf] confirmations.
+    /// Returns the total amount received by addresses with &lt;label&gt; in transactions with at least \[minconf\] confirmations.
     async fn get_received_by_label(
         &self,
         label: String,
@@ -666,7 +666,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Returns details of the RPC server.
     async fn get_rpc_info(&self) -> Result<GetRpcInfoResponse, Self::Error>;
 
-    /// Get detailed information about in-wallet transaction <txid>
+    /// Get detailed information about in-wallet transaction &lt;txid&gt;
     async fn get_transaction(
         &self,
         txid: bitcoin::Txid,
@@ -801,7 +801,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         include_immature_coinbase: Option<bool>,
     ) -> Result<ListReceivedByLabelResponse, Self::Error>;
 
-    /// Get all transactions in blocks since block [blockhash], or all transactions if omitted.
+    /// Get all transactions in blocks since block \[blockhash\], or all transactions if omitted.
     /// If "blockhash" is no longer a part of the main chain, transactions from the fork point onward are included.
     /// Additionally, if include_removed is set, transactions affecting the wallet which were removed are returned in the "removed" array.
     async fn list_since_block(
@@ -815,8 +815,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<ListSinceBlockResponse, Self::Error>;
 
     /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
-    /// Returns up to \\\'count" most recent transactions ordered from oldest to newest while skipping the first number of
-    /// transactions specified in the \\\'skip" argument. A transaction can have multiple entries in this RPC response.
+    /// Returns up to 'count' most recent transactions ordered from oldest to newest while skipping the first number of
+    /// transactions specified in the 'skip' argument. A transaction can have multiple entries in this RPC response.
     /// For instance, a wallet transaction that pays three addresses — one wallet-owned and two external — will produce
     /// four entries. The payment to the wallet-owned address appears both as a send entry and as a receive entry.
     /// As a result, the RPC response will contain one entry in the receive category and three entries in the send category.
@@ -848,9 +848,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn list_wallets(&self) -> Result<ListWalletsResponse, Self::Error>;
 
     /// Load the serialized UTXO set from a file.
-    /// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network\\\'s tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
+    /// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network's tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
     /// The result is a usable bitcoind instance that is current with the network tip in a matter of minutes rather than hours. UTXO snapshot are typically obtained from third-party sources (HTTP, torrent, etc.) which is reasonable since their contents are always checked by hash.
-    /// You can find more information on this process in the ````assumeutxo```` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
+    /// You can find more information on this process in the `assumeutxo` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
     async fn load_txout_set(&self, path: String) -> Result<LoadTxoutSetResponse, Self::Error>;
 
     /// Loads a wallet from a wallet file or directory.
@@ -895,7 +895,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Migrate the wallet to a descriptor wallet.
     /// A new wallet backup will need to be made.
     /// The migration process will create a backup of the wallet before migrating. This backup
-    /// file will be named <wallet name>-<timestamp>.legacy.bak and can be found in the directory
+    /// file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory
     /// for this wallet. In the event of an incorrect migration, the backup can be restored using restorewallet.
     /// Encrypted wallets must have the passphrase provided as an argument to this call.
     /// This RPC may take a long time to complete. Increasing the RPC client timeout is recommended.
@@ -930,7 +930,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<PrioritiseTransactionResponse, Self::Error>;
 
     /// Attempts to delete block and undo data up to a specified height or timestamp, if eligible for pruning.
-    /// Requires ````-prune```` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via ````getblockfrompeer````), local deletion is irreversible.
+    /// Requires `-prune` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via `getblockfrompeer`), local deletion is irreversible.
     async fn prune_blockchain(&self, height: i64) -> Result<PruneBlockchainResponse, Self::Error>;
 
     /// Bumps the fee of a transaction T, replacing it with a new transaction B.
@@ -939,12 +939,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
     /// It may add a new change output if one does not already exist.
     /// All inputs in the original transaction will be included in the replacement transaction.
-    /// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+    /// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
     /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
     /// The user can specify a confirmation target for estimatesmartfee.
     /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
     /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-    /// returned by getnetworkinfo) to enter the node\\\'s mempool.
+    /// returned by getnetworkinfo) to enter the node's mempool.
     /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
     async fn psbt_bump_fee(
         &self,
@@ -1002,17 +1002,17 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// Scans the unspent transaction output set for entries that match certain output descriptors.
     /// Examples of output descriptors are:
-    /// addr(<address>)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
-    /// raw(<hex script>)                    Outputs whose output script equals the specified hex-encoded bytes
-    /// combo(<pubkey>)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
-    /// pkh(<pubkey>)                        P2PKH outputs for the given pubkey
-    /// sh(multi(<n>,<pubkey>,<pubkey>,...)) P2SH-multisig outputs for the given threshold and pubkeys
-    /// tr(<pubkey>)                         P2TR
-    /// tr(<pubkey>,{pk(<pubkey>)})          P2TR with single fallback pubkey in tapscript
-    /// rawtr(<pubkey>)                      P2TR with the specified key as output key rather than inner
-    /// wsh(and_v(v:pk(<pubkey>),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
-    /// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
-    /// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*\\\'" or "/*h" (hardened) to specify all
+    /// addr(&lt;address&gt;)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
+    /// raw(&lt;hex script&gt;)                    Outputs whose output script equals the specified hex-encoded bytes
+    /// combo(&lt;pubkey&gt;)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
+    /// pkh(&lt;pubkey&gt;)                        P2PKH outputs for the given pubkey
+    /// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...)) P2SH-multisig outputs for the given threshold and pubkeys
+    /// tr(&lt;pubkey&gt;)                         P2TR
+    /// tr(&lt;pubkey&gt;,{pk(&lt;pubkey&gt;)})          P2TR with single fallback pubkey in tapscript
+    /// rawtr(&lt;pubkey&gt;)                      P2TR with the specified key as output key rather than inner
+    /// wsh(and_v(v:pk(&lt;pubkey&gt;),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
+    /// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+    /// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*'" or "/*h" (hardened) to specify all
     /// unhardened or hardened child keys.
     /// In the latter case, a range needs to be specified by below if different from 1000.
     /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
@@ -1040,7 +1040,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
     /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
-    /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using ````send_max```` to exclude inputs that are worth less than the fees needed to spend them.
+    /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
     async fn send_all(
         &self,
         recipients: Vec<serde_json::Value>,
@@ -1080,11 +1080,11 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// If -privatebroadcast is disabled, then the transaction will be put into the
     /// local mempool of the node and will be sent unconditionally to all currently
     /// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
-    /// privacy by leaking the transaction\\\'s origin, as nodes will normally not
+    /// privacy by leaking the transaction's origin, as nodes will normally not
     /// rebroadcast non-wallet transactions already in their mempool.
     /// If -privatebroadcast is enabled, then the transaction will be sent only via
     /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
-    /// via the Tor network. This conceals the transaction\\\'s origin. The transaction
+    /// via the Tor network. This conceals the transaction's origin. The transaction
     /// will only enter the local mempool when it is received back from the network.
     /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
     /// Related RPCs: createrawtransaction, signrawtransactionwithkey
@@ -1198,7 +1198,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn stop(&self, wait: Option<i64>) -> Result<StopResponse, Self::Error>;
 
     /// Attempts to submit new block to network.
-    /// See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
+    /// See <https://en.bitcoin.it/wiki/BIP_0022> for full specification.
     async fn submit_block(
         &self,
         hexdata: String,
@@ -1227,7 +1227,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// Returns result of mempool acceptance tests indicating if raw transaction(s) (serialized, hex-encoded) would be accepted by mempool.
     /// If multiple transactions are passed in, parents must come before children and package policies apply: the transactions cannot conflict with any mempool transactions or each other.
-    /// If one transaction fails, other transactions may not be fully validated (the \\\'allowed" key will be blank).
+    /// If one transaction fails, other transactions may not be fully validated (the 'allowed' key will be blank).
     /// The maximum number of transactions allowed is 25.
     /// This checks if transactions violate the consensus or policy rules.
     /// See sendrawtransaction call.
@@ -1336,7 +1336,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// before being able to call any methods which require the wallet to be unlocked.
     async fn wallet_lock(&self) -> Result<WalletLockResponse, Self::Error>;
 
-    /// Stores the wallet decryption key in memory for \\\'timeout" seconds.
+    /// Stores the wallet decryption key in memory for 'timeout' seconds.
     /// This is needed prior to performing transactions related to private keys such as sending bitcoins
     /// Note:
     /// Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock
@@ -1347,7 +1347,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         timeout: i64,
     ) -> Result<WalletPassphraseResponse, Self::Error>;
 
-    /// Changes the wallet passphrase from \\\'oldpassphrase" to \\\'newpassphrase\\\'.
+    /// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
     async fn wallet_passphrase_change(
         &self,
         oldpassphrase: String,
@@ -1404,7 +1404,7 @@ impl<T: TransportTrait + TransportExt + ?Sized> WalletTransportExt for T {}
 impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     type Error = TransportError;
 
-    /// Mark in-wallet transaction <txid> as abandoned
+    /// Mark in-wallet transaction &lt;txid&gt; as abandoned
     /// This will mark this transaction and all its in-wallet descendants as abandoned which will allow
     /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
     /// It only works on transactions which are not included in a block and are not currently in the mempool.
@@ -1496,12 +1496,12 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
     /// It may add a new change output if one does not already exist.
     /// All inputs in the original transaction will be included in the replacement transaction.
-    /// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+    /// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
     /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
     /// The user can specify a confirmation target for estimatesmartfee.
     /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
     /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-    /// returned by getnetworkinfo) to enter the node\\\'s mempool.
+    /// returned by getnetworkinfo) to enter the node's mempool.
     /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
     async fn bump_fee(
         &self,
@@ -1582,7 +1582,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// Creates a transaction in the Partially Signed Transaction format.
     /// Implements the Creator role.
-    /// Note that the transaction\\\'s inputs are not signed, and
+    /// Note that the transaction's inputs are not signed, and
     /// it is not stored in the wallet or transmitted to the network.
     async fn create_psbt(
         &self,
@@ -1610,7 +1610,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Create a transaction spending the given inputs and creating new outputs.
     /// Outputs can be addresses or data.
     /// Returns hex-encoded raw transaction.
-    /// Note that the transaction\\\'s inputs are not signed, and
+    /// Note that the transaction's inputs are not signed, and
     /// it is not stored in the wallet or transmitted to the network.
     async fn create_raw_transaction(
         &self,
@@ -1673,7 +1673,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<CreateWalletResponse>("createwallet", &rpc_params).await
     }
 
-    /// Creates the wallet\\\'s descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
+    /// Creates the wallet's descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
     async fn create_wallet_descriptor(
         &self,
@@ -1718,12 +1718,12 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// Derives one or more addresses corresponding to an output descriptor.
     /// Examples of output descriptors are:
-    /// pkh(<pubkey>)                                     P2PKH outputs for the given pubkey
-    /// wpkh(<pubkey>)                                    Native segwit P2PKH outputs for the given pubkey
-    /// sh(multi(<n>,<pubkey>,<pubkey>,...))              P2SH-multisig outputs for the given threshold and pubkeys
-    /// raw(<hex script>)                                 Outputs whose output script equals the specified hex-encoded bytes
-    /// tr(<pubkey>,multi_a(<n>,<pubkey>,<pubkey>,...))   P2TR-multisig outputs for the given threshold and pubkeys
-    /// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+    /// pkh(&lt;pubkey&gt;)                                     P2PKH outputs for the given pubkey
+    /// wpkh(&lt;pubkey&gt;)                                    Native segwit P2PKH outputs for the given pubkey
+    /// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))              P2SH-multisig outputs for the given threshold and pubkeys
+    /// raw(&lt;hex script&gt;)                                 Outputs whose output script equals the specified hex-encoded bytes
+    /// tr(&lt;pubkey&gt;,multi_a(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...))   P2TR-multisig outputs for the given threshold and pubkeys
+    /// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
     /// or more path elements separated by "/", where "h" represents a hardened child key.
     /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
     async fn derive_addresses(
@@ -1765,8 +1765,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Immediately disconnects from the specified peer node.
-    /// Strictly one out of \\\'address" and \\\'nodeid" can be provided to identify the node.
-    /// To disconnect by nodeid, either set \\\'address" to the empty string, or call using the named \\\'nodeid" argument only.
+    /// Strictly one out of 'address' and 'nodeid' can be provided to identify the node.
+    /// To disconnect by nodeid, either set 'address' to the empty string, or call using the named 'nodeid' argument only.
     async fn disconnect_node(
         &self,
         address: Option<bitcoin::Address>,
@@ -1803,7 +1803,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Simply echo back the input arguments. This command is for testing.
-    /// It will return an internal bug report when arg9=\\\'trigger_internal_bug" is passed.
+    /// It will return an internal bug report when arg9='trigger_internal_bug' is passed.
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echo(
         &self,
@@ -1861,7 +1861,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Simply echo back the input arguments. This command is for testing.
-    /// It will return an internal bug report when arg9=\\\'trigger_internal_bug" is passed.
+    /// It will return an internal bug report when arg9='trigger_internal_bug' is passed.
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echojson(
         &self,
@@ -1910,7 +1910,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<EchojsonResponse>("echojson", &rpc_params).await
     }
 
-    /// Encrypts the wallet with \\\'passphrase\\\'. This is for first time encryption.
+    /// Encrypts the wallet with 'passphrase'. This is for first time encryption.
     /// After this, any calls that interact with private keys such as sending or signing
     /// will require the passphrase to be set prior to making these calls.
     /// Use the walletpassphrase call for this, and then walletlock call.
@@ -2103,7 +2103,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetAddressInfoResponse>("getaddressinfo", &rpc_params).await
     }
 
-    /// Provides information about the node\\\'s address manager by returning the number of addresses in the ````new```` and ````tried```` tables and their sum for all networks.
+    /// Provides information about the node's address manager by returning the number of addresses in the `new` and `tried` tables and their sum for all networks.
     async fn get_addrman_info(&self) -> Result<GetAddrmanInfoResponse, Self::Error> {
         self.call::<GetAddrmanInfoResponse>("getaddrmaninfo", &[]).await
     }
@@ -2144,10 +2144,10 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetBestBlockHashResponse>("getbestblockhash", &[]).await
     }
 
-    /// If verbosity is 0, returns a string that is serialized, hex-encoded data for block \\\'hash\\\'.
-    /// If verbosity is 1, returns an Object with information about block <hash>.
-    /// If verbosity is 2, returns an Object with information about block <hash> and information about each transaction.
-    /// If verbosity is 3, returns an Object with information about block <hash> and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
+    /// If verbosity is 0, returns a string that is serialized, hex-encoded data for block 'hash'.
+    /// If verbosity is 1, returns an Object with information about block &lt;hash&gt;.
+    /// If verbosity is 2, returns an Object with information about block &lt;hash&gt; and information about each transaction.
+    /// If verbosity is 3, returns an Object with information about block &lt;hash&gt; and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
     async fn get_block(
         &self,
         blockhash: bitcoin::BlockHash,
@@ -2212,8 +2212,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetBlockHashResponse>("getblockhash", &rpc_params).await
     }
 
-    /// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader \\\'hash\\\'.
-    /// If verbose is true, returns an Object with information about blockheader <hash>.
+    /// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.
+    /// If verbose is true, returns an Object with information about blockheader &lt;hash&gt;.
     async fn get_block_header(
         &self,
         blockhash: bitcoin::BlockHash,
@@ -2228,7 +2228,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Compute per block statistics for a given window. All amounts are in satoshis.
-    /// It won\\\'t work for some heights with pruning.
+    /// It won't work for some heights with pruning.
     async fn get_block_stats(
         &self,
         hash_or_height: i64,
@@ -2242,13 +2242,13 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetBlockStatsResponse>("getblockstats", &rpc_params).await
     }
 
-    /// If the request parameters include a \\\'mode" key, that is used to explicitly select between the default \\\'template" request or a \\\'proposal\\\'.
+    /// If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.
     /// It returns data needed to construct a block to work on.
     /// For full specification, see BIPs 22, 23, 9, and 145:
-    /// https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki
-    /// https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki
-    /// https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes
-    /// https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki>
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki>
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes>
+    /// <https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki>
     async fn get_block_template(
         &self,
         template_request: serde_json::Value,
@@ -2301,7 +2301,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetDeploymentInfoResponse>("getdeploymentinfo", &rpc_params).await
     }
 
-    /// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the ````relevant_blocks```` output of ````scanblocks()````.
+    /// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the `relevant_blocks` output of `scanblocks()`.
     /// This call may take several minutes. If you encounter timeouts, try specifying no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
     async fn get_descriptor_activity(
         &self,
@@ -2441,8 +2441,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Returns the estimated network hashes per second based on the last n blocks.
-    /// Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.
-    /// Pass in [height] to estimate the network speed at the time when a certain block was found.
+    /// Pass in \[blocks\] to override # of blocks, -1 specifies since last difficulty change.
+    /// Pass in \[height\] to estimate the network speed at the time when a certain block was found.
     async fn get_network_hashps(
         &self,
         nblocks: Option<i64>,
@@ -2464,8 +2464,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Returns a new Bitcoin address for receiving payments.
-    /// If \\\'label" is specified, it is added to the address book
-    /// so payments received with the address will be associated with \\\'label\\\'.
+    /// If 'label' is specified, it is added to the address book
+    /// so payments received with the address will be associated with 'label'.
     async fn get_new_address(
         &self,
         label: Option<String>,
@@ -2603,7 +2603,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetReceivedByAddressResponse>("getreceivedbyaddress", &rpc_params).await
     }
 
-    /// Returns the total amount received by addresses with <label> in transactions with at least [minconf] confirmations.
+    /// Returns the total amount received by addresses with &lt;label&gt; in transactions with at least \[minconf\] confirmations.
     async fn get_received_by_label(
         &self,
         label: String,
@@ -2626,7 +2626,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetRpcInfoResponse>("getrpcinfo", &[]).await
     }
 
-    /// Get detailed information about in-wallet transaction <txid>
+    /// Get detailed information about in-wallet transaction &lt;txid&gt;
     async fn get_transaction(
         &self,
         txid: bitcoin::Txid,
@@ -2893,7 +2893,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<ListReceivedByLabelResponse>("listreceivedbylabel", &rpc_params).await
     }
 
-    /// Get all transactions in blocks since block [blockhash], or all transactions if omitted.
+    /// Get all transactions in blocks since block \[blockhash\], or all transactions if omitted.
     /// If "blockhash" is no longer a part of the main chain, transactions from the fork point onward are included.
     /// Additionally, if include_removed is set, transactions affecting the wallet which were removed are returned in the "removed" array.
     async fn list_since_block(
@@ -2928,8 +2928,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
-    /// Returns up to \\\'count" most recent transactions ordered from oldest to newest while skipping the first number of
-    /// transactions specified in the \\\'skip" argument. A transaction can have multiple entries in this RPC response.
+    /// Returns up to 'count' most recent transactions ordered from oldest to newest while skipping the first number of
+    /// transactions specified in the 'skip' argument. A transaction can have multiple entries in this RPC response.
     /// For instance, a wallet transaction that pays three addresses — one wallet-owned and two external — will produce
     /// four entries. The payment to the wallet-owned address appears both as a send entry and as a receive entry.
     /// As a result, the RPC response will contain one entry in the receive category and three entries in the send category.
@@ -2998,9 +2998,9 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Load the serialized UTXO set from a file.
-    /// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network\\\'s tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
+    /// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network's tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
     /// The result is a usable bitcoind instance that is current with the network tip in a matter of minutes rather than hours. UTXO snapshot are typically obtained from third-party sources (HTTP, torrent, etc.) which is reasonable since their contents are always checked by hash.
-    /// You can find more information on this process in the ````assumeutxo```` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
+    /// You can find more information on this process in the `assumeutxo` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
     async fn load_txout_set(&self, path: String) -> Result<LoadTxoutSetResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(path));
@@ -3075,7 +3075,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Migrate the wallet to a descriptor wallet.
     /// A new wallet backup will need to be made.
     /// The migration process will create a backup of the wallet before migrating. This backup
-    /// file will be named <wallet name>-<timestamp>.legacy.bak and can be found in the directory
+    /// file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory
     /// for this wallet. In the event of an incorrect migration, the backup can be restored using restorewallet.
     /// Encrypted wallets must have the passphrase provided as an argument to this call.
     /// This RPC may take a long time to complete. Increasing the RPC client timeout is recommended.
@@ -3137,7 +3137,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Attempts to delete block and undo data up to a specified height or timestamp, if eligible for pruning.
-    /// Requires ````-prune```` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via ````getblockfrompeer````), local deletion is irreversible.
+    /// Requires `-prune` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via `getblockfrompeer`), local deletion is irreversible.
     async fn prune_blockchain(&self, height: i64) -> Result<PruneBlockchainResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(height));
@@ -3150,12 +3150,12 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// The command will pay the additional fee by reducing change outputs or adding inputs when necessary.
     /// It may add a new change output if one does not already exist.
     /// All inputs in the original transaction will be included in the replacement transaction.
-    /// The command will fail if the wallet or mempool contains a transaction that spends one of T\\\'s outputs.
+    /// The command will fail if the wallet or mempool contains a transaction that spends one of T's outputs.
     /// By default, the new fee will be calculated automatically using the estimatesmartfee RPC.
     /// The user can specify a confirmation target for estimatesmartfee.
     /// Alternatively, the user can specify a fee rate in sat/vB for the new transaction.
     /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
-    /// returned by getnetworkinfo) to enter the node\\\'s mempool.
+    /// returned by getnetworkinfo) to enter the node's mempool.
     /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
     async fn psbt_bump_fee(
         &self,
@@ -3266,17 +3266,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// Scans the unspent transaction output set for entries that match certain output descriptors.
     /// Examples of output descriptors are:
-    /// addr(<address>)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
-    /// raw(<hex script>)                    Outputs whose output script equals the specified hex-encoded bytes
-    /// combo(<pubkey>)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
-    /// pkh(<pubkey>)                        P2PKH outputs for the given pubkey
-    /// sh(multi(<n>,<pubkey>,<pubkey>,...)) P2SH-multisig outputs for the given threshold and pubkeys
-    /// tr(<pubkey>)                         P2TR
-    /// tr(<pubkey>,{pk(<pubkey>)})          P2TR with single fallback pubkey in tapscript
-    /// rawtr(<pubkey>)                      P2TR with the specified key as output key rather than inner
-    /// wsh(and_v(v:pk(<pubkey>),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
-    /// In the above, <pubkey> either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
-    /// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*\\\'" or "/*h" (hardened) to specify all
+    /// addr(&lt;address&gt;)                      Outputs whose output script corresponds to the specified address (does not include P2PK)
+    /// raw(&lt;hex script&gt;)                    Outputs whose output script equals the specified hex-encoded bytes
+    /// combo(&lt;pubkey&gt;)                      P2PK, P2PKH, P2WPKH, and P2SH-P2WPKH outputs for the given pubkey
+    /// pkh(&lt;pubkey&gt;)                        P2PKH outputs for the given pubkey
+    /// sh(multi(&lt;n&gt;,&lt;pubkey&gt;,&lt;pubkey&gt;,...)) P2SH-multisig outputs for the given threshold and pubkeys
+    /// tr(&lt;pubkey&gt;)                         P2TR
+    /// tr(&lt;pubkey&gt;,{pk(&lt;pubkey&gt;)})          P2TR with single fallback pubkey in tapscript
+    /// rawtr(&lt;pubkey&gt;)                      P2TR with the specified key as output key rather than inner
+    /// wsh(and_v(v:pk(&lt;pubkey&gt;),after(2)))  P2WSH miniscript with mandatory pubkey and a timelock
+    /// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
+    /// or more path elements separated by "/", and optionally ending in "/*" (unhardened), or "/*'" or "/*h" (hardened) to specify all
     /// unhardened or hardened child keys.
     /// In the latter case, a range needs to be specified by below if different from 1000.
     /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
@@ -3332,7 +3332,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
     /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
-    /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using ````send_max```` to exclude inputs that are worth less than the fees needed to spend them.
+    /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
     async fn send_all(
         &self,
         recipients: Vec<serde_json::Value>,
@@ -3425,11 +3425,11 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// If -privatebroadcast is disabled, then the transaction will be put into the
     /// local mempool of the node and will be sent unconditionally to all currently
     /// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
-    /// privacy by leaking the transaction\\\'s origin, as nodes will normally not
+    /// privacy by leaking the transaction's origin, as nodes will normally not
     /// rebroadcast non-wallet transactions already in their mempool.
     /// If -privatebroadcast is enabled, then the transaction will be sent only via
     /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
-    /// via the Tor network. This conceals the transaction\\\'s origin. The transaction
+    /// via the Tor network. This conceals the transaction's origin. The transaction
     /// will only enter the local mempool when it is received back from the network.
     /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
     /// Related RPCs: createrawtransaction, signrawtransactionwithkey
@@ -3671,7 +3671,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Attempts to submit new block to network.
-    /// See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
+    /// See <https://en.bitcoin.it/wiki/BIP_0022> for full specification.
     async fn submit_block(
         &self,
         hexdata: String,
@@ -3727,7 +3727,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// Returns result of mempool acceptance tests indicating if raw transaction(s) (serialized, hex-encoded) would be accepted by mempool.
     /// If multiple transactions are passed in, parents must come before children and package policies apply: the transactions cannot conflict with any mempool transactions or each other.
-    /// If one transaction fails, other transactions may not be fully validated (the \\\'allowed" key will be blank).
+    /// If one transaction fails, other transactions may not be fully validated (the 'allowed' key will be blank).
     /// The maximum number of transactions allowed is 25.
     /// This checks if transactions violate the consensus or policy rules.
     /// See sendrawtransaction call.
@@ -3932,7 +3932,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<WalletLockResponse>("walletlock", &[]).await
     }
 
-    /// Stores the wallet decryption key in memory for \\\'timeout" seconds.
+    /// Stores the wallet decryption key in memory for 'timeout' seconds.
     /// This is needed prior to performing transactions related to private keys such as sending bitcoins
     /// Note:
     /// Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock
@@ -3948,7 +3948,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<WalletPassphraseResponse>("walletpassphrase", &rpc_params).await
     }
 
-    /// Changes the wallet passphrase from \\\'oldpassphrase" to \\\'newpassphrase\\\'.
+    /// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
     async fn wallet_passphrase_change(
         &self,
         oldpassphrase: String,

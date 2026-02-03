@@ -6,13 +6,13 @@ use serde_json::{json, Value};
 
 use crate::transport::core::{TransportError, TransportTrait};
 
-/// If the request parameters include a \\\'mode" key, that is used to explicitly select between the default \\\'template" request or a \\\'proposal\\\'.
+/// If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.
 /// It returns data needed to construct a block to work on.
 /// For full specification, see BIPs 22, 23, 9, and 145:
-/// https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki
-/// https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki
-/// https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes
-/// https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki
+/// <https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki>
+/// <https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki>
+/// <https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes>
+/// <https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki>
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblocktemplate(...).await`
@@ -46,8 +46,8 @@ pub async fn get_mining_info(transport: &dyn TransportTrait) -> Result<Value, Tr
 }
 
 /// Returns the estimated network hashes per second based on the last n blocks.
-/// Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.
-/// Pass in [height] to estimate the network speed at the time when a certain block was found.
+/// Pass in \[blocks\] to override # of blocks, -1 specifies since last difficulty change.
+/// Pass in \[height\] to estimate the network speed at the time when a certain block was found.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getnetworkhashps(...).await`
@@ -104,7 +104,7 @@ pub async fn prioritise_transaction(
 }
 
 /// Attempts to submit new block to network.
-/// See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
+/// See <https://en.bitcoin.it/wiki/BIP_0022> for full specification.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.submitblock(...).await`
