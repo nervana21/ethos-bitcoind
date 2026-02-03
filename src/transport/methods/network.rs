@@ -94,7 +94,7 @@ pub async fn get_added_node_info(
 /// Calls the `getaddrmaninfo` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn get_addr_man_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
+pub async fn get_addrman_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getaddrmaninfo", &params).await?;
     Ok(raw)

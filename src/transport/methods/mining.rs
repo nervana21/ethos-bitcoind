@@ -56,7 +56,7 @@ pub async fn get_mining_info(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Calls the `getnetworkhashps` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn get_network_hash_ps(
+pub async fn get_network_hashps(
     transport: &dyn TransportTrait,
     nblocks: serde_json::Value,
     height: serde_json::Value,

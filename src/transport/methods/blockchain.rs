@@ -17,7 +17,7 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Calls the `dumptxoutset` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn dump_tx_out_set(
+pub async fn dump_txout_set(
     transport: &dyn TransportTrait,
     path: serde_json::Value,
     r#type: serde_json::Value,
@@ -420,7 +420,7 @@ pub async fn get_raw_mempool(
 /// Calls the `gettxout` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn get_tx_out(
+pub async fn get_txout(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
     n: serde_json::Value,
@@ -444,7 +444,7 @@ pub async fn get_tx_out(
 /// Calls the `gettxoutproof` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn get_tx_out_proof(
+pub async fn get_txout_proof(
     transport: &dyn TransportTrait,
     txids: serde_json::Value,
     blockhash: serde_json::Value,
@@ -464,7 +464,7 @@ pub async fn get_tx_out_proof(
 /// Calls the `gettxoutsetinfo` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn get_tx_out_set_info(
+pub async fn get_txout_set_info(
     transport: &dyn TransportTrait,
     hash_type: serde_json::Value,
     hash_or_height: serde_json::Value,
@@ -484,7 +484,7 @@ pub async fn get_tx_out_set_info(
 /// Calls the `gettxspendingprevout` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn get_tx_spending_prev_out(
+pub async fn get_tx_spending_prevout(
     transport: &dyn TransportTrait,
     outputs: serde_json::Value,
 ) -> Result<Value, TransportError> {
@@ -525,7 +525,7 @@ pub async fn import_mempool(
 /// Calls the `loadtxoutset` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn load_tx_out_set(
+pub async fn load_txout_set(
     transport: &dyn TransportTrait,
     path: serde_json::Value,
 ) -> Result<Value, TransportError> {
@@ -643,7 +643,7 @@ pub async fn scan_blocks(
 /// Calls the `scantxoutset` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn scan_tx_out_set(
+pub async fn scan_txout_set(
     transport: &dyn TransportTrait,
     action: serde_json::Value,
     scanobjects: serde_json::Value,
@@ -682,7 +682,7 @@ pub async fn verify_chain(
 /// Calls the `verifytxoutproof` RPC method.
 ///
 /// Generated transport wrapper for JSON-RPC.
-pub async fn verify_tx_out_proof(
+pub async fn verify_txout_proof(
     transport: &dyn TransportTrait,
     proof: serde_json::Value,
 ) -> Result<Value, TransportError> {

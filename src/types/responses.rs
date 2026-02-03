@@ -1450,7 +1450,7 @@ impl From<DisconnectNodeResponse> for () {
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct DumpTxOutSetResponse {
+pub struct DumpTxoutSetResponse {
     /// the hash of the base of the snapshot
     pub base_hash: String,
     /// the height of the base of the snapshot
@@ -2178,7 +2178,7 @@ pub struct GetAddressInfoResponse {
 /// json object with network type as keys
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetAddrManInfoResponse {
+pub struct GetAddrmanInfoResponse {
     /// the network (ipv4, ipv6, onion, i2p, cjdns, all_networks)
     pub network: serde_json::Value,
 }
@@ -3716,16 +3716,16 @@ pub struct GetNetTotalsResponse {
     pub uploadtarget: serde_json::Value,
 }
 
-/// Response for the ``GetNetworkHashPs`` RPC method
+/// Response for the ``GetNetworkHashps`` RPC method
 ///
 /// This method returns a primitive value wrapped in a transparent struct.
 #[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct GetNetworkHashPsResponse {
+pub struct GetNetworkHashpsResponse {
     /// Wrapped primitive value
     pub value: u64,
 }
 
-impl<'de> serde::Deserialize<'de> for GetNetworkHashPsResponse {
+impl<'de> serde::Deserialize<'de> for GetNetworkHashpsResponse {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
@@ -3738,7 +3738,7 @@ impl<'de> serde::Deserialize<'de> for GetNetworkHashPsResponse {
 
         #[allow(unused_variables, clippy::needless_lifetimes)]
         impl<'de> Visitor<'de> for PrimitiveWrapperVisitor {
-            type Value = GetNetworkHashPsResponse;
+            type Value = GetNetworkHashpsResponse;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("a primitive value or an object with 'value' field")
@@ -3748,21 +3748,21 @@ impl<'de> serde::Deserialize<'de> for GetNetworkHashPsResponse {
             where
                 E: de::Error,
             {
-                Ok(GetNetworkHashPsResponse { value: v })
+                Ok(GetNetworkHashpsResponse { value: v })
             }
 
             fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(GetNetworkHashPsResponse { value: v as u64 })
+                Ok(GetNetworkHashpsResponse { value: v as u64 })
             }
 
             fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(GetNetworkHashPsResponse { value: v as u64 })
+                Ok(GetNetworkHashpsResponse { value: v as u64 })
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
@@ -3770,14 +3770,14 @@ impl<'de> serde::Deserialize<'de> for GetNetworkHashPsResponse {
                 E: de::Error,
             {
                 let value = v.parse::<u64>().map_err(de::Error::custom)?;
-                Ok(GetNetworkHashPsResponse { value })
+                Ok(GetNetworkHashpsResponse { value })
             }
 
             fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(GetNetworkHashPsResponse { value: v as u64 })
+                Ok(GetNetworkHashpsResponse { value: v as u64 })
             }
 
             fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
@@ -3796,7 +3796,7 @@ impl<'de> serde::Deserialize<'de> for GetNetworkHashPsResponse {
                     }
                 }
                 let value = value.ok_or_else(|| de::Error::missing_field("value"))?;
-                Ok(GetNetworkHashPsResponse { value })
+                Ok(GetNetworkHashpsResponse { value })
             }
         }
 
@@ -3804,25 +3804,25 @@ impl<'de> serde::Deserialize<'de> for GetNetworkHashPsResponse {
     }
 }
 
-impl std::ops::Deref for GetNetworkHashPsResponse {
+impl std::ops::Deref for GetNetworkHashpsResponse {
     type Target = u64;
     fn deref(&self) -> &Self::Target { &self.value }
 }
 
-impl std::ops::DerefMut for GetNetworkHashPsResponse {
+impl std::ops::DerefMut for GetNetworkHashpsResponse {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
 }
 
-impl AsRef<u64> for GetNetworkHashPsResponse {
+impl AsRef<u64> for GetNetworkHashpsResponse {
     fn as_ref(&self) -> &u64 { &self.value }
 }
 
-impl From<u64> for GetNetworkHashPsResponse {
+impl From<u64> for GetNetworkHashpsResponse {
     fn from(value: u64) -> Self { Self { value } }
 }
 
-impl From<GetNetworkHashPsResponse> for u64 {
-    fn from(wrapper: GetNetworkHashPsResponse) -> Self { wrapper.value }
+impl From<GetNetworkHashpsResponse> for u64 {
+    fn from(wrapper: GetNetworkHashpsResponse) -> Self { wrapper.value }
 }
 
 /// Response for the ``getnetworkinfo`` RPC method
@@ -4012,7 +4012,7 @@ pub struct GetPrioritisedTransactionsResponse {
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetRawAddrManResponse {
+pub struct GetRawAddrmanResponse {
     /// buckets with addresses in the address manager table ( new, tried )
     pub table: serde_json::Value,
 }
@@ -4485,7 +4485,7 @@ pub struct GetTransactionResponse {
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetTxOutResponse {
+pub struct GetTxoutResponse {
     /// The hash of the block at the tip of the chain
     pub bestblock: String,
     /// Coinbase or not
@@ -4499,16 +4499,16 @@ pub struct GetTxOutResponse {
     pub value: bitcoin::Amount,
 }
 
-/// Response for the ``GetTxOutProof`` RPC method
+/// Response for the ``GetTxoutProof`` RPC method
 ///
 /// This method returns a primitive value wrapped in a transparent struct.
 #[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct GetTxOutProofResponse {
+pub struct GetTxoutProofResponse {
     /// Wrapped primitive value
     pub value: String,
 }
 
-impl<'de> serde::Deserialize<'de> for GetTxOutProofResponse {
+impl<'de> serde::Deserialize<'de> for GetTxoutProofResponse {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
@@ -4521,7 +4521,7 @@ impl<'de> serde::Deserialize<'de> for GetTxOutProofResponse {
 
         #[allow(unused_variables, clippy::needless_lifetimes)]
         impl<'de> Visitor<'de> for PrimitiveWrapperVisitor {
-            type Value = GetTxOutProofResponse;
+            type Value = GetTxoutProofResponse;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("a primitive value or an object with 'value' field")
@@ -4531,35 +4531,35 @@ impl<'de> serde::Deserialize<'de> for GetTxOutProofResponse {
             where
                 E: de::Error,
             {
-                Ok(GetTxOutProofResponse { value: v.to_string() })
+                Ok(GetTxoutProofResponse { value: v.to_string() })
             }
 
             fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(GetTxOutProofResponse { value: v.to_string() })
+                Ok(GetTxoutProofResponse { value: v.to_string() })
             }
 
             fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(GetTxOutProofResponse { value: v.to_string() })
+                Ok(GetTxoutProofResponse { value: v.to_string() })
             }
 
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(GetTxOutProofResponse { value: v.to_string() })
+                Ok(GetTxoutProofResponse { value: v.to_string() })
             }
 
             fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(GetTxOutProofResponse { value: v.to_string() })
+                Ok(GetTxoutProofResponse { value: v.to_string() })
             }
 
             fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
@@ -4578,7 +4578,7 @@ impl<'de> serde::Deserialize<'de> for GetTxOutProofResponse {
                     }
                 }
                 let value = value.ok_or_else(|| de::Error::missing_field("value"))?;
-                Ok(GetTxOutProofResponse { value })
+                Ok(GetTxoutProofResponse { value })
             }
         }
 
@@ -4586,32 +4586,32 @@ impl<'de> serde::Deserialize<'de> for GetTxOutProofResponse {
     }
 }
 
-impl std::ops::Deref for GetTxOutProofResponse {
+impl std::ops::Deref for GetTxoutProofResponse {
     type Target = String;
     fn deref(&self) -> &Self::Target { &self.value }
 }
 
-impl std::ops::DerefMut for GetTxOutProofResponse {
+impl std::ops::DerefMut for GetTxoutProofResponse {
     fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
 }
 
-impl AsRef<String> for GetTxOutProofResponse {
+impl AsRef<String> for GetTxoutProofResponse {
     fn as_ref(&self) -> &String { &self.value }
 }
 
-impl From<String> for GetTxOutProofResponse {
+impl From<String> for GetTxoutProofResponse {
     fn from(value: String) -> Self { Self { value } }
 }
 
-impl From<GetTxOutProofResponse> for String {
-    fn from(wrapper: GetTxOutProofResponse) -> Self { wrapper.value }
+impl From<GetTxoutProofResponse> for String {
+    fn from(wrapper: GetTxoutProofResponse) -> Self { wrapper.value }
 }
 
 /// Response for the ``gettxoutsetinfo`` RPC method
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetTxOutSetInfoResponse {
+pub struct GetTxoutSetInfoResponse {
     /// The hash of the block at which these statistics are calculated
     pub bestblock: String,
     /// Info on amounts in the block at this block height (only available if coinstatsindex is used)
@@ -4642,7 +4642,7 @@ pub struct GetTxOutSetInfoResponse {
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetTxSpendingPrevOutResponse {
+pub struct GetTxSpendingPrevoutResponse {
     pub field: serde_json::Value,
 }
 
@@ -5352,7 +5352,7 @@ impl From<ListWalletsResponse> for Vec<serde_json::Value> {
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct LoadTxOutSetResponse {
+pub struct LoadTxoutSetResponse {
     /// the height of the base of the snapshot
     pub base_height: u64,
     /// the number of coins loaded from the snapshot
@@ -6410,7 +6410,7 @@ pub struct ScanBlocksResponse {
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct ScanTxOutSetResponse {
+pub struct ScanTxoutSetResponse {
     /// The hash of the block at the tip of the chain
     pub bestblock: String,
     pub field_3: (),
@@ -8470,12 +8470,12 @@ impl From<VerifyMessageResponse> for bool {
 ///
 /// This method returns an array wrapped in a transparent struct.
 #[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct VerifyTxOutProofResponse {
+pub struct VerifyTxoutProofResponse {
     /// Wrapped array value
     pub value: Vec<serde_json::Value>,
 }
 
-impl<'de> serde::Deserialize<'de> for VerifyTxOutProofResponse {
+impl<'de> serde::Deserialize<'de> for VerifyTxoutProofResponse {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
@@ -8485,12 +8485,12 @@ impl<'de> serde::Deserialize<'de> for VerifyTxOutProofResponse {
     }
 }
 
-impl From<Vec<serde_json::Value>> for VerifyTxOutProofResponse {
+impl From<Vec<serde_json::Value>> for VerifyTxoutProofResponse {
     fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
 }
 
-impl From<VerifyTxOutProofResponse> for Vec<serde_json::Value> {
-    fn from(wrapper: VerifyTxOutProofResponse) -> Self { wrapper.value }
+impl From<VerifyTxoutProofResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: VerifyTxoutProofResponse) -> Self { wrapper.value }
 }
 
 /// Response for the ``waitforblock`` RPC method

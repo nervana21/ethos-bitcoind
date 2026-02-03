@@ -217,12 +217,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Write the serialized UTXO set to a file. This can be used in loadtxoutset afterwards if this snapshot height is supported in the chainparams as well.
     /// Unless the "latest" type is requested, the node will roll back to the requested height and network activity will be suspended during this process. Because of this it is discouraged to interact with the node in any other way during the execution of this call to avoid inconsistent results and race conditions, particularly RPCs that interact with blockstorage.
     /// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
-    async fn dump_tx_out_set(
+    async fn dump_txout_set(
         &self,
         path: String,
         r#type: Option<String>,
         options: Option<serde_json::Value>,
-    ) -> Result<DumpTxOutSetResponse, Self::Error>;
+    ) -> Result<DumpTxoutSetResponse, Self::Error>;
 
     /// Simply echo back the input arguments. This command is for testing.
     /// It will return an internal bug report when arg9=\\\'trigger_internal_bug" is passed.
@@ -381,7 +381,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<GetAddressInfoResponse, Self::Error>;
 
     /// Provides information about the node\\\'s address manager by returning the number of addresses in the ````new```` and ````tried```` tables and their sum for all networks.
-    async fn get_addr_man_info(&self) -> Result<GetAddrManInfoResponse, Self::Error>;
+    async fn get_addrman_info(&self) -> Result<GetAddrmanInfoResponse, Self::Error>;
 
     /// Returns the total available balance.
     /// The available balance is what the wallet considers currently spendable, and is
@@ -571,11 +571,11 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Returns the estimated network hashes per second based on the last n blocks.
     /// Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.
     /// Pass in [height] to estimate the network speed at the time when a certain block was found.
-    async fn get_network_hash_ps(
+    async fn get_network_hashps(
         &self,
         nblocks: Option<i64>,
         height: Option<i64>,
-    ) -> Result<GetNetworkHashPsResponse, Self::Error>;
+    ) -> Result<GetNetworkHashpsResponse, Self::Error>;
 
     /// Returns an object containing various state info regarding P2P networking.
     async fn get_network_info(&self) -> Result<GetNetworkInfoResponse, Self::Error>;
@@ -615,7 +615,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Returns information on all address manager entries for the new and tried tables.
-    async fn get_raw_addr_man(&self) -> Result<GetRawAddrManResponse, Self::Error>;
+    async fn get_raw_addrman(&self) -> Result<GetRawAddrmanResponse, Self::Error>;
 
     /// Returns a new Bitcoin address, for receiving change.
     /// This is for use with raw transactions, NOT normal use.
@@ -675,38 +675,38 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<GetTransactionResponse, Self::Error>;
 
     /// Returns details about an unspent transaction output.
-    async fn get_tx_out(
+    async fn get_txout(
         &self,
         txid: bitcoin::Txid,
         n: i64,
         include_mempool: Option<bool>,
-    ) -> Result<GetTxOutResponse, Self::Error>;
+    ) -> Result<GetTxoutResponse, Self::Error>;
 
     /// Returns a hex-encoded proof that "txid" was included in a block.
     /// NOTE: By default this function only works sometimes. This is when there is an
     /// unspent output in the utxo for this transaction. To make it always work,
     /// you need to maintain a transaction index, using the -txindex command line option or
     /// specify the block in which the transaction is included manually (by blockhash).
-    async fn get_tx_out_proof(
+    async fn get_txout_proof(
         &self,
         txids: Vec<serde_json::Value>,
         blockhash: Option<bitcoin::BlockHash>,
-    ) -> Result<GetTxOutProofResponse, Self::Error>;
+    ) -> Result<GetTxoutProofResponse, Self::Error>;
 
     /// Returns statistics about the unspent transaction output set.
     /// Note this call may take some time if you are not using coinstatsindex.
-    async fn get_tx_out_set_info(
+    async fn get_txout_set_info(
         &self,
         hash_type: Option<String>,
         hash_or_height: Option<i64>,
         use_index: Option<bool>,
-    ) -> Result<GetTxOutSetInfoResponse, Self::Error>;
+    ) -> Result<GetTxoutSetInfoResponse, Self::Error>;
 
     /// Scans the mempool to find transactions spending any of the given outputs
-    async fn get_tx_spending_prev_out(
+    async fn get_tx_spending_prevout(
         &self,
         outputs: Vec<serde_json::Value>,
-    ) -> Result<GetTxSpendingPrevOutResponse, Self::Error>;
+    ) -> Result<GetTxSpendingPrevoutResponse, Self::Error>;
 
     /// Returns an object containing various wallet state info.
     async fn get_wallet_info(&self) -> Result<GetWalletInfoResponse, Self::Error>;
@@ -851,7 +851,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network\\\'s tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
     /// The result is a usable bitcoind instance that is current with the network tip in a matter of minutes rather than hours. UTXO snapshot are typically obtained from third-party sources (HTTP, torrent, etc.) which is reasonable since their contents are always checked by hash.
     /// You can find more information on this process in the ````assumeutxo```` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
-    async fn load_tx_out_set(&self, path: String) -> Result<LoadTxOutSetResponse, Self::Error>;
+    async fn load_txout_set(&self, path: String) -> Result<LoadTxoutSetResponse, Self::Error>;
 
     /// Loads a wallet from a wallet file or directory.
     /// Note that all wallet command-line options used when starting bitcoind will be
@@ -1016,11 +1016,11 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// unhardened or hardened child keys.
     /// In the latter case, a range needs to be specified by below if different from 1000.
     /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
-    async fn scan_tx_out_set(
+    async fn scan_txout_set(
         &self,
         action: String,
         scanobjects: Option<Vec<serde_json::Value>>,
-    ) -> Result<ScanTxOutSetResponse, Self::Error>;
+    ) -> Result<ScanTxoutSetResponse, Self::Error>;
 
     /// Return RPC command JSON Schema descriptions.
     async fn schema(&self) -> Result<SchemaResponse, Self::Error>;
@@ -1278,10 +1278,10 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// Verifies that a proof points to a transaction in a block, returning the transaction it commits to
     /// and throwing an RPC error if the block is not in our best chain
-    async fn verify_tx_out_proof(
+    async fn verify_txout_proof(
         &self,
         proof: String,
-    ) -> Result<VerifyTxOutProofResponse, Self::Error>;
+    ) -> Result<VerifyTxoutProofResponse, Self::Error>;
 
     /// Waits for a specific new block and returns useful info about it.
     /// Returns the current block on timeout or exit.
@@ -1785,12 +1785,12 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Write the serialized UTXO set to a file. This can be used in loadtxoutset afterwards if this snapshot height is supported in the chainparams as well.
     /// Unless the "latest" type is requested, the node will roll back to the requested height and network activity will be suspended during this process. Because of this it is discouraged to interact with the node in any other way during the execution of this call to avoid inconsistent results and race conditions, particularly RPCs that interact with blockstorage.
     /// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
-    async fn dump_tx_out_set(
+    async fn dump_txout_set(
         &self,
         path: String,
         r#type: Option<String>,
         options: Option<serde_json::Value>,
-    ) -> Result<DumpTxOutSetResponse, Self::Error> {
+    ) -> Result<DumpTxoutSetResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(path));
         if let Some(val) = r#type {
@@ -1799,7 +1799,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         if let Some(val) = options {
             rpc_params.push(serde_json::json!(val));
         }
-        self.call::<DumpTxOutSetResponse>("dumptxoutset", &rpc_params).await
+        self.call::<DumpTxoutSetResponse>("dumptxoutset", &rpc_params).await
     }
 
     /// Simply echo back the input arguments. This command is for testing.
@@ -2104,8 +2104,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Provides information about the node\\\'s address manager by returning the number of addresses in the ````new```` and ````tried```` tables and their sum for all networks.
-    async fn get_addr_man_info(&self) -> Result<GetAddrManInfoResponse, Self::Error> {
-        self.call::<GetAddrManInfoResponse>("getaddrmaninfo", &[]).await
+    async fn get_addrman_info(&self) -> Result<GetAddrmanInfoResponse, Self::Error> {
+        self.call::<GetAddrmanInfoResponse>("getaddrmaninfo", &[]).await
     }
 
     /// Returns the total available balance.
@@ -2443,11 +2443,11 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Returns the estimated network hashes per second based on the last n blocks.
     /// Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change.
     /// Pass in [height] to estimate the network speed at the time when a certain block was found.
-    async fn get_network_hash_ps(
+    async fn get_network_hashps(
         &self,
         nblocks: Option<i64>,
         height: Option<i64>,
-    ) -> Result<GetNetworkHashPsResponse, Self::Error> {
+    ) -> Result<GetNetworkHashpsResponse, Self::Error> {
         let mut rpc_params = vec![];
         if let Some(val) = nblocks {
             rpc_params.push(serde_json::json!(val));
@@ -2455,7 +2455,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         if let Some(val) = height {
             rpc_params.push(serde_json::json!(val));
         }
-        self.call::<GetNetworkHashPsResponse>("getnetworkhashps", &rpc_params).await
+        self.call::<GetNetworkHashpsResponse>("getnetworkhashps", &rpc_params).await
     }
 
     /// Returns an object containing various state info regarding P2P networking.
@@ -2526,8 +2526,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Returns information on all address manager entries for the new and tried tables.
-    async fn get_raw_addr_man(&self) -> Result<GetRawAddrManResponse, Self::Error> {
-        self.call::<GetRawAddrManResponse>("getrawaddrman", &[]).await
+    async fn get_raw_addrman(&self) -> Result<GetRawAddrmanResponse, Self::Error> {
+        self.call::<GetRawAddrmanResponse>("getrawaddrman", &[]).await
     }
 
     /// Returns a new Bitcoin address, for receiving change.
@@ -2645,19 +2645,19 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Returns details about an unspent transaction output.
-    async fn get_tx_out(
+    async fn get_txout(
         &self,
         txid: bitcoin::Txid,
         n: i64,
         include_mempool: Option<bool>,
-    ) -> Result<GetTxOutResponse, Self::Error> {
+    ) -> Result<GetTxoutResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
         rpc_params.push(serde_json::json!(n));
         if let Some(val) = include_mempool {
             rpc_params.push(serde_json::json!(val));
         }
-        self.call::<GetTxOutResponse>("gettxout", &rpc_params).await
+        self.call::<GetTxoutResponse>("gettxout", &rpc_params).await
     }
 
     /// Returns a hex-encoded proof that "txid" was included in a block.
@@ -2665,27 +2665,27 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// unspent output in the utxo for this transaction. To make it always work,
     /// you need to maintain a transaction index, using the -txindex command line option or
     /// specify the block in which the transaction is included manually (by blockhash).
-    async fn get_tx_out_proof(
+    async fn get_txout_proof(
         &self,
         txids: Vec<serde_json::Value>,
         blockhash: Option<bitcoin::BlockHash>,
-    ) -> Result<GetTxOutProofResponse, Self::Error> {
+    ) -> Result<GetTxoutProofResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txids));
         if let Some(val) = blockhash {
             rpc_params.push(serde_json::json!(val));
         }
-        self.call::<GetTxOutProofResponse>("gettxoutproof", &rpc_params).await
+        self.call::<GetTxoutProofResponse>("gettxoutproof", &rpc_params).await
     }
 
     /// Returns statistics about the unspent transaction output set.
     /// Note this call may take some time if you are not using coinstatsindex.
-    async fn get_tx_out_set_info(
+    async fn get_txout_set_info(
         &self,
         hash_type: Option<String>,
         hash_or_height: Option<i64>,
         use_index: Option<bool>,
-    ) -> Result<GetTxOutSetInfoResponse, Self::Error> {
+    ) -> Result<GetTxoutSetInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
         if let Some(val) = hash_type {
             rpc_params.push(serde_json::json!(val));
@@ -2696,17 +2696,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         if let Some(val) = use_index {
             rpc_params.push(serde_json::json!(val));
         }
-        self.call::<GetTxOutSetInfoResponse>("gettxoutsetinfo", &rpc_params).await
+        self.call::<GetTxoutSetInfoResponse>("gettxoutsetinfo", &rpc_params).await
     }
 
     /// Scans the mempool to find transactions spending any of the given outputs
-    async fn get_tx_spending_prev_out(
+    async fn get_tx_spending_prevout(
         &self,
         outputs: Vec<serde_json::Value>,
-    ) -> Result<GetTxSpendingPrevOutResponse, Self::Error> {
+    ) -> Result<GetTxSpendingPrevoutResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(outputs));
-        self.call::<GetTxSpendingPrevOutResponse>("gettxspendingprevout", &rpc_params).await
+        self.call::<GetTxSpendingPrevoutResponse>("gettxspendingprevout", &rpc_params).await
     }
 
     /// Returns an object containing various wallet state info.
@@ -3001,10 +3001,10 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network\\\'s tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
     /// The result is a usable bitcoind instance that is current with the network tip in a matter of minutes rather than hours. UTXO snapshot are typically obtained from third-party sources (HTTP, torrent, etc.) which is reasonable since their contents are always checked by hash.
     /// You can find more information on this process in the ````assumeutxo```` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
-    async fn load_tx_out_set(&self, path: String) -> Result<LoadTxOutSetResponse, Self::Error> {
+    async fn load_txout_set(&self, path: String) -> Result<LoadTxoutSetResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(path));
-        self.call::<LoadTxOutSetResponse>("loadtxoutset", &rpc_params).await
+        self.call::<LoadTxoutSetResponse>("loadtxoutset", &rpc_params).await
     }
 
     /// Loads a wallet from a wallet file or directory.
@@ -3280,17 +3280,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// unhardened or hardened child keys.
     /// In the latter case, a range needs to be specified by below if different from 1000.
     /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
-    async fn scan_tx_out_set(
+    async fn scan_txout_set(
         &self,
         action: String,
         scanobjects: Option<Vec<serde_json::Value>>,
-    ) -> Result<ScanTxOutSetResponse, Self::Error> {
+    ) -> Result<ScanTxoutSetResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(action));
         if let Some(val) = scanobjects {
             rpc_params.push(serde_json::json!(val));
         }
-        self.call::<ScanTxOutSetResponse>("scantxoutset", &rpc_params).await
+        self.call::<ScanTxoutSetResponse>("scantxoutset", &rpc_params).await
     }
 
     /// Return RPC command JSON Schema descriptions.
@@ -3822,13 +3822,13 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// Verifies that a proof points to a transaction in a block, returning the transaction it commits to
     /// and throwing an RPC error if the block is not in our best chain
-    async fn verify_tx_out_proof(
+    async fn verify_txout_proof(
         &self,
         proof: String,
-    ) -> Result<VerifyTxOutProofResponse, Self::Error> {
+    ) -> Result<VerifyTxoutProofResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(proof));
-        self.call::<VerifyTxOutProofResponse>("verifytxoutproof", &rpc_params).await
+        self.call::<VerifyTxoutProofResponse>("verifytxoutproof", &rpc_params).await
     }
 
     /// Waits for a specific new block and returns useful info about it.
