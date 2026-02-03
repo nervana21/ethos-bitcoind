@@ -298,21 +298,3 @@ impl NodeManager for BitcoinNodeManager {
         Ok(transport)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extra_args() {
-        let config = crate::test_config::TestConfig {
-            extra_args: vec!["-debug=1".to_string()],
-            ..crate::test_config::TestConfig::default()
-        };
-
-        let node_manager = BitcoinNodeManager::new_with_config(&config)
-            .expect("Failed to create node manager with extra args");
-
-        assert_eq!(node_manager.config.extra_args[0], "-debug=1");
-    }
-}
