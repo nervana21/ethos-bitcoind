@@ -600,11 +600,7 @@ pub async fn list_since_block(
 }
 
 /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
-/// Returns up to 'count' most recent transactions ordered from oldest to newest while skipping the first number of
-/// transactions specified in the 'skip' argument. A transaction can have multiple entries in this RPC response.
-/// For instance, a wallet transaction that pays three addresses — one wallet-owned and two external — will produce
-/// four entries. The payment to the wallet-owned address appears both as a send entry and as a receive entry.
-/// As a result, the RPC response will contain one entry in the receive category and three entries in the send category.
+/// Returns up to 'count' most recent transactions skipping the first 'from' transactions.
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listtransactions(...).await`

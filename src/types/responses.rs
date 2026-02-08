@@ -3389,8 +3389,6 @@ pub struct GetDeploymentInfoResponse {
     pub hash: String,
     /// requested block height (or tip)
     pub height: u64,
-    /// script verify flags for the block
-    pub script_flags: serde_json::Value,
 }
 
 /// Response for the `GetDescriptorActivity` RPC method
@@ -3565,19 +3563,6 @@ pub struct GetMempoolAncestorsResponse {
     pub transactionid: serde_json::Value,
 }
 
-/// Response for the `GetMempoolCluster` RPC method
-///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetMempoolClusterResponse {
-    /// chunks in this cluster (in mining order)
-    pub chunks: serde_json::Value,
-    /// total sigops-adjusted weight (as defined in BIP 141 and modified by '-bytespersigop')
-    pub clusterweight: u64,
-    /// number of transactions
-    pub txcount: u64,
-}
-
 /// Response for the `GetMempoolDescendants` RPC method
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -3599,8 +3584,6 @@ pub struct GetMempoolEntryResponse {
     /// Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability. (DEPRECATED)
     #[serde(rename = "bip125-replaceable")]
     pub bip125_replaceable: bool,
-    /// sigops-adjusted weight (as defined in BIP 141 and modified by '-bytespersigop') of this transaction's chunk
-    pub chunkweight: u64,
     /// unconfirmed transactions used as inputs for this transaction
     pub depends: serde_json::Value,
     /// number of in-mempool descendant transactions (including this one)
@@ -3624,14 +3607,6 @@ pub struct GetMempoolEntryResponse {
     pub wtxid: String,
 }
 
-/// Response for the `GetMempoolFeeRateDiagram` RPC method
-///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetMempoolFeeRateDiagramResponse {
-    pub field: serde_json::Value,
-}
-
 /// Response for the `GetMempoolInfo` RPC method
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -3643,10 +3618,6 @@ pub struct GetMempoolInfoResponse {
     pub fullrbf: bool,
     /// minimum fee rate increment for mempool limiting or replacement in BTC/kvB
     pub incrementalrelayfee: f64,
-    /// Maximum number of transactions that can be in a cluster (configured by -limitclustercount)
-    pub limitclustercount: Option<u64>,
-    /// Maximum size of a cluster in virtual bytes (configured by -limitclustersize)
-    pub limitclustersize: Option<u64>,
     /// True if the initial load attempt of the persisted mempool finished
     pub loaded: bool,
     /// Maximum number of bytes that can be used by OP_RETURN outputs in the mempool
@@ -7812,7 +7783,7 @@ pub struct SubmitPackageResponse {
     /// List of txids of replaced transactions
     #[serde(rename = "replaced-transactions")]
     pub replaced_transactions: Option<serde_json::Value>,
-    /// The transaction results keyed by wtxid. An entry is returned for every submitted wtxid.
+    /// transaction results keyed by wtxid
     #[serde(rename = "tx-results")]
     pub tx_results: serde_json::Value,
 }
