@@ -1486,10 +1486,10 @@ pub struct DumpTxOutSetResponse {
 
 /// Response for the `Echo` RPC method
 ///
-/// This method returns a primitive value wrapped in a transparent struct.
+/// This method returns arbitrary JSON (e.g. string, object, array) as a single value.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EchoResponse {
-    /// Wrapped primitive value
+    /// Wrapped JSON value
     pub value: serde_json::Value,
 }
 
@@ -1498,99 +1498,13 @@ impl<'de> serde::Deserialize<'de> for EchoResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        use std::fmt;
-
-        use serde::de::{self, Visitor};
-
-        struct PrimitiveWrapperVisitor;
-
-        #[allow(unused_variables, clippy::needless_lifetimes)]
-        impl<'de> Visitor<'de> for PrimitiveWrapperVisitor {
-            type Value = EchoResponse;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a primitive value or an object with 'value' field")
-            }
-
-            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert u64 to serde_json::Value"))
-            }
-
-            fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert i64 to serde_json::Value"))
-            }
-
-            fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert f64 to serde_json::Value"))
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                let value = v.parse::<serde_json::Value>().map_err(de::Error::custom)?;
-                Ok(EchoResponse { value })
-            }
-
-            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert bool to serde_json::Value"))
-            }
-
-            fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
-            where
-                M: de::MapAccess<'de>,
-            {
-                let mut value = None;
-                while let Some(key) = map.next_key::<String>()? {
-                    if key == "value" {
-                        if value.is_some() {
-                            return Err(de::Error::duplicate_field("value"));
-                        }
-                        value = Some(map.next_value()?);
-                    } else {
-                        let _ = map.next_value::<de::IgnoredAny>()?;
-                    }
-                }
-                let value = value.ok_or_else(|| de::Error::missing_field("value"))?;
-                Ok(EchoResponse { value })
-            }
-        }
-
-        deserializer.deserialize_any(PrimitiveWrapperVisitor)
+        let value = serde_json::Value::deserialize(deserializer)?;
+        Ok(Self { value })
     }
-}
-
-impl std::ops::Deref for EchoResponse {
-    type Target = serde_json::Value;
-    fn deref(&self) -> &Self::Target { &self.value }
-}
-
-impl std::ops::DerefMut for EchoResponse {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
-}
-
-impl AsRef<serde_json::Value> for EchoResponse {
-    fn as_ref(&self) -> &serde_json::Value { &self.value }
 }
 
 impl From<serde_json::Value> for EchoResponse {
     fn from(value: serde_json::Value) -> Self { Self { value } }
-}
-
-impl From<EchoResponse> for serde_json::Value {
-    fn from(wrapper: EchoResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `Echoipc` RPC method
@@ -1703,10 +1617,10 @@ impl From<EchoipcResponse> for String {
 
 /// Response for the `Echojson` RPC method
 ///
-/// This method returns a primitive value wrapped in a transparent struct.
+/// This method returns arbitrary JSON (e.g. string, object, array) as a single value.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EchojsonResponse {
-    /// Wrapped primitive value
+    /// Wrapped JSON value
     pub value: serde_json::Value,
 }
 
@@ -1715,99 +1629,13 @@ impl<'de> serde::Deserialize<'de> for EchojsonResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        use std::fmt;
-
-        use serde::de::{self, Visitor};
-
-        struct PrimitiveWrapperVisitor;
-
-        #[allow(unused_variables, clippy::needless_lifetimes)]
-        impl<'de> Visitor<'de> for PrimitiveWrapperVisitor {
-            type Value = EchojsonResponse;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a primitive value or an object with 'value' field")
-            }
-
-            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert u64 to serde_json::Value"))
-            }
-
-            fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert i64 to serde_json::Value"))
-            }
-
-            fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert f64 to serde_json::Value"))
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                let value = v.parse::<serde_json::Value>().map_err(de::Error::custom)?;
-                Ok(EchojsonResponse { value })
-            }
-
-            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Err(de::Error::custom("cannot convert bool to serde_json::Value"))
-            }
-
-            fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
-            where
-                M: de::MapAccess<'de>,
-            {
-                let mut value = None;
-                while let Some(key) = map.next_key::<String>()? {
-                    if key == "value" {
-                        if value.is_some() {
-                            return Err(de::Error::duplicate_field("value"));
-                        }
-                        value = Some(map.next_value()?);
-                    } else {
-                        let _ = map.next_value::<de::IgnoredAny>()?;
-                    }
-                }
-                let value = value.ok_or_else(|| de::Error::missing_field("value"))?;
-                Ok(EchojsonResponse { value })
-            }
-        }
-
-        deserializer.deserialize_any(PrimitiveWrapperVisitor)
+        let value = serde_json::Value::deserialize(deserializer)?;
+        Ok(Self { value })
     }
-}
-
-impl std::ops::Deref for EchojsonResponse {
-    type Target = serde_json::Value;
-    fn deref(&self) -> &Self::Target { &self.value }
-}
-
-impl std::ops::DerefMut for EchojsonResponse {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
-}
-
-impl AsRef<serde_json::Value> for EchojsonResponse {
-    fn as_ref(&self) -> &serde_json::Value { &self.value }
 }
 
 impl From<serde_json::Value> for EchojsonResponse {
     fn from(value: serde_json::Value) -> Self { Self { value } }
-}
-
-impl From<EchojsonResponse> for serde_json::Value {
-    fn from(wrapper: EchojsonResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `EncryptWallet` RPC method
