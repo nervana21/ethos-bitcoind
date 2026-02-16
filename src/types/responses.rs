@@ -1305,12 +1305,29 @@ pub struct DecodeScriptResponse {
 
 /// Response for the `DeriveAddresses` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct DeriveAddressesResponse {
-    /// The derived addresses for each of the multipath expansions of the descriptor, in multipath specifier order
-    pub addresses: serde_json::Value,
-    pub field_0: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for DeriveAddressesResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for DeriveAddressesResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<DeriveAddressesResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: DeriveAddressesResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `DescriptorProcessPsbt` RPC method
@@ -2101,10 +2118,29 @@ impl From<GenerateToDescriptorResponse> for Vec<serde_json::Value> {
 
 /// Response for the `GetAddedNodeInfo` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetAddedNodeInfoResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for GetAddedNodeInfoResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for GetAddedNodeInfoResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<GetAddedNodeInfoResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: GetAddedNodeInfoResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `GetAddressesByLabel` RPC method
@@ -3628,28 +3664,83 @@ impl From<GetNewAddressResponse> for String {
 
 /// Response for the `GetNodeAddresses` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetNodeAddressesResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for GetNodeAddressesResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for GetNodeAddressesResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<GetNodeAddressesResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: GetNodeAddressesResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `GetOrphanTxs` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetOrphanTxsResponse {
-    pub field_0: serde_json::Value,
-    pub field_1: serde_json::Value,
-    pub field_2: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for GetOrphanTxsResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for GetOrphanTxsResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<GetOrphanTxsResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: GetOrphanTxsResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `GetPeerInfo` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetPeerInfoResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for GetPeerInfoResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for GetPeerInfoResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<GetPeerInfoResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: GetPeerInfoResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `GetPrioritisedTransactions` RPC method
@@ -3782,14 +3873,29 @@ impl From<GetRawChangeAddressResponse> for String {
 
 /// Response for the `GetRawMempool` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetRawMempoolResponse {
-    pub field_0: serde_json::Value,
-    /// The mempool sequence value.
-    pub mempool_sequence: u64,
-    pub transactionid: serde_json::Value,
-    pub txids: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for GetRawMempoolResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for GetRawMempoolResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<GetRawMempoolResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: GetRawMempoolResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `GetRawTransaction` RPC method
@@ -5087,10 +5193,29 @@ impl From<ListAddressGroupingsResponse> for Vec<serde_json::Value> {
 
 /// Response for the `ListBanned` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListBannedResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for ListBannedResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for ListBannedResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<ListBannedResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: ListBannedResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `ListDescriptors` RPC method
@@ -5133,26 +5258,83 @@ impl From<ListLabelsResponse> for Vec<serde_json::Value> {
 
 /// Response for the `ListLockUnspent` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListLockUnspentResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for ListLockUnspentResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for ListLockUnspentResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<ListLockUnspentResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: ListLockUnspentResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `ListReceivedByAddress` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListReceivedByAddressResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for ListReceivedByAddressResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for ListReceivedByAddressResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<ListReceivedByAddressResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: ListReceivedByAddressResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `ListReceivedByLabel` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListReceivedByLabelResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for ListReceivedByLabelResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for ListReceivedByLabelResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<ListReceivedByLabelResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: ListReceivedByLabelResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `ListSinceBlock` RPC method
@@ -5170,18 +5352,56 @@ pub struct ListSinceBlockResponse {
 
 /// Response for the `ListTransactions` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListTransactionsResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for ListTransactionsResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for ListTransactionsResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<ListTransactionsResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: ListTransactionsResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `ListUnspent` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns an array wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListUnspentResponse {
-    pub field: serde_json::Value,
+    /// Wrapped array value
+    pub value: Vec<serde_json::Value>,
+}
+
+impl<'de> serde::Deserialize<'de> for ListUnspentResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(Self { value })
+    }
+}
+
+impl From<Vec<serde_json::Value>> for ListUnspentResponse {
+    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+}
+
+impl From<ListUnspentResponse> for Vec<serde_json::Value> {
+    fn from(wrapper: ListUnspentResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `ListWalletDir` RPC method
