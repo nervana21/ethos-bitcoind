@@ -394,6 +394,7 @@ pub struct AnalyzePsbtResponse {
     /// Estimated vsize of the final signed transaction
     pub estimated_vsize: Option<u64>,
     /// The transaction fee paid. Shown only if all UTXO slots in the PSBT have been filled
+    #[serde(default)]
     #[serde(deserialize_with = "option_amount_from_btc_float")]
     pub fee: Option<bitcoin::Amount>,
     pub inputs: Option<serde_json::Value>,
@@ -1243,6 +1244,7 @@ pub struct CreateWalletDescriptorResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DecodePsbtResponse {
     /// The transaction fee paid if all UTXOs slots in the PSBT have been filled.
+    #[serde(default)]
     #[serde(deserialize_with = "option_amount_from_btc_float")]
     pub fee: Option<bitcoin::Amount>,
     pub global_xpubs: serde_json::Value,
