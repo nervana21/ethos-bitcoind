@@ -2433,9 +2433,9 @@ pub struct GetBlockResponse {
     /// The difficulty
     pub difficulty: f64,
     /// Same output as verbosity = 1
-    pub field_20: serde_json::Value,
+    pub field_20: Option<serde_json::Value>,
     /// Same output as verbosity = 2
-    pub field_22: serde_json::Value,
+    pub field_22: Option<serde_json::Value>,
     /// the block hash (same as provided)
     pub hash: String,
     /// The block height or index
@@ -2462,8 +2462,8 @@ pub struct GetBlockResponse {
     pub time: u64,
     /// The transaction ids
     pub tx: serde_json::Value,
-    pub tx_1: serde_json::Value,
-    pub tx_2: serde_json::Value,
+    pub tx_1: Option<serde_json::Value>,
+    pub tx_2: Option<serde_json::Value>,
     /// The block version
     pub version: u32,
     /// The block version formatted in hexadecimal
