@@ -2182,7 +2182,8 @@ pub struct GetAddressInfoResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetAddrManInfoResponse {
     /// the network (ipv4, ipv6, onion, i2p, cjdns, all_networks)
-    pub network: serde_json::Value,
+    #[serde(default)]
+    pub network: Option<serde_json::Value>,
 }
 
 /// Response for the `GetBalance` RPC method
@@ -3544,7 +3545,8 @@ pub struct GetHdKeysResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetIndexInfoResponse {
     /// The name of the index
-    pub name: serde_json::Value,
+    #[serde(default)]
+    pub name: Option<serde_json::Value>,
 }
 
 /// Response for the `GetMemoryInfo` RPC method
@@ -3987,7 +3989,8 @@ pub struct GetPrioritisedTransactionsResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetRawAddrManResponse {
     /// buckets with addresses in the address manager table ( new, tried )
-    pub table: serde_json::Value,
+    #[serde(default)]
+    pub table: Option<serde_json::Value>,
 }
 
 /// Response for the `GetRawChangeAddress` RPC method
@@ -4465,7 +4468,8 @@ pub struct GetTxOutResponse {
     pub coinbase: bool,
     /// The number of confirmations
     pub confirmations: i64,
-    pub field_0: (),
+    #[serde(default)]
+    pub field_0: Option<()>,
     pub scriptPubKey: serde_json::Value,
     /// The transaction value in BTC
     #[serde(deserialize_with = "amount_from_btc_float")]
@@ -4603,6 +4607,7 @@ pub struct GetTxOutSetInfoResponse {
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub total_amount: bitcoin::Amount,
     /// The total amount of coins permanently excluded from the UTXO set (only available if coinstatsindex is used)
+    #[serde(default)]
     #[serde(deserialize_with = "option_amount_from_btc_float")]
     pub total_unspendable_amount: Option<bitcoin::Amount>,
     /// The number of transactions with unspent outputs (not available when coinstatsindex is used)
@@ -5463,7 +5468,8 @@ impl From<LockUnspentResponse> for bool {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct LoggingResponse {
     /// if being debug logged or not. false:inactive, true:active
-    pub category: bool,
+    #[serde(default)]
+    pub category: Option<bool>,
 }
 
 /// Response for the `MigrateWallet` RPC method
