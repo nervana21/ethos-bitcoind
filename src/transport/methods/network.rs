@@ -17,8 +17,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::addnode(&transport, ...).await`
 /// Calls the `addnode` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn add_node(
     transport: &dyn TransportTrait,
     node: serde_json::Value,
@@ -37,8 +35,6 @@ pub async fn add_node(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::clearbanned(&transport, ...).await`
 /// Calls the `clearbanned` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn clear_banned(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("clearbanned", &params).await?;
@@ -54,8 +50,6 @@ pub async fn clear_banned(transport: &dyn TransportTrait) -> Result<Value, Trans
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::disconnectnode(&transport, ...).await`
 /// Calls the `disconnectnode` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn disconnect_node(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
@@ -74,8 +68,6 @@ pub async fn disconnect_node(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getaddednodeinfo(&transport, ...).await`
 /// Calls the `getaddednodeinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_added_node_info(
     transport: &dyn TransportTrait,
     node: serde_json::Value,
@@ -92,8 +84,6 @@ pub async fn get_added_node_info(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getaddrmaninfo(&transport, ...).await`
 /// Calls the `getaddrmaninfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_addrman_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getaddrmaninfo", &params).await?;
@@ -107,8 +97,6 @@ pub async fn get_addrman_info(transport: &dyn TransportTrait) -> Result<Value, T
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getconnectioncount(&transport, ...).await`
 /// Calls the `getconnectioncount` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_connection_count(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getconnectioncount", &params).await?;
@@ -123,8 +111,6 @@ pub async fn get_connection_count(transport: &dyn TransportTrait) -> Result<Valu
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getnettotals(&transport, ...).await`
 /// Calls the `getnettotals` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_net_totals(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getnettotals", &params).await?;
@@ -138,8 +124,6 @@ pub async fn get_net_totals(transport: &dyn TransportTrait) -> Result<Value, Tra
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getnetworkinfo(&transport, ...).await`
 /// Calls the `getnetworkinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_network_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getnetworkinfo", &params).await?;
@@ -155,8 +139,6 @@ pub async fn get_network_info(transport: &dyn TransportTrait) -> Result<Value, T
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getnodeaddresses(&transport, ...).await`
 /// Calls the `getnodeaddresses` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_node_addresses(
     transport: &dyn TransportTrait,
     count: serde_json::Value,
@@ -174,8 +156,6 @@ pub async fn get_node_addresses(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getpeerinfo(&transport, ...).await`
 /// Calls the `getpeerinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_peer_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getpeerinfo", &params).await?;
@@ -189,8 +169,6 @@ pub async fn get_peer_info(transport: &dyn TransportTrait) -> Result<Value, Tran
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listbanned(&transport, ...).await`
 /// Calls the `listbanned` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_banned(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("listbanned", &params).await?;
@@ -206,8 +184,6 @@ pub async fn list_banned(transport: &dyn TransportTrait) -> Result<Value, Transp
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::ping(&transport, ...).await`
 /// Calls the `ping` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn ping(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("ping", &params).await?;
@@ -221,8 +197,6 @@ pub async fn ping(transport: &dyn TransportTrait) -> Result<Value, TransportErro
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::setban(&transport, ...).await`
 /// Calls the `setban` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn set_ban(
     transport: &dyn TransportTrait,
     subnet: serde_json::Value,
@@ -242,8 +216,6 @@ pub async fn set_ban(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::setnetworkactive(&transport, ...).await`
 /// Calls the `setnetworkactive` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn set_network_active(
     transport: &dyn TransportTrait,
     state: serde_json::Value,

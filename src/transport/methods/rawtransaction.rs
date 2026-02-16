@@ -13,8 +13,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::analyzepsbt(&transport, ...).await`
 /// Calls the `analyzepsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn analyze_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,
@@ -32,8 +30,6 @@ pub async fn analyze_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::combinepsbt(&transport, ...).await`
 /// Calls the `combinepsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn combine_psbt(
     transport: &dyn TransportTrait,
     txs: serde_json::Value,
@@ -52,8 +48,6 @@ pub async fn combine_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::combinerawtransaction(&transport, ...).await`
 /// Calls the `combinerawtransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn combine_raw_transaction(
     transport: &dyn TransportTrait,
     txs: serde_json::Value,
@@ -71,8 +65,6 @@ pub async fn combine_raw_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::converttopsbt(&transport, ...).await`
 /// Calls the `converttopsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn convert_to_psbt(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
@@ -94,8 +86,6 @@ pub async fn convert_to_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createpsbt(&transport, ...).await`
 /// Calls the `createpsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn create_psbt(
     transport: &dyn TransportTrait,
     inputs: serde_json::Value,
@@ -121,8 +111,6 @@ pub async fn create_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createrawtransaction(&transport, ...).await`
 /// Calls the `createrawtransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn create_raw_transaction(
     transport: &dyn TransportTrait,
     inputs: serde_json::Value,
@@ -144,8 +132,6 @@ pub async fn create_raw_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::decodepsbt(&transport, ...).await`
 /// Calls the `decodepsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn decode_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,
@@ -162,8 +148,6 @@ pub async fn decode_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::decoderawtransaction(&transport, ...).await`
 /// Calls the `decoderawtransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn decode_raw_transaction(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
@@ -181,8 +165,6 @@ pub async fn decode_raw_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::decodescript(&transport, ...).await`
 /// Calls the `decodescript` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn decode_script(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
@@ -200,8 +182,6 @@ pub async fn decode_script(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::descriptorprocesspsbt(&transport, ...).await`
 /// Calls the `descriptorprocesspsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn descriptor_process_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,
@@ -231,8 +211,6 @@ pub async fn descriptor_process_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::finalizepsbt(&transport, ...).await`
 /// Calls the `finalizepsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn finalize_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,
@@ -263,8 +241,6 @@ pub async fn finalize_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::fundrawtransaction(&transport, ...).await`
 /// Calls the `fundrawtransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn fund_raw_transaction(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
@@ -290,8 +266,6 @@ pub async fn fund_raw_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrawtransaction(&transport, ...).await`
 /// Calls the `getrawtransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_raw_transaction(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -311,8 +285,6 @@ pub async fn get_raw_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::joinpsbts(&transport, ...).await`
 /// Calls the `joinpsbts` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn join_psbts(
     transport: &dyn TransportTrait,
     txs: serde_json::Value,
@@ -334,8 +306,6 @@ pub async fn join_psbts(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendrawtransaction(&transport, ...).await`
 /// Calls the `sendrawtransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn send_raw_transaction(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
@@ -358,8 +328,6 @@ pub async fn send_raw_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signrawtransactionwithkey(&transport, ...).await`
 /// Calls the `signrawtransactionwithkey` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn sign_raw_transaction_with_key(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
@@ -382,8 +350,6 @@ pub async fn sign_raw_transaction_with_key(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::submitpackage(&transport, ...).await`
 /// Calls the `submitpackage` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn submit_package(
     transport: &dyn TransportTrait,
     package: serde_json::Value,
@@ -407,8 +373,6 @@ pub async fn submit_package(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::testmempoolaccept(&transport, ...).await`
 /// Calls the `testmempoolaccept` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn test_mempool_accept(
     transport: &dyn TransportTrait,
     rawtxs: serde_json::Value,
@@ -426,8 +390,6 @@ pub async fn test_mempool_accept(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::utxoupdatepsbt(&transport, ...).await`
 /// Calls the `utxoupdatepsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn utxo_update_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,

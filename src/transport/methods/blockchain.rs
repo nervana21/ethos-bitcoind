@@ -15,8 +15,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::dumptxoutset(&transport, ...).await`
 /// Calls the `dumptxoutset` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn dump_txout_set(
     transport: &dyn TransportTrait,
     path: serde_json::Value,
@@ -35,8 +33,6 @@ pub async fn dump_txout_set(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getbestblockhash(&transport, ...).await`
 /// Calls the `getbestblockhash` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_best_block_hash(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getbestblockhash", &params).await?;
@@ -53,8 +49,6 @@ pub async fn get_best_block_hash(transport: &dyn TransportTrait) -> Result<Value
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblock(&transport, ...).await`
 /// Calls the `getblock` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -72,8 +66,6 @@ pub async fn get_block(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockchaininfo(&transport, ...).await`
 /// Calls the `getblockchaininfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_blockchain_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getblockchaininfo", &params).await?;
@@ -88,8 +80,6 @@ pub async fn get_blockchain_info(transport: &dyn TransportTrait) -> Result<Value
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockcount(&transport, ...).await`
 /// Calls the `getblockcount` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block_count(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getblockcount", &params).await?;
@@ -103,8 +93,6 @@ pub async fn get_block_count(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockfilter(&transport, ...).await`
 /// Calls the `getblockfilter` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block_filter(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -129,8 +117,6 @@ pub async fn get_block_filter(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockfrompeer(&transport, ...).await`
 /// Calls the `getblockfrompeer` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block_from_peer(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -148,8 +134,6 @@ pub async fn get_block_from_peer(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockhash(&transport, ...).await`
 /// Calls the `getblockhash` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block_hash(
     transport: &dyn TransportTrait,
     height: serde_json::Value,
@@ -167,8 +151,6 @@ pub async fn get_block_hash(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockheader(&transport, ...).await`
 /// Calls the `getblockheader` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block_header(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -187,8 +169,6 @@ pub async fn get_block_header(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockstats(&transport, ...).await`
 /// Calls the `getblockstats` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block_stats(
     transport: &dyn TransportTrait,
     hash_or_height: serde_json::Value,
@@ -206,8 +186,6 @@ pub async fn get_block_stats(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getchainstates(&transport, ...).await`
 /// Calls the `getchainstates` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_chain_states(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getchainstates", &params).await?;
@@ -221,8 +199,6 @@ pub async fn get_chain_states(transport: &dyn TransportTrait) -> Result<Value, T
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getchaintips(&transport, ...).await`
 /// Calls the `getchaintips` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_chain_tips(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getchaintips", &params).await?;
@@ -236,8 +212,6 @@ pub async fn get_chain_tips(transport: &dyn TransportTrait) -> Result<Value, Tra
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getchaintxstats(&transport, ...).await`
 /// Calls the `getchaintxstats` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_chain_tx_stats(
     transport: &dyn TransportTrait,
     nblocks: serde_json::Value,
@@ -255,8 +229,6 @@ pub async fn get_chain_tx_stats(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdeploymentinfo(&transport, ...).await`
 /// Calls the `getdeploymentinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_deployment_info(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -274,8 +246,6 @@ pub async fn get_deployment_info(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdescriptoractivity(&transport, ...).await`
 /// Calls the `getdescriptoractivity` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_descriptor_activity(
     transport: &dyn TransportTrait,
     blockhashes: serde_json::Value,
@@ -294,8 +264,6 @@ pub async fn get_descriptor_activity(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdifficulty(&transport, ...).await`
 /// Calls the `getdifficulty` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_difficulty(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getdifficulty", &params).await?;
@@ -309,8 +277,6 @@ pub async fn get_difficulty(transport: &dyn TransportTrait) -> Result<Value, Tra
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempoolancestors(&transport, ...).await`
 /// Calls the `getmempoolancestors` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_mempool_ancestors(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -328,8 +294,6 @@ pub async fn get_mempool_ancestors(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempooldescendants(&transport, ...).await`
 /// Calls the `getmempooldescendants` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_mempool_descendants(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -347,8 +311,6 @@ pub async fn get_mempool_descendants(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempoolentry(&transport, ...).await`
 /// Calls the `getmempoolentry` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_mempool_entry(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -365,8 +327,6 @@ pub async fn get_mempool_entry(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempoolinfo(&transport, ...).await`
 /// Calls the `getmempoolinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_mempool_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getmempoolinfo", &params).await?;
@@ -381,8 +341,6 @@ pub async fn get_mempool_info(transport: &dyn TransportTrait) -> Result<Value, T
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrawmempool(&transport, ...).await`
 /// Calls the `getrawmempool` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_raw_mempool(
     transport: &dyn TransportTrait,
     verbose: serde_json::Value,
@@ -400,8 +358,6 @@ pub async fn get_raw_mempool(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxout(&transport, ...).await`
 /// Calls the `gettxout` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_txout(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -424,8 +380,6 @@ pub async fn get_txout(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxoutproof(&transport, ...).await`
 /// Calls the `gettxoutproof` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_txout_proof(
     transport: &dyn TransportTrait,
     txids: serde_json::Value,
@@ -444,8 +398,6 @@ pub async fn get_txout_proof(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxoutsetinfo(&transport, ...).await`
 /// Calls the `gettxoutsetinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_txout_set_info(
     transport: &dyn TransportTrait,
     hash_type: serde_json::Value,
@@ -464,8 +416,6 @@ pub async fn get_txout_set_info(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxspendingprevout(&transport, ...).await`
 /// Calls the `gettxspendingprevout` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_tx_spending_prevout(
     transport: &dyn TransportTrait,
     outputs: serde_json::Value,
@@ -483,8 +433,6 @@ pub async fn get_tx_spending_prevout(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::importmempool(&transport, ...).await`
 /// Calls the `importmempool` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn import_mempool(
     transport: &dyn TransportTrait,
     filepath: serde_json::Value,
@@ -505,8 +453,6 @@ pub async fn import_mempool(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::loadtxoutset(&transport, ...).await`
 /// Calls the `loadtxoutset` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn load_txout_set(
     transport: &dyn TransportTrait,
     path: serde_json::Value,
@@ -525,8 +471,6 @@ pub async fn load_txout_set(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::preciousblock(&transport, ...).await`
 /// Calls the `preciousblock` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn precious_block(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -544,8 +488,6 @@ pub async fn precious_block(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::pruneblockchain(&transport, ...).await`
 /// Calls the `pruneblockchain` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn prune_blockchain(
     transport: &dyn TransportTrait,
     height: serde_json::Value,
@@ -562,8 +504,6 @@ pub async fn prune_blockchain(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::savemempool(&transport, ...).await`
 /// Calls the `savemempool` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn save_mempool(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("savemempool", &params).await?;
@@ -578,8 +518,6 @@ pub async fn save_mempool(transport: &dyn TransportTrait) -> Result<Value, Trans
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::scanblocks(&transport, ...).await`
 /// Calls the `scanblocks` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn scan_blocks(
     transport: &dyn TransportTrait,
     action: serde_json::Value,
@@ -623,8 +561,6 @@ pub async fn scan_blocks(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::scantxoutset(&transport, ...).await`
 /// Calls the `scantxoutset` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn scan_txout_set(
     transport: &dyn TransportTrait,
     action: serde_json::Value,
@@ -642,8 +578,6 @@ pub async fn scan_txout_set(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::verifychain(&transport, ...).await`
 /// Calls the `verifychain` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn verify_chain(
     transport: &dyn TransportTrait,
     checklevel: serde_json::Value,
@@ -662,8 +596,6 @@ pub async fn verify_chain(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::verifytxoutproof(&transport, ...).await`
 /// Calls the `verifytxoutproof` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn verify_txout_proof(
     transport: &dyn TransportTrait,
     proof: serde_json::Value,
@@ -682,8 +614,6 @@ pub async fn verify_txout_proof(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::waitforblock(&transport, ...).await`
 /// Calls the `waitforblock` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wait_for_block(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -704,8 +634,6 @@ pub async fn wait_for_block(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::waitforblockheight(&transport, ...).await`
 /// Calls the `waitforblockheight` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wait_for_block_height(
     transport: &dyn TransportTrait,
     height: serde_json::Value,
@@ -725,8 +653,6 @@ pub async fn wait_for_block_height(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::waitfornewblock(&transport, ...).await`
 /// Calls the `waitfornewblock` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wait_for_new_block(
     transport: &dyn TransportTrait,
     timeout: serde_json::Value,

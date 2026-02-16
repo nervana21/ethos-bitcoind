@@ -17,8 +17,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::abandontransaction(&transport, ...).await`
 /// Calls the `abandontransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn abandon_transaction(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -36,8 +34,6 @@ pub async fn abandon_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::abortrescan(&transport, ...).await`
 /// Calls the `abortrescan` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn abort_rescan(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("abortrescan", &params).await?;
@@ -51,8 +47,6 @@ pub async fn abort_rescan(transport: &dyn TransportTrait) -> Result<Value, Trans
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::backupwallet(&transport, ...).await`
 /// Calls the `backupwallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn backup_wallet(
     transport: &dyn TransportTrait,
     destination: serde_json::Value,
@@ -80,8 +74,6 @@ pub async fn backup_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::bumpfee(&transport, ...).await`
 /// Calls the `bumpfee` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn bump_fee(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -99,8 +91,6 @@ pub async fn bump_fee(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createwallet(&transport, ...).await`
 /// Calls the `createwallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 #[allow(clippy::too_many_arguments)]
 pub async fn create_wallet(
     transport: &dyn TransportTrait,
@@ -135,8 +125,6 @@ pub async fn create_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createwalletdescriptor(&transport, ...).await`
 /// Calls the `createwalletdescriptor` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn create_wallet_descriptor(
     transport: &dyn TransportTrait,
     r#type: serde_json::Value,
@@ -162,8 +150,6 @@ pub async fn create_wallet_descriptor(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::encryptwallet(&transport, ...).await`
 /// Calls the `encryptwallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn encrypt_wallet(
     transport: &dyn TransportTrait,
     passphrase: serde_json::Value,
@@ -180,8 +166,6 @@ pub async fn encrypt_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getaddressesbylabel(&transport, ...).await`
 /// Calls the `getaddressesbylabel` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_addresses_by_label(
     transport: &dyn TransportTrait,
     label: serde_json::Value,
@@ -199,8 +183,6 @@ pub async fn get_addresses_by_label(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getaddressinfo(&transport, ...).await`
 /// Calls the `getaddressinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_address_info(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
@@ -219,8 +201,6 @@ pub async fn get_address_info(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getbalance(&transport, ...).await`
 /// Calls the `getbalance` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_balance(
     transport: &dyn TransportTrait,
     dummy: serde_json::Value,
@@ -240,8 +220,6 @@ pub async fn get_balance(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getbalances(&transport, ...).await`
 /// Calls the `getbalances` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_balances(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getbalances", &params).await?;
@@ -255,8 +233,6 @@ pub async fn get_balances(transport: &dyn TransportTrait) -> Result<Value, Trans
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gethdkeys(&transport, ...).await`
 /// Calls the `gethdkeys` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_hd_keys(
     transport: &dyn TransportTrait,
     options: serde_json::Value,
@@ -275,8 +251,6 @@ pub async fn get_hd_keys(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getnewaddress(&transport, ...).await`
 /// Calls the `getnewaddress` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_new_address(
     transport: &dyn TransportTrait,
     label: serde_json::Value,
@@ -295,8 +269,6 @@ pub async fn get_new_address(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrawchangeaddress(&transport, ...).await`
 /// Calls the `getrawchangeaddress` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_raw_change_address(
     transport: &dyn TransportTrait,
     address_type: serde_json::Value,
@@ -313,8 +285,6 @@ pub async fn get_raw_change_address(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getreceivedbyaddress(&transport, ...).await`
 /// Calls the `getreceivedbyaddress` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_received_by_address(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
@@ -333,8 +303,6 @@ pub async fn get_received_by_address(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getreceivedbylabel(&transport, ...).await`
 /// Calls the `getreceivedbylabel` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_received_by_label(
     transport: &dyn TransportTrait,
     label: serde_json::Value,
@@ -353,8 +321,6 @@ pub async fn get_received_by_label(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettransaction(&transport, ...).await`
 /// Calls the `gettransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_transaction(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -373,8 +339,6 @@ pub async fn get_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getwalletinfo(&transport, ...).await`
 /// Calls the `getwalletinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_wallet_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getwalletinfo", &params).await?;
@@ -392,8 +356,6 @@ pub async fn get_wallet_info(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::importdescriptors(&transport, ...).await`
 /// Calls the `importdescriptors` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn import_descriptors(
     transport: &dyn TransportTrait,
     requests: serde_json::Value,
@@ -410,8 +372,6 @@ pub async fn import_descriptors(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::importprunedfunds(&transport, ...).await`
 /// Calls the `importprunedfunds` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn import_pruned_funds(
     transport: &dyn TransportTrait,
     rawtransaction: serde_json::Value,
@@ -431,8 +391,6 @@ pub async fn import_pruned_funds(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::keypoolrefill(&transport, ...).await`
 /// Calls the `keypoolrefill` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn keypool_refill(
     transport: &dyn TransportTrait,
     newsize: serde_json::Value,
@@ -451,8 +409,6 @@ pub async fn keypool_refill(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listaddressgroupings(&transport, ...).await`
 /// Calls the `listaddressgroupings` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_address_groupings(
     transport: &dyn TransportTrait,
 ) -> Result<Value, TransportError> {
@@ -468,8 +424,6 @@ pub async fn list_address_groupings(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listdescriptors(&transport, ...).await`
 /// Calls the `listdescriptors` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_descriptors(
     transport: &dyn TransportTrait,
     private: serde_json::Value,
@@ -486,8 +440,6 @@ pub async fn list_descriptors(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listlabels(&transport, ...).await`
 /// Calls the `listlabels` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_labels(
     transport: &dyn TransportTrait,
     purpose: serde_json::Value,
@@ -505,8 +457,6 @@ pub async fn list_labels(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listlockunspent(&transport, ...).await`
 /// Calls the `listlockunspent` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_lock_unspent(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("listlockunspent", &params).await?;
@@ -520,8 +470,6 @@ pub async fn list_lock_unspent(transport: &dyn TransportTrait) -> Result<Value, 
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listreceivedbyaddress(&transport, ...).await`
 /// Calls the `listreceivedbyaddress` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_received_by_address(
     transport: &dyn TransportTrait,
     minconf: serde_json::Value,
@@ -548,8 +496,6 @@ pub async fn list_received_by_address(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listreceivedbylabel(&transport, ...).await`
 /// Calls the `listreceivedbylabel` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_received_by_label(
     transport: &dyn TransportTrait,
     minconf: serde_json::Value,
@@ -576,8 +522,6 @@ pub async fn list_received_by_label(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listsinceblock(&transport, ...).await`
 /// Calls the `listsinceblock` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_since_block(
     transport: &dyn TransportTrait,
     blockhash: serde_json::Value,
@@ -607,8 +551,6 @@ pub async fn list_since_block(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listtransactions(&transport, ...).await`
 /// Calls the `listtransactions` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_transactions(
     transport: &dyn TransportTrait,
     label: serde_json::Value,
@@ -630,8 +572,6 @@ pub async fn list_transactions(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listunspent(&transport, ...).await`
 /// Calls the `listunspent` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_unspent(
     transport: &dyn TransportTrait,
     minconf: serde_json::Value,
@@ -658,8 +598,6 @@ pub async fn list_unspent(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listwalletdir(&transport, ...).await`
 /// Calls the `listwalletdir` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_wallet_dir(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("listwalletdir", &params).await?;
@@ -674,8 +612,6 @@ pub async fn list_wallet_dir(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listwallets(&transport, ...).await`
 /// Calls the `listwallets` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn list_wallets(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("listwallets", &params).await?;
@@ -691,8 +627,6 @@ pub async fn list_wallets(transport: &dyn TransportTrait) -> Result<Value, Trans
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::loadwallet(&transport, ...).await`
 /// Calls the `loadwallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn load_wallet(
     transport: &dyn TransportTrait,
     filename: serde_json::Value,
@@ -718,8 +652,6 @@ pub async fn load_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::lockunspent(&transport, ...).await`
 /// Calls the `lockunspent` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn lock_unspent(
     transport: &dyn TransportTrait,
     unlock: serde_json::Value,
@@ -744,8 +676,6 @@ pub async fn lock_unspent(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::migratewallet(&transport, ...).await`
 /// Calls the `migratewallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn migrate_wallet(
     transport: &dyn TransportTrait,
     wallet_name: serde_json::Value,
@@ -775,8 +705,6 @@ pub async fn migrate_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::psbtbumpfee(&transport, ...).await`
 /// Calls the `psbtbumpfee` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn psbt_bump_fee(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -794,8 +722,6 @@ pub async fn psbt_bump_fee(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::removeprunedfunds(&transport, ...).await`
 /// Calls the `removeprunedfunds` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn remove_pruned_funds(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -815,8 +741,6 @@ pub async fn remove_pruned_funds(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::rescanblockchain(&transport, ...).await`
 /// Calls the `rescanblockchain` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn rescan_blockchain(
     transport: &dyn TransportTrait,
     start_height: serde_json::Value,
@@ -836,8 +760,6 @@ pub async fn rescan_blockchain(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::restorewallet(&transport, ...).await`
 /// Calls the `restorewallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn restore_wallet(
     transport: &dyn TransportTrait,
     wallet_name: serde_json::Value,
@@ -857,8 +779,6 @@ pub async fn restore_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::send(&transport, ...).await`
 /// Calls the `send` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn send(
     transport: &dyn TransportTrait,
     outputs: serde_json::Value,
@@ -890,8 +810,6 @@ pub async fn send(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendall(&transport, ...).await`
 /// Calls the `sendall` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn send_all(
     transport: &dyn TransportTrait,
     recipients: serde_json::Value,
@@ -919,8 +837,6 @@ pub async fn send_all(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendmany(&transport, ...).await`
 /// Calls the `sendmany` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 #[allow(clippy::too_many_arguments)]
 pub async fn send_many(
     transport: &dyn TransportTrait,
@@ -959,8 +875,6 @@ pub async fn send_many(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendtoaddress(&transport, ...).await`
 /// Calls the `sendtoaddress` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 #[allow(clippy::too_many_arguments)]
 pub async fn send_to_address(
     transport: &dyn TransportTrait,
@@ -1000,8 +914,6 @@ pub async fn send_to_address(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::setlabel(&transport, ...).await`
 /// Calls the `setlabel` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn set_label(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
@@ -1020,8 +932,6 @@ pub async fn set_label(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::settxfee(&transport, ...).await`
 /// Calls the `settxfee` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn set_tx_fee(
     transport: &dyn TransportTrait,
     amount: serde_json::Value,
@@ -1038,8 +948,6 @@ pub async fn set_tx_fee(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::setwalletflag(&transport, ...).await`
 /// Calls the `setwalletflag` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn set_wallet_flag(
     transport: &dyn TransportTrait,
     flag: serde_json::Value,
@@ -1058,8 +966,6 @@ pub async fn set_wallet_flag(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signmessage(&transport, ...).await`
 /// Calls the `signmessage` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn sign_message(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
@@ -1080,8 +986,6 @@ pub async fn sign_message(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signrawtransactionwithwallet(&transport, ...).await`
 /// Calls the `signrawtransactionwithwallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn sign_raw_transaction_with_wallet(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
@@ -1100,8 +1004,6 @@ pub async fn sign_raw_transaction_with_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::simulaterawtransaction(&transport, ...).await`
 /// Calls the `simulaterawtransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn simulate_raw_transaction(
     transport: &dyn TransportTrait,
     rawtxs: serde_json::Value,
@@ -1120,8 +1022,6 @@ pub async fn simulate_raw_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::unloadwallet(&transport, ...).await`
 /// Calls the `unloadwallet` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn unload_wallet(
     transport: &dyn TransportTrait,
     wallet_name: serde_json::Value,
@@ -1142,8 +1042,6 @@ pub async fn unload_wallet(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletcreatefundedpsbt(&transport, ...).await`
 /// Calls the `walletcreatefundedpsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wallet_create_funded_psbt(
     transport: &dyn TransportTrait,
     inputs: serde_json::Value,
@@ -1172,8 +1070,6 @@ pub async fn wallet_create_funded_psbt(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletdisplayaddress(&transport, ...).await`
 /// Calls the `walletdisplayaddress` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wallet_display_address(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
@@ -1192,8 +1088,6 @@ pub async fn wallet_display_address(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletlock(&transport, ...).await`
 /// Calls the `walletlock` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wallet_lock(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("walletlock", &params).await?;
@@ -1211,8 +1105,6 @@ pub async fn wallet_lock(transport: &dyn TransportTrait) -> Result<Value, Transp
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletpassphrase(&transport, ...).await`
 /// Calls the `walletpassphrase` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wallet_passphrase(
     transport: &dyn TransportTrait,
     passphrase: serde_json::Value,
@@ -1230,8 +1122,6 @@ pub async fn wallet_passphrase(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletpassphrasechange(&transport, ...).await`
 /// Calls the `walletpassphrasechange` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wallet_passphrase_change(
     transport: &dyn TransportTrait,
     oldpassphrase: serde_json::Value,
@@ -1251,8 +1141,6 @@ pub async fn wallet_passphrase_change(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletprocesspsbt(&transport, ...).await`
 /// Calls the `walletprocesspsbt` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn wallet_process_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,

@@ -13,8 +13,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::enumeratesigners(&transport, ...).await`
 /// Calls the `enumeratesigners` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn enumerate_signers(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("enumeratesigners", &params).await?;

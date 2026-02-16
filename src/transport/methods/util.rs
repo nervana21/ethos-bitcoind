@@ -14,8 +14,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createmultisig(&transport, ...).await`
 /// Calls the `createmultisig` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn create_multisig(
     transport: &dyn TransportTrait,
     nrequired: serde_json::Value,
@@ -43,8 +41,6 @@ pub async fn create_multisig(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::deriveaddresses(&transport, ...).await`
 /// Calls the `deriveaddresses` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn derive_addresses(
     transport: &dyn TransportTrait,
     descriptor: serde_json::Value,
@@ -65,8 +61,6 @@ pub async fn derive_addresses(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::estimatesmartfee(&transport, ...).await`
 /// Calls the `estimatesmartfee` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn estimate_smart_fee(
     transport: &dyn TransportTrait,
     conf_target: serde_json::Value,
@@ -84,8 +78,6 @@ pub async fn estimate_smart_fee(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdescriptorinfo(&transport, ...).await`
 /// Calls the `getdescriptorinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_descriptor_info(
     transport: &dyn TransportTrait,
     descriptor: serde_json::Value,
@@ -102,8 +94,6 @@ pub async fn get_descriptor_info(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getindexinfo(&transport, ...).await`
 /// Calls the `getindexinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_index_info(
     transport: &dyn TransportTrait,
     index_name: serde_json::Value,
@@ -120,8 +110,6 @@ pub async fn get_index_info(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signmessagewithprivkey(&transport, ...).await`
 /// Calls the `signmessagewithprivkey` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn sign_message_with_priv_key(
     transport: &dyn TransportTrait,
     privkey: serde_json::Value,
@@ -139,8 +127,6 @@ pub async fn sign_message_with_priv_key(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::validateaddress(&transport, ...).await`
 /// Calls the `validateaddress` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn validate_address(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
@@ -157,8 +143,6 @@ pub async fn validate_address(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::verifymessage(&transport, ...).await`
 /// Calls the `verifymessage` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn verify_message(
     transport: &dyn TransportTrait,
     address: serde_json::Value,

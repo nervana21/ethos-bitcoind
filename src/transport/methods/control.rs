@@ -13,8 +13,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmemoryinfo(&transport, ...).await`
 /// Calls the `getmemoryinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_memory_info(
     transport: &dyn TransportTrait,
     mode: serde_json::Value,
@@ -31,8 +29,6 @@ pub async fn get_memory_info(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrpcinfo(&transport, ...).await`
 /// Calls the `getrpcinfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_rpc_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getrpcinfo", &params).await?;
@@ -46,8 +42,6 @@ pub async fn get_rpc_info(transport: &dyn TransportTrait) -> Result<Value, Trans
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::help(&transport, ...).await`
 /// Calls the `help` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn help(
     transport: &dyn TransportTrait,
     command: serde_json::Value,
@@ -71,8 +65,6 @@ pub async fn help(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::logging(&transport, ...).await`
 /// Calls the `logging` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn logging(
     transport: &dyn TransportTrait,
     include: serde_json::Value,
@@ -90,8 +82,6 @@ pub async fn logging(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::schema(&transport, ...).await`
 /// Calls the `schema` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn schema(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("schema", &params).await?;
@@ -105,8 +95,6 @@ pub async fn schema(transport: &dyn TransportTrait) -> Result<Value, TransportEr
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::stop(&transport, ...).await`
 /// Calls the `stop` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn stop(
     transport: &dyn TransportTrait,
     wait: serde_json::Value,
@@ -123,8 +111,6 @@ pub async fn stop(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::uptime(&transport, ...).await`
 /// Calls the `uptime` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn uptime(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("uptime", &params).await?;

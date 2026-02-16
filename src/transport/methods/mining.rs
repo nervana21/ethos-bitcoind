@@ -19,8 +19,6 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblocktemplate(&transport, ...).await`
 /// Calls the `getblocktemplate` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_block_template(
     transport: &dyn TransportTrait,
     template_request: serde_json::Value,
@@ -37,8 +35,6 @@ pub async fn get_block_template(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmininginfo(&transport, ...).await`
 /// Calls the `getmininginfo` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_mining_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("getmininginfo", &params).await?;
@@ -54,8 +50,6 @@ pub async fn get_mining_info(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getnetworkhashps(&transport, ...).await`
 /// Calls the `getnetworkhashps` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_network_hashps(
     transport: &dyn TransportTrait,
     nblocks: serde_json::Value,
@@ -73,8 +67,6 @@ pub async fn get_network_hashps(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getprioritisedtransactions(&transport, ...).await`
 /// Calls the `getprioritisedtransactions` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn get_prioritised_transactions(
     transport: &dyn TransportTrait,
 ) -> Result<Value, TransportError> {
@@ -90,8 +82,6 @@ pub async fn get_prioritised_transactions(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::prioritisetransaction(&transport, ...).await`
 /// Calls the `prioritisetransaction` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn prioritise_transaction(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
@@ -111,8 +101,6 @@ pub async fn prioritise_transaction(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::submitblock(&transport, ...).await`
 /// Calls the `submitblock` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn submit_block(
     transport: &dyn TransportTrait,
     hexdata: serde_json::Value,
@@ -131,8 +119,6 @@ pub async fn submit_block(
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::submitheader(&transport, ...).await`
 /// Calls the `submitheader` RPC method.
-///
-/// Generated transport wrapper for JSON-RPC.
 pub async fn submit_header(
     transport: &dyn TransportTrait,
     hexdata: serde_json::Value,
