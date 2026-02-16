@@ -3794,8 +3794,7 @@ pub struct GetRawMempoolResponse {
 
 /// Response for the `GetRawTransaction` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetRawTransactionResponse {
     /// the block hash
     pub blockhash: Option<bitcoin::BlockHash>,
@@ -3804,7 +3803,7 @@ pub struct GetRawTransactionResponse {
     /// The confirmations
     pub confirmations: Option<i64>,
     /// The serialized transaction as a hex-encoded string for 'txid'
-    pub data: String,
+    pub data: Option<String>,
     /// transaction fee in BTC, omitted if block undo data is not available
     pub fee: Option<f64>,
     /// Same output as verbosity = 1
@@ -3832,6 +3831,221 @@ pub struct GetRawTransactionResponse {
     pub vsize: Option<u64>,
     /// The transaction's weight (between vsize*4-3 and vsize*4)
     pub weight: Option<u64>,
+}
+impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use std::fmt;
+
+        use serde::de::{self, Visitor};
+
+        struct ConditionalResponseVisitor;
+
+        #[allow(clippy::needless_lifetimes)]
+        impl<'de> Visitor<'de> for ConditionalResponseVisitor {
+            type Value = GetRawTransactionResponse;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("string or object")
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                let data = v.to_string();
+                Ok(GetRawTransactionResponse {
+                    blockhash: None,
+                    blocktime: None,
+                    confirmations: None,
+                    data: Some(data),
+                    fee: None,
+                    field_16: None,
+                    hash: None,
+                    hex: None,
+                    in_active_chain: None,
+                    locktime: None,
+                    size: None,
+                    time: None,
+                    txid: None,
+                    version: None,
+                    vin: None,
+                    vin_1: None,
+                    vout: None,
+                    vsize: None,
+                    weight: None,
+                })
+            }
+
+            fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
+            where
+                M: de::MapAccess<'de>,
+            {
+                let mut blockhash = None;
+                let mut blocktime = None;
+                let mut confirmations = None;
+                let mut data = None;
+                let mut fee = None;
+                let mut field_16 = None;
+                let mut hash = None;
+                let mut hex = None;
+                let mut in_active_chain = None;
+                let mut locktime = None;
+                let mut size = None;
+                let mut time = None;
+                let mut txid = None;
+                let mut version = None;
+                let mut vin = None;
+                let mut vin_1 = None;
+                let mut vout = None;
+                let mut vsize = None;
+                let mut weight = None;
+                while let Some(key) = map.next_key::<String>()? {
+                    if key == "blockhash" {
+                        if blockhash.is_some() {
+                            return Err(de::Error::duplicate_field("blockhash"));
+                        }
+                        blockhash = Some(map.next_value::<bitcoin::BlockHash>()?);
+                    }
+                    if key == "blocktime" {
+                        if blocktime.is_some() {
+                            return Err(de::Error::duplicate_field("blocktime"));
+                        }
+                        blocktime = Some(map.next_value::<u64>()?);
+                    }
+                    if key == "confirmations" {
+                        if confirmations.is_some() {
+                            return Err(de::Error::duplicate_field("confirmations"));
+                        }
+                        confirmations = Some(map.next_value::<i64>()?);
+                    }
+                    if key == "data" {
+                        if data.is_some() {
+                            return Err(de::Error::duplicate_field("data"));
+                        }
+                        data = Some(map.next_value::<String>()?);
+                    }
+                    if key == "fee" {
+                        if fee.is_some() {
+                            return Err(de::Error::duplicate_field("fee"));
+                        }
+                        fee = Some(map.next_value::<f64>()?);
+                    }
+                    if key == "field_16" {
+                        if field_16.is_some() {
+                            return Err(de::Error::duplicate_field("field_16"));
+                        }
+                        field_16 = Some(map.next_value::<serde_json::Value>()?);
+                    }
+                    if key == "hash" {
+                        if hash.is_some() {
+                            return Err(de::Error::duplicate_field("hash"));
+                        }
+                        hash = Some(map.next_value::<String>()?);
+                    }
+                    if key == "hex" {
+                        if hex.is_some() {
+                            return Err(de::Error::duplicate_field("hex"));
+                        }
+                        hex = Some(map.next_value::<String>()?);
+                    }
+                    if key == "in_active_chain" {
+                        if in_active_chain.is_some() {
+                            return Err(de::Error::duplicate_field("in_active_chain"));
+                        }
+                        in_active_chain = Some(map.next_value::<bool>()?);
+                    }
+                    if key == "locktime" {
+                        if locktime.is_some() {
+                            return Err(de::Error::duplicate_field("locktime"));
+                        }
+                        locktime = Some(map.next_value::<u64>()?);
+                    }
+                    if key == "size" {
+                        if size.is_some() {
+                            return Err(de::Error::duplicate_field("size"));
+                        }
+                        size = Some(map.next_value::<u64>()?);
+                    }
+                    if key == "time" {
+                        if time.is_some() {
+                            return Err(de::Error::duplicate_field("time"));
+                        }
+                        time = Some(map.next_value::<u64>()?);
+                    }
+                    if key == "txid" {
+                        if txid.is_some() {
+                            return Err(de::Error::duplicate_field("txid"));
+                        }
+                        txid = Some(map.next_value::<bitcoin::Txid>()?);
+                    }
+                    if key == "version" {
+                        if version.is_some() {
+                            return Err(de::Error::duplicate_field("version"));
+                        }
+                        version = Some(map.next_value::<u32>()?);
+                    }
+                    if key == "vin" {
+                        if vin.is_some() {
+                            return Err(de::Error::duplicate_field("vin"));
+                        }
+                        vin = Some(map.next_value::<serde_json::Value>()?);
+                    }
+                    if key == "vin_1" {
+                        if vin_1.is_some() {
+                            return Err(de::Error::duplicate_field("vin_1"));
+                        }
+                        vin_1 = Some(map.next_value::<serde_json::Value>()?);
+                    }
+                    if key == "vout" {
+                        if vout.is_some() {
+                            return Err(de::Error::duplicate_field("vout"));
+                        }
+                        vout = Some(map.next_value::<serde_json::Value>()?);
+                    }
+                    if key == "vsize" {
+                        if vsize.is_some() {
+                            return Err(de::Error::duplicate_field("vsize"));
+                        }
+                        vsize = Some(map.next_value::<u64>()?);
+                    }
+                    if key == "weight" {
+                        if weight.is_some() {
+                            return Err(de::Error::duplicate_field("weight"));
+                        }
+                        weight = Some(map.next_value::<u64>()?);
+                    } else {
+                        let _ = map.next_value::<de::IgnoredAny>()?;
+                    }
+                }
+                Ok(GetRawTransactionResponse {
+                    blockhash,
+                    blocktime,
+                    confirmations,
+                    data,
+                    fee,
+                    field_16,
+                    hash,
+                    hex,
+                    in_active_chain,
+                    locktime,
+                    size,
+                    time,
+                    txid,
+                    version,
+                    vin,
+                    vin_1,
+                    vout,
+                    vsize,
+                    weight,
+                })
+            }
+        }
+
+        deserializer.deserialize_any(ConditionalResponseVisitor)
+    }
 }
 
 /// Response for the `GetReceivedByAddress` RPC method
