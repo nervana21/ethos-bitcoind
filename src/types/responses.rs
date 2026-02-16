@@ -4495,12 +4495,110 @@ pub struct GetWalletInfoResponse {
 
 /// Response for the `Help` RPC method
 ///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+/// This method returns a primitive value wrapped in a transparent struct.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct HelpResponse {
-    /// The help text
-    pub field_0: String,
-    pub field_1: serde_json::Value,
+    /// Wrapped primitive value
+    pub value: String,
+}
+
+impl<'de> serde::Deserialize<'de> for HelpResponse {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use std::fmt;
+
+        use serde::de::{self, Visitor};
+
+        struct PrimitiveWrapperVisitor;
+
+        #[allow(unused_variables, clippy::needless_lifetimes)]
+        impl<'de> Visitor<'de> for PrimitiveWrapperVisitor {
+            type Value = HelpResponse;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a primitive value or an object with 'value' field")
+            }
+
+            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(HelpResponse { value: v.to_string() })
+            }
+
+            fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(HelpResponse { value: v.to_string() })
+            }
+
+            fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(HelpResponse { value: v.to_string() })
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(HelpResponse { value: v.to_string() })
+            }
+
+            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(HelpResponse { value: v.to_string() })
+            }
+
+            fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
+            where
+                M: de::MapAccess<'de>,
+            {
+                let mut value = None;
+                while let Some(key) = map.next_key::<String>()? {
+                    if key == "value" {
+                        if value.is_some() {
+                            return Err(de::Error::duplicate_field("value"));
+                        }
+                        value = Some(map.next_value()?);
+                    } else {
+                        let _ = map.next_value::<de::IgnoredAny>()?;
+                    }
+                }
+                let value = value.ok_or_else(|| de::Error::missing_field("value"))?;
+                Ok(HelpResponse { value })
+            }
+        }
+
+        deserializer.deserialize_any(PrimitiveWrapperVisitor)
+    }
+}
+
+impl std::ops::Deref for HelpResponse {
+    type Target = String;
+    fn deref(&self) -> &Self::Target { &self.value }
+}
+
+impl std::ops::DerefMut for HelpResponse {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
+}
+
+impl AsRef<String> for HelpResponse {
+    fn as_ref(&self) -> &String { &self.value }
+}
+
+impl From<String> for HelpResponse {
+    fn from(value: String) -> Self { Self { value } }
+}
+
+impl From<HelpResponse> for String {
+    fn from(wrapper: HelpResponse) -> Self { wrapper.value }
 }
 
 /// Response for the `ImportDescriptors` RPC method
