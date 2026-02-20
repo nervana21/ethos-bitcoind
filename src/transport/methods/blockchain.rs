@@ -9,11 +9,13 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// Write the serialized UTXO set to a file. This can be used in loadtxoutset afterwards if this snapshot height is supported in the chainparams as well.
 /// Unless the "latest" type is requested, the node will roll back to the requested height and network activity will be suspended during this process. Because of this it is discouraged to interact with the node in any other way during the execution of this call to avoid inconsistent results and race conditions, particularly RPCs that interact with blockstorage.
 /// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.dumptxoutset(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::dumptxoutset(&transport, ...).await`
+///
 /// Calls the `dumptxoutset` RPC method.
 pub async fn dump_txout_set(
     transport: &dyn TransportTrait,
@@ -27,11 +29,13 @@ pub async fn dump_txout_set(
 }
 
 /// Returns the hash of the best (tip) block in the most-work fully-validated chain.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getbestblockhash(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getbestblockhash(&transport, ...).await`
+///
 /// Calls the `getbestblockhash` RPC method.
 pub async fn get_best_block_hash(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -43,11 +47,13 @@ pub async fn get_best_block_hash(transport: &dyn TransportTrait) -> Result<Value
 /// If verbosity is 1, returns an Object with information about block &lt;hash&gt;.
 /// If verbosity is 2, returns an Object with information about block &lt;hash&gt; and information about each transaction.
 /// If verbosity is 3, returns an Object with information about block &lt;hash&gt; and information about each transaction, including prevout information for inputs (only for unpruned blocks in the current best chain).
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblock(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblock(&transport, ...).await`
+///
 /// Calls the `getblock` RPC method.
 pub async fn get_block(
     transport: &dyn TransportTrait,
@@ -60,11 +66,13 @@ pub async fn get_block(
 }
 
 /// Returns an object containing various state info regarding blockchain processing.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockchaininfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockchaininfo(&transport, ...).await`
+///
 /// Calls the `getblockchaininfo` RPC method.
 pub async fn get_blockchain_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -74,11 +82,13 @@ pub async fn get_blockchain_info(transport: &dyn TransportTrait) -> Result<Value
 
 /// Returns the height of the most-work fully-validated chain.
 /// The genesis block has height 0.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockcount(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockcount(&transport, ...).await`
+///
 /// Calls the `getblockcount` RPC method.
 pub async fn get_block_count(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -87,11 +97,13 @@ pub async fn get_block_count(transport: &dyn TransportTrait) -> Result<Value, Tr
 }
 
 /// Retrieve a BIP 157 content filter for a particular block.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockfilter(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockfilter(&transport, ...).await`
+///
 /// Calls the `getblockfilter` RPC method.
 pub async fn get_block_filter(
     transport: &dyn TransportTrait,
@@ -111,11 +123,13 @@ pub async fn get_block_filter(
 /// When a peer does not respond with a block, we will disconnect.
 /// Note: The block could be re-pruned as soon as it is received.
 /// Returns an empty JSON object if the request was successfully scheduled.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockfrompeer(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockfrompeer(&transport, ...).await`
+///
 /// Calls the `getblockfrompeer` RPC method.
 pub async fn get_block_from_peer(
     transport: &dyn TransportTrait,
@@ -128,11 +142,13 @@ pub async fn get_block_from_peer(
 }
 
 /// Returns hash of block in best-block-chain at height provided.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockhash(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockhash(&transport, ...).await`
+///
 /// Calls the `getblockhash` RPC method.
 pub async fn get_block_hash(
     transport: &dyn TransportTrait,
@@ -145,11 +161,13 @@ pub async fn get_block_hash(
 
 /// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.
 /// If verbose is true, returns an Object with information about blockheader &lt;hash&gt;.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockheader(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockheader(&transport, ...).await`
+///
 /// Calls the `getblockheader` RPC method.
 pub async fn get_block_header(
     transport: &dyn TransportTrait,
@@ -163,11 +181,13 @@ pub async fn get_block_header(
 
 /// Compute per block statistics for a given window. All amounts are in satoshis.
 /// It won't work for some heights with pruning.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblockstats(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblockstats(&transport, ...).await`
+///
 /// Calls the `getblockstats` RPC method.
 pub async fn get_block_stats(
     transport: &dyn TransportTrait,
@@ -180,11 +200,13 @@ pub async fn get_block_stats(
 }
 
 /// Return information about chainstates.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getchainstates(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getchainstates(&transport, ...).await`
+///
 /// Calls the `getchainstates` RPC method.
 pub async fn get_chain_states(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -193,11 +215,13 @@ pub async fn get_chain_states(transport: &dyn TransportTrait) -> Result<Value, T
 }
 
 /// Return information about all known tips in the block tree, including the main chain as well as orphaned branches.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getchaintips(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getchaintips(&transport, ...).await`
+///
 /// Calls the `getchaintips` RPC method.
 pub async fn get_chain_tips(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -206,11 +230,13 @@ pub async fn get_chain_tips(transport: &dyn TransportTrait) -> Result<Value, Tra
 }
 
 /// Compute statistics about the total number and rate of transactions in the chain.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getchaintxstats(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getchaintxstats(&transport, ...).await`
+///
 /// Calls the `getchaintxstats` RPC method.
 pub async fn get_chain_tx_stats(
     transport: &dyn TransportTrait,
@@ -223,11 +249,13 @@ pub async fn get_chain_tx_stats(
 }
 
 /// Returns an object containing various state info regarding deployments of consensus changes.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getdeploymentinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdeploymentinfo(&transport, ...).await`
+///
 /// Calls the `getdeploymentinfo` RPC method.
 pub async fn get_deployment_info(
     transport: &dyn TransportTrait,
@@ -240,11 +268,13 @@ pub async fn get_deployment_info(
 
 /// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the `relevant_blocks` output of `scanblocks()`.
 /// This call may take several minutes. If you encounter timeouts, try specifying no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getdescriptoractivity(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdescriptoractivity(&transport, ...).await`
+///
 /// Calls the `getdescriptoractivity` RPC method.
 pub async fn get_descriptor_activity(
     transport: &dyn TransportTrait,
@@ -258,11 +288,13 @@ pub async fn get_descriptor_activity(
 }
 
 /// Returns the proof-of-work difficulty as a multiple of the minimum difficulty.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getdifficulty(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdifficulty(&transport, ...).await`
+///
 /// Calls the `getdifficulty` RPC method.
 pub async fn get_difficulty(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -271,11 +303,13 @@ pub async fn get_difficulty(transport: &dyn TransportTrait) -> Result<Value, Tra
 }
 
 /// If txid is in the mempool, returns all in-mempool ancestors.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getmempoolancestors(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempoolancestors(&transport, ...).await`
+///
 /// Calls the `getmempoolancestors` RPC method.
 pub async fn get_mempool_ancestors(
     transport: &dyn TransportTrait,
@@ -288,11 +322,13 @@ pub async fn get_mempool_ancestors(
 }
 
 /// If txid is in the mempool, returns all in-mempool descendants.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getmempooldescendants(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempooldescendants(&transport, ...).await`
+///
 /// Calls the `getmempooldescendants` RPC method.
 pub async fn get_mempool_descendants(
     transport: &dyn TransportTrait,
@@ -305,11 +341,13 @@ pub async fn get_mempool_descendants(
 }
 
 /// Returns mempool data for given transaction
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getmempoolentry(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempoolentry(&transport, ...).await`
+///
 /// Calls the `getmempoolentry` RPC method.
 pub async fn get_mempool_entry(
     transport: &dyn TransportTrait,
@@ -321,11 +359,13 @@ pub async fn get_mempool_entry(
 }
 
 /// Returns details on the active state of the TX memory pool.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getmempoolinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmempoolinfo(&transport, ...).await`
+///
 /// Calls the `getmempoolinfo` RPC method.
 pub async fn get_mempool_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -335,11 +375,13 @@ pub async fn get_mempool_info(transport: &dyn TransportTrait) -> Result<Value, T
 
 /// Returns all transaction ids in memory pool as a json array of string transaction ids.
 /// Hint: use getmempoolentry to fetch a specific transaction from the mempool.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getrawmempool(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrawmempool(&transport, ...).await`
+///
 /// Calls the `getrawmempool` RPC method.
 pub async fn get_raw_mempool(
     transport: &dyn TransportTrait,
@@ -352,11 +394,13 @@ pub async fn get_raw_mempool(
 }
 
 /// Returns details about an unspent transaction output.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.gettxout(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxout(&transport, ...).await`
+///
 /// Calls the `gettxout` RPC method.
 pub async fn get_txout(
     transport: &dyn TransportTrait,
@@ -374,11 +418,13 @@ pub async fn get_txout(
 /// unspent output in the utxo for this transaction. To make it always work,
 /// you need to maintain a transaction index, using the -txindex command line option or
 /// specify the block in which the transaction is included manually (by blockhash).
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.gettxoutproof(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxoutproof(&transport, ...).await`
+///
 /// Calls the `gettxoutproof` RPC method.
 pub async fn get_txout_proof(
     transport: &dyn TransportTrait,
@@ -392,11 +438,13 @@ pub async fn get_txout_proof(
 
 /// Returns statistics about the unspent transaction output set.
 /// Note this call may take some time if you are not using coinstatsindex.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.gettxoutsetinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxoutsetinfo(&transport, ...).await`
+///
 /// Calls the `gettxoutsetinfo` RPC method.
 pub async fn get_txout_set_info(
     transport: &dyn TransportTrait,
@@ -410,11 +458,13 @@ pub async fn get_txout_set_info(
 }
 
 /// Scans the mempool to find transactions spending any of the given outputs
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.gettxspendingprevout(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettxspendingprevout(&transport, ...).await`
+///
 /// Calls the `gettxspendingprevout` RPC method.
 pub async fn get_tx_spending_prevout(
     transport: &dyn TransportTrait,
@@ -427,11 +477,13 @@ pub async fn get_tx_spending_prevout(
 
 /// Import a mempool.dat file and attempt to add its contents to the mempool.
 /// Warning: Importing untrusted files is dangerous, especially if metadata from the file is taken over.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.importmempool(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::importmempool(&transport, ...).await`
+///
 /// Calls the `importmempool` RPC method.
 pub async fn import_mempool(
     transport: &dyn TransportTrait,
@@ -447,11 +499,13 @@ pub async fn import_mempool(
 /// Once this snapshot is loaded, its contents will be deserialized into a second chainstate data structure, which is then used to sync to the network's tip. Meanwhile, the original chainstate will complete the initial block download process in the background, eventually validating up to the block that the snapshot is based upon.
 /// The result is a usable bitcoind instance that is current with the network tip in a matter of minutes rather than hours. UTXO snapshot are typically obtained from third-party sources (HTTP, torrent, etc.) which is reasonable since their contents are always checked by hash.
 /// You can find more information on this process in the `assumeutxo` design document (<https://github.com/bitcoin/bitcoin/blob/master/doc/design/assumeutxo.md>).
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.loadtxoutset(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::loadtxoutset(&transport, ...).await`
+///
 /// Calls the `loadtxoutset` RPC method.
 pub async fn load_txout_set(
     transport: &dyn TransportTrait,
@@ -465,11 +519,13 @@ pub async fn load_txout_set(
 /// Treats a block as if it were received before others with the same work.
 /// A later preciousblock call can override the effect of an earlier one.
 /// The effects of preciousblock are not retained across restarts.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.preciousblock(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::preciousblock(&transport, ...).await`
+///
 /// Calls the `preciousblock` RPC method.
 pub async fn precious_block(
     transport: &dyn TransportTrait,
@@ -482,11 +538,13 @@ pub async fn precious_block(
 
 /// Attempts to delete block and undo data up to a specified height or timestamp, if eligible for pruning.
 /// Requires `-prune` to be enabled at startup. While pruned data may be re-fetched in some cases (e.g., via `getblockfrompeer`), local deletion is irreversible.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.pruneblockchain(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::pruneblockchain(&transport, ...).await`
+///
 /// Calls the `pruneblockchain` RPC method.
 pub async fn prune_blockchain(
     transport: &dyn TransportTrait,
@@ -498,11 +556,13 @@ pub async fn prune_blockchain(
 }
 
 /// Dumps the mempool to disk. It will fail until the previous dump is fully loaded.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.savemempool(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::savemempool(&transport, ...).await`
+///
 /// Calls the `savemempool` RPC method.
 pub async fn save_mempool(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -512,11 +572,13 @@ pub async fn save_mempool(transport: &dyn TransportTrait) -> Result<Value, Trans
 
 /// Return relevant blockhashes for given descriptors (requires blockfilterindex).
 /// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.scanblocks(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::scanblocks(&transport, ...).await`
+///
 /// Calls the `scanblocks` RPC method.
 pub async fn scan_blocks(
     transport: &dyn TransportTrait,
@@ -555,11 +617,13 @@ pub async fn scan_blocks(
 /// unhardened or hardened child keys.
 /// In the latter case, a range needs to be specified by below if different from 1000.
 /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.scantxoutset(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::scantxoutset(&transport, ...).await`
+///
 /// Calls the `scantxoutset` RPC method.
 pub async fn scan_txout_set(
     transport: &dyn TransportTrait,
@@ -572,11 +636,13 @@ pub async fn scan_txout_set(
 }
 
 /// Verifies blockchain database.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.verifychain(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::verifychain(&transport, ...).await`
+///
 /// Calls the `verifychain` RPC method.
 pub async fn verify_chain(
     transport: &dyn TransportTrait,
@@ -590,11 +656,13 @@ pub async fn verify_chain(
 
 /// Verifies that a proof points to a transaction in a block, returning the transaction it commits to
 /// and throwing an RPC error if the block is not in our best chain
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.verifytxoutproof(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::verifytxoutproof(&transport, ...).await`
+///
 /// Calls the `verifytxoutproof` RPC method.
 pub async fn verify_txout_proof(
     transport: &dyn TransportTrait,
@@ -608,11 +676,13 @@ pub async fn verify_txout_proof(
 /// Waits for a specific new block and returns useful info about it.
 /// Returns the current block on timeout or exit.
 /// Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.waitforblock(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::waitforblock(&transport, ...).await`
+///
 /// Calls the `waitforblock` RPC method.
 pub async fn wait_for_block(
     transport: &dyn TransportTrait,
@@ -628,11 +698,13 @@ pub async fn wait_for_block(
 /// of the current tip.
 /// Returns the current block on timeout or exit.
 /// Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.waitforblockheight(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::waitforblockheight(&transport, ...).await`
+///
 /// Calls the `waitforblockheight` RPC method.
 pub async fn wait_for_block_height(
     transport: &dyn TransportTrait,
@@ -647,11 +719,13 @@ pub async fn wait_for_block_height(
 /// Waits for any new block and returns useful info about it.
 /// Returns the current block on timeout or exit.
 /// Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.waitfornewblock(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::waitfornewblock(&transport, ...).await`
+///
 /// Calls the `waitfornewblock` RPC method.
 pub async fn wait_for_new_block(
     transport: &dyn TransportTrait,

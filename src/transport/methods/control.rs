@@ -7,11 +7,13 @@ use serde_json::{json, Value};
 use crate::transport::core::{TransportError, TransportTrait};
 
 /// Returns an object containing information about memory usage.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getmemoryinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmemoryinfo(&transport, ...).await`
+///
 /// Calls the `getmemoryinfo` RPC method.
 pub async fn get_memory_info(
     transport: &dyn TransportTrait,
@@ -23,11 +25,13 @@ pub async fn get_memory_info(
 }
 
 /// Returns details of the RPC server.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getrpcinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrpcinfo(&transport, ...).await`
+///
 /// Calls the `getrpcinfo` RPC method.
 pub async fn get_rpc_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -36,11 +40,13 @@ pub async fn get_rpc_info(transport: &dyn TransportTrait) -> Result<Value, Trans
 }
 
 /// List all commands, or get help for a specified command.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.help(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::help(&transport, ...).await`
+///
 /// Calls the `help` RPC method.
 pub async fn help(
     transport: &dyn TransportTrait,
@@ -59,11 +65,13 @@ pub async fn help(
 /// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, leveldb, libevent, mempool, mempoolrej, net, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
 /// In addition, the following are available as category names with special meanings:
 /// - "all",  "1" : represent all logging categories.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.logging(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::logging(&transport, ...).await`
+///
 /// Calls the `logging` RPC method.
 pub async fn logging(
     transport: &dyn TransportTrait,
@@ -76,11 +84,13 @@ pub async fn logging(
 }
 
 /// Return RPC command JSON Schema descriptions.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.schema(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::schema(&transport, ...).await`
+///
 /// Calls the `schema` RPC method.
 pub async fn schema(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -89,11 +99,13 @@ pub async fn schema(transport: &dyn TransportTrait) -> Result<Value, TransportEr
 }
 
 /// Request a graceful shutdown of Bitcoin Core.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.stop(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::stop(&transport, ...).await`
+///
 /// Calls the `stop` RPC method.
 pub async fn stop(
     transport: &dyn TransportTrait,
@@ -105,11 +117,13 @@ pub async fn stop(
 }
 
 /// Returns the total uptime of the server.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.uptime(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::uptime(&transport, ...).await`
+///
 /// Calls the `uptime` RPC method.
 pub async fn uptime(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();

@@ -7,11 +7,13 @@ use serde_json::{json, Value};
 use crate::transport::core::{TransportError, TransportTrait};
 
 /// Analyzes and provides information about the current status of a PSBT and its inputs
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.analyzepsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::analyzepsbt(&transport, ...).await`
+///
 /// Calls the `analyzepsbt` RPC method.
 pub async fn analyze_psbt(
     transport: &dyn TransportTrait,
@@ -24,11 +26,13 @@ pub async fn analyze_psbt(
 
 /// Combine multiple partially signed Bitcoin transactions into one transaction.
 /// Implements the Combiner role.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.combinepsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::combinepsbt(&transport, ...).await`
+///
 /// Calls the `combinepsbt` RPC method.
 pub async fn combine_psbt(
     transport: &dyn TransportTrait,
@@ -42,11 +46,13 @@ pub async fn combine_psbt(
 /// Combine multiple partially signed transactions into one transaction.
 /// The combined transaction may be another partially signed transaction or a
 /// fully signed transaction.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.combinerawtransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::combinerawtransaction(&transport, ...).await`
+///
 /// Calls the `combinerawtransaction` RPC method.
 pub async fn combine_raw_transaction(
     transport: &dyn TransportTrait,
@@ -59,11 +65,13 @@ pub async fn combine_raw_transaction(
 
 /// Converts a network serialized transaction to a PSBT. This should be used only with createrawtransaction and fundrawtransaction
 /// createpsbt and walletcreatefundedpsbt should be used for new applications.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.converttopsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::converttopsbt(&transport, ...).await`
+///
 /// Calls the `converttopsbt` RPC method.
 pub async fn convert_to_psbt(
     transport: &dyn TransportTrait,
@@ -80,11 +88,13 @@ pub async fn convert_to_psbt(
 /// Implements the Creator role.
 /// Note that the transaction's inputs are not signed, and
 /// it is not stored in the wallet or transmitted to the network.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.createpsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createpsbt(&transport, ...).await`
+///
 /// Calls the `createpsbt` RPC method.
 pub async fn create_psbt(
     transport: &dyn TransportTrait,
@@ -105,11 +115,13 @@ pub async fn create_psbt(
 /// Returns hex-encoded raw transaction.
 /// Note that the transaction's inputs are not signed, and
 /// it is not stored in the wallet or transmitted to the network.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.createrawtransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createrawtransaction(&transport, ...).await`
+///
 /// Calls the `createrawtransaction` RPC method.
 pub async fn create_raw_transaction(
     transport: &dyn TransportTrait,
@@ -126,11 +138,13 @@ pub async fn create_raw_transaction(
 }
 
 /// Return a JSON object representing the serialized, base64-encoded partially signed Bitcoin transaction.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.decodepsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::decodepsbt(&transport, ...).await`
+///
 /// Calls the `decodepsbt` RPC method.
 pub async fn decode_psbt(
     transport: &dyn TransportTrait,
@@ -142,11 +156,13 @@ pub async fn decode_psbt(
 }
 
 /// Return a JSON object representing the serialized, hex-encoded transaction.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.decoderawtransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::decoderawtransaction(&transport, ...).await`
+///
 /// Calls the `decoderawtransaction` RPC method.
 pub async fn decode_raw_transaction(
     transport: &dyn TransportTrait,
@@ -159,11 +175,13 @@ pub async fn decode_raw_transaction(
 }
 
 /// Decode a hex-encoded script.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.decodescript(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::decodescript(&transport, ...).await`
+///
 /// Calls the `decodescript` RPC method.
 pub async fn decode_script(
     transport: &dyn TransportTrait,
@@ -176,11 +194,13 @@ pub async fn decode_script(
 
 /// Update all segwit inputs in a PSBT with information from output descriptors, the UTXO set or the mempool.
 /// Then, sign the inputs we are able to with information from the output descriptors.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.descriptorprocesspsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::descriptorprocesspsbt(&transport, ...).await`
+///
 /// Calls the `descriptorprocesspsbt` RPC method.
 pub async fn descriptor_process_psbt(
     transport: &dyn TransportTrait,
@@ -205,11 +225,13 @@ pub async fn descriptor_process_psbt(
 /// network serialized transaction which can be broadcast with sendrawtransaction. Otherwise a PSBT will be
 /// created which has the final_scriptSig and final_scriptwitness fields filled for inputs that are complete.
 /// Implements the Finalizer and Extractor roles.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.finalizepsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::finalizepsbt(&transport, ...).await`
+///
 /// Calls the `finalizepsbt` RPC method.
 pub async fn finalize_psbt(
     transport: &dyn TransportTrait,
@@ -235,11 +257,13 @@ pub async fn finalize_psbt(
 /// Note that if specifying an exact fee rate, the resulting transaction may have a higher fee rate
 /// if the transaction has unconfirmed inputs. This is because the wallet will attempt to make the
 /// entire package have the given fee rate, not the resulting transaction.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.fundrawtransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::fundrawtransaction(&transport, ...).await`
+///
 /// Calls the `fundrawtransaction` RPC method.
 pub async fn fund_raw_transaction(
     transport: &dyn TransportTrait,
@@ -260,11 +284,13 @@ pub async fn fund_raw_transaction(
 /// If verbosity is 0 or omitted, returns the serialized transaction as a hex-encoded string.
 /// If verbosity is 1, returns a JSON Object with information about the transaction.
 /// If verbosity is 2, returns a JSON Object with information about the transaction, including fee and prevout information.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getrawtransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrawtransaction(&transport, ...).await`
+///
 /// Calls the `getrawtransaction` RPC method.
 pub async fn get_raw_transaction(
     transport: &dyn TransportTrait,
@@ -279,11 +305,13 @@ pub async fn get_raw_transaction(
 
 /// Joins multiple distinct PSBTs with different inputs and outputs into one PSBT with inputs and outputs from all of the PSBTs
 /// No input in any of the PSBTs can be in more than one of the PSBTs.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.joinpsbts(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::joinpsbts(&transport, ...).await`
+///
 /// Calls the `joinpsbts` RPC method.
 pub async fn join_psbts(
     transport: &dyn TransportTrait,
@@ -300,11 +328,13 @@ pub async fn join_psbts(
 /// nodes will normally not rebroadcast non-wallet transactions already in their mempool.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.sendrawtransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendrawtransaction(&transport, ...).await`
+///
 /// Calls the `sendrawtransaction` RPC method.
 pub async fn send_raw_transaction(
     transport: &dyn TransportTrait,
@@ -322,11 +352,13 @@ pub async fn send_raw_transaction(
 /// keys that will be the only keys used to sign the transaction.
 /// The third optional argument (may be null) is an array of previous transaction outputs that
 /// this transaction depends on but may not yet be in the block chain.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.signrawtransactionwithkey(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signrawtransactionwithkey(&transport, ...).await`
+///
 /// Calls the `signrawtransactionwithkey` RPC method.
 pub async fn sign_raw_transaction_with_key(
     transport: &dyn TransportTrait,
@@ -344,11 +376,13 @@ pub async fn sign_raw_transaction_with_key(
 /// The package will be validated according to consensus and mempool policy rules. If any transaction passes, it will be accepted to mempool.
 /// This RPC is experimental and the interface may be unstable. Refer to doc/policy/packages.md for documentation on package policies.
 /// Warning: successful submission does not mean the transactions will propagate throughout the network.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.submitpackage(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::submitpackage(&transport, ...).await`
+///
 /// Calls the `submitpackage` RPC method.
 pub async fn submit_package(
     transport: &dyn TransportTrait,
@@ -367,11 +401,13 @@ pub async fn submit_package(
 /// The maximum number of transactions allowed is 25.
 /// This checks if transactions violate the consensus or policy rules.
 /// See sendrawtransaction call.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.testmempoolaccept(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::testmempoolaccept(&transport, ...).await`
+///
 /// Calls the `testmempoolaccept` RPC method.
 pub async fn test_mempool_accept(
     transport: &dyn TransportTrait,
@@ -384,11 +420,13 @@ pub async fn test_mempool_accept(
 }
 
 /// Updates all segwit inputs and outputs in a PSBT with data from output descriptors, the UTXO set, txindex, or the mempool.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.utxoupdatepsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::utxoupdatepsbt(&transport, ...).await`
+///
 /// Calls the `utxoupdatepsbt` RPC method.
 pub async fn utxo_update_psbt(
     transport: &dyn TransportTrait,

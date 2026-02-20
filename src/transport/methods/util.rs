@@ -8,11 +8,13 @@ use crate::transport::core::{TransportError, TransportTrait};
 
 /// Creates a multi-signature address with n signatures of m keys required.
 /// It returns a json object with the address and redeemScript.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.createmultisig(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createmultisig(&transport, ...).await`
+///
 /// Calls the `createmultisig` RPC method.
 pub async fn create_multisig(
     transport: &dyn TransportTrait,
@@ -35,11 +37,13 @@ pub async fn create_multisig(
 /// In the above, &lt;pubkey&gt; either refers to a fixed public key in hexadecimal notation, or to an xpub/xprv optionally followed by one
 /// or more path elements separated by "/", where "h" represents a hardened child key.
 /// For more information on output descriptors, see the documentation in the doc/descriptors.md file.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.deriveaddresses(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::deriveaddresses(&transport, ...).await`
+///
 /// Calls the `deriveaddresses` RPC method.
 pub async fn derive_addresses(
     transport: &dyn TransportTrait,
@@ -55,11 +59,13 @@ pub async fn derive_addresses(
 /// confirmation within conf_target blocks if possible and return the number of blocks
 /// for which the estimate is valid. Uses virtual transaction size as defined
 /// in BIP 141 (witness data is discounted).
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.estimatesmartfee(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::estimatesmartfee(&transport, ...).await`
+///
 /// Calls the `estimatesmartfee` RPC method.
 pub async fn estimate_smart_fee(
     transport: &dyn TransportTrait,
@@ -72,11 +78,13 @@ pub async fn estimate_smart_fee(
 }
 
 /// Analyses a descriptor.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getdescriptorinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getdescriptorinfo(&transport, ...).await`
+///
 /// Calls the `getdescriptorinfo` RPC method.
 pub async fn get_descriptor_info(
     transport: &dyn TransportTrait,
@@ -88,11 +96,13 @@ pub async fn get_descriptor_info(
 }
 
 /// Returns the status of one or all available indices currently running in the node.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getindexinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getindexinfo(&transport, ...).await`
+///
 /// Calls the `getindexinfo` RPC method.
 pub async fn get_index_info(
     transport: &dyn TransportTrait,
@@ -104,11 +114,13 @@ pub async fn get_index_info(
 }
 
 /// Sign a message with the private key of an address
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.signmessagewithprivkey(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signmessagewithprivkey(&transport, ...).await`
+///
 /// Calls the `signmessagewithprivkey` RPC method.
 pub async fn sign_message_with_priv_key(
     transport: &dyn TransportTrait,
@@ -121,11 +133,13 @@ pub async fn sign_message_with_priv_key(
 }
 
 /// Return information about the given bitcoin address.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.validateaddress(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::validateaddress(&transport, ...).await`
+///
 /// Calls the `validateaddress` RPC method.
 pub async fn validate_address(
     transport: &dyn TransportTrait,
@@ -137,11 +151,13 @@ pub async fn validate_address(
 }
 
 /// Verify a signed message.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.verifymessage(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::verifymessage(&transport, ...).await`
+///
 /// Calls the `verifymessage` RPC method.
 pub async fn verify_message(
     transport: &dyn TransportTrait,

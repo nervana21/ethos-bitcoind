@@ -11,11 +11,13 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
 /// It only works on transactions which are not included in a block and are not currently in the mempool.
 /// It has no effect on transactions which are already abandoned.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.abandontransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::abandontransaction(&transport, ...).await`
+///
 /// Calls the `abandontransaction` RPC method.
 pub async fn abandon_transaction(
     transport: &dyn TransportTrait,
@@ -28,11 +30,13 @@ pub async fn abandon_transaction(
 
 /// Stops current wallet rescan triggered by an RPC call, e.g. by a rescanblockchain call.
 /// Note: Use "getwalletinfo" to query the scanning progress.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.abortrescan(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::abortrescan(&transport, ...).await`
+///
 /// Calls the `abortrescan` RPC method.
 pub async fn abort_rescan(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -41,11 +45,13 @@ pub async fn abort_rescan(transport: &dyn TransportTrait) -> Result<Value, Trans
 }
 
 /// Safely copies the current wallet file to the specified destination, which can either be a directory or a path with a filename.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.backupwallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::backupwallet(&transport, ...).await`
+///
 /// Calls the `backupwallet` RPC method.
 pub async fn backup_wallet(
     transport: &dyn TransportTrait,
@@ -68,11 +74,13 @@ pub async fn backup_wallet(
 /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
 /// returned by getnetworkinfo) to enter the node's mempool.
 /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.bumpfee(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::bumpfee(&transport, ...).await`
+///
 /// Calls the `bumpfee` RPC method.
 pub async fn bump_fee(
     transport: &dyn TransportTrait,
@@ -85,11 +93,13 @@ pub async fn bump_fee(
 }
 
 /// Creates and loads a new wallet.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.createwallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createwallet(&transport, ...).await`
+///
 /// Calls the `createwallet` RPC method.
 #[allow(clippy::too_many_arguments)]
 pub async fn create_wallet(
@@ -119,11 +129,13 @@ pub async fn create_wallet(
 
 /// Creates the wallet's descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.createwalletdescriptor(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::createwalletdescriptor(&transport, ...).await`
+///
 /// Calls the `createwalletdescriptor` RPC method.
 pub async fn create_wallet_descriptor(
     transport: &dyn TransportTrait,
@@ -144,11 +156,13 @@ pub async fn create_wallet_descriptor(
 /// For security reasons, the encryption process will generate a new HD seed, resulting
 /// in the creation of a fresh set of active descriptors. Therefore, it is crucial to
 /// securely back up the newly generated wallet file using the backupwallet RPC.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.encryptwallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::encryptwallet(&transport, ...).await`
+///
 /// Calls the `encryptwallet` RPC method.
 pub async fn encrypt_wallet(
     transport: &dyn TransportTrait,
@@ -160,11 +174,13 @@ pub async fn encrypt_wallet(
 }
 
 /// Returns the list of addresses assigned the specified label.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getaddressesbylabel(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getaddressesbylabel(&transport, ...).await`
+///
 /// Calls the `getaddressesbylabel` RPC method.
 pub async fn get_addresses_by_label(
     transport: &dyn TransportTrait,
@@ -177,11 +193,13 @@ pub async fn get_addresses_by_label(
 
 /// Return information about the given bitcoin address.
 /// Some of the information will only be present if the address is in the active wallet.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getaddressinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getaddressinfo(&transport, ...).await`
+///
 /// Calls the `getaddressinfo` RPC method.
 pub async fn get_address_info(
     transport: &dyn TransportTrait,
@@ -195,11 +213,13 @@ pub async fn get_address_info(
 /// Returns the total available balance.
 /// The available balance is what the wallet considers currently spendable, and is
 /// thus affected by options which limit spendability such as -spendzeroconfchange.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getbalance(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getbalance(&transport, ...).await`
+///
 /// Calls the `getbalance` RPC method.
 pub async fn get_balance(
     transport: &dyn TransportTrait,
@@ -214,11 +234,13 @@ pub async fn get_balance(
 }
 
 /// Returns an object with all balances in BTC.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getbalances(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getbalances(&transport, ...).await`
+///
 /// Calls the `getbalances` RPC method.
 pub async fn get_balances(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -227,11 +249,13 @@ pub async fn get_balances(transport: &dyn TransportTrait) -> Result<Value, Trans
 }
 
 /// List all BIP 32 HD keys in the wallet and which descriptors use them.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.gethdkeys(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gethdkeys(&transport, ...).await`
+///
 /// Calls the `gethdkeys` RPC method.
 pub async fn get_hd_keys(
     transport: &dyn TransportTrait,
@@ -245,11 +269,13 @@ pub async fn get_hd_keys(
 /// Returns a new Bitcoin address for receiving payments.
 /// If 'label' is specified, it is added to the address book
 /// so payments received with the address will be associated with 'label'.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getnewaddress(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getnewaddress(&transport, ...).await`
+///
 /// Calls the `getnewaddress` RPC method.
 pub async fn get_new_address(
     transport: &dyn TransportTrait,
@@ -263,11 +289,13 @@ pub async fn get_new_address(
 
 /// Returns a new Bitcoin address, for receiving change.
 /// This is for use with raw transactions, NOT normal use.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getrawchangeaddress(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getrawchangeaddress(&transport, ...).await`
+///
 /// Calls the `getrawchangeaddress` RPC method.
 pub async fn get_raw_change_address(
     transport: &dyn TransportTrait,
@@ -279,11 +307,13 @@ pub async fn get_raw_change_address(
 }
 
 /// Returns the total amount received by the given address in transactions with at least minconf confirmations.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getreceivedbyaddress(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getreceivedbyaddress(&transport, ...).await`
+///
 /// Calls the `getreceivedbyaddress` RPC method.
 pub async fn get_received_by_address(
     transport: &dyn TransportTrait,
@@ -297,11 +327,13 @@ pub async fn get_received_by_address(
 }
 
 /// Returns the total amount received by addresses with &lt;label&gt; in transactions with at least \[minconf\] confirmations.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getreceivedbylabel(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getreceivedbylabel(&transport, ...).await`
+///
 /// Calls the `getreceivedbylabel` RPC method.
 pub async fn get_received_by_label(
     transport: &dyn TransportTrait,
@@ -315,11 +347,13 @@ pub async fn get_received_by_label(
 }
 
 /// Get detailed information about in-wallet transaction &lt;txid&gt;
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.gettransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::gettransaction(&transport, ...).await`
+///
 /// Calls the `gettransaction` RPC method.
 pub async fn get_transaction(
     transport: &dyn TransportTrait,
@@ -333,11 +367,13 @@ pub async fn get_transaction(
 }
 
 /// Returns an object containing various wallet state info.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getwalletinfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getwalletinfo(&transport, ...).await`
+///
 /// Calls the `getwalletinfo` RPC method.
 pub async fn get_wallet_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -350,11 +386,13 @@ pub async fn get_wallet_info(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Note: This call can take over an hour to complete if using an early timestamp; during that time, other rpc calls
 /// may report that the imported keys, addresses or scripts exist but related transactions are still missing.
 /// The rescan is significantly faster if block filters are available (using startup option "-blockfilterindex=1").
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.importdescriptors(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::importdescriptors(&transport, ...).await`
+///
 /// Calls the `importdescriptors` RPC method.
 pub async fn import_descriptors(
     transport: &dyn TransportTrait,
@@ -366,11 +404,13 @@ pub async fn import_descriptors(
 }
 
 /// Imports funds without rescan. Corresponding address or script must previously be included in wallet. Aimed towards pruned wallets. The end-user is responsible to import additional transactions that subsequently spend the imported outputs or rescan after the point in the blockchain the transaction is included.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.importprunedfunds(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::importprunedfunds(&transport, ...).await`
+///
 /// Calls the `importprunedfunds` RPC method.
 pub async fn import_pruned_funds(
     transport: &dyn TransportTrait,
@@ -385,11 +425,13 @@ pub async fn import_pruned_funds(
 /// Refills each descriptor keypool in the wallet up to the specified number of new keys.
 /// By default, descriptor wallets have 4 active ranged descriptors ("legacy", "p2sh-segwit", "bech32", "bech32m"), each with 1000 entries.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.keypoolrefill(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::keypoolrefill(&transport, ...).await`
+///
 /// Calls the `keypoolrefill` RPC method.
 pub async fn keypool_refill(
     transport: &dyn TransportTrait,
@@ -403,11 +445,13 @@ pub async fn keypool_refill(
 /// Lists groups of addresses which have had their common ownership
 /// made public by common use as inputs or as the resulting change
 /// in past transactions
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listaddressgroupings(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listaddressgroupings(&transport, ...).await`
+///
 /// Calls the `listaddressgroupings` RPC method.
 pub async fn list_address_groupings(
     transport: &dyn TransportTrait,
@@ -418,11 +462,13 @@ pub async fn list_address_groupings(
 }
 
 /// List all descriptors present in a wallet.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listdescriptors(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listdescriptors(&transport, ...).await`
+///
 /// Calls the `listdescriptors` RPC method.
 pub async fn list_descriptors(
     transport: &dyn TransportTrait,
@@ -434,11 +480,13 @@ pub async fn list_descriptors(
 }
 
 /// Returns the list of all labels, or labels that are assigned to addresses with a specific purpose.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listlabels(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listlabels(&transport, ...).await`
+///
 /// Calls the `listlabels` RPC method.
 pub async fn list_labels(
     transport: &dyn TransportTrait,
@@ -451,11 +499,13 @@ pub async fn list_labels(
 
 /// Returns list of temporarily unspendable outputs.
 /// See the lockunspent call to lock and unlock transactions for spending.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listlockunspent(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listlockunspent(&transport, ...).await`
+///
 /// Calls the `listlockunspent` RPC method.
 pub async fn list_lock_unspent(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -464,11 +514,13 @@ pub async fn list_lock_unspent(transport: &dyn TransportTrait) -> Result<Value, 
 }
 
 /// List balances by receiving address.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listreceivedbyaddress(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listreceivedbyaddress(&transport, ...).await`
+///
 /// Calls the `listreceivedbyaddress` RPC method.
 pub async fn list_received_by_address(
     transport: &dyn TransportTrait,
@@ -490,11 +542,13 @@ pub async fn list_received_by_address(
 }
 
 /// List received transactions by label.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listreceivedbylabel(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listreceivedbylabel(&transport, ...).await`
+///
 /// Calls the `listreceivedbylabel` RPC method.
 pub async fn list_received_by_label(
     transport: &dyn TransportTrait,
@@ -516,11 +570,13 @@ pub async fn list_received_by_label(
 /// Get all transactions in blocks since block \[blockhash\], or all transactions if omitted.
 /// If "blockhash" is no longer a part of the main chain, transactions from the fork point onward are included.
 /// Additionally, if include_removed is set, transactions affecting the wallet which were removed are returned in the "removed" array.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listsinceblock(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listsinceblock(&transport, ...).await`
+///
 /// Calls the `listsinceblock` RPC method.
 pub async fn list_since_block(
     transport: &dyn TransportTrait,
@@ -550,6 +606,7 @@ pub async fn list_since_block(
 /// - `client.listtransactions(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listtransactions(&transport, ...).await`
+///
 /// Calls the `listtransactions` RPC method.
 pub async fn list_transactions(
     transport: &dyn TransportTrait,
@@ -566,11 +623,13 @@ pub async fn list_transactions(
 /// Returns array of unspent transaction outputs
 /// with between minconf and maxconf (inclusive) confirmations.
 /// Optionally filter to only include txouts paid to specified addresses.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listunspent(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listunspent(&transport, ...).await`
+///
 /// Calls the `listunspent` RPC method.
 pub async fn list_unspent(
     transport: &dyn TransportTrait,
@@ -592,11 +651,13 @@ pub async fn list_unspent(
 }
 
 /// Returns a list of wallets in the wallet directory.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listwalletdir(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listwalletdir(&transport, ...).await`
+///
 /// Calls the `listwalletdir` RPC method.
 pub async fn list_wallet_dir(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -606,11 +667,13 @@ pub async fn list_wallet_dir(transport: &dyn TransportTrait) -> Result<Value, Tr
 
 /// Returns a list of currently loaded wallets.
 /// For full information on the wallet, use "getwalletinfo"
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listwallets(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::listwallets(&transport, ...).await`
+///
 /// Calls the `listwallets` RPC method.
 pub async fn list_wallets(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -621,11 +684,13 @@ pub async fn list_wallets(transport: &dyn TransportTrait) -> Result<Value, Trans
 /// Loads a wallet from a wallet file or directory.
 /// Note that all wallet command-line options used when starting bitcoind will be
 /// applied to the new wallet.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.loadwallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::loadwallet(&transport, ...).await`
+///
 /// Calls the `loadwallet` RPC method.
 pub async fn load_wallet(
     transport: &dyn TransportTrait,
@@ -646,11 +711,13 @@ pub async fn load_wallet(
 /// wallet database and loaded on node start. Unwritten (persistent=false) locks are always cleared
 /// (by virtue of process exit) when a node stops or fails. Unlocking will clear both persistent and not.
 /// Also see the listunspent call
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.lockunspent(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::lockunspent(&transport, ...).await`
+///
 /// Calls the `lockunspent` RPC method.
 pub async fn lock_unspent(
     transport: &dyn TransportTrait,
@@ -670,11 +737,13 @@ pub async fn lock_unspent(
 /// for this wallet. In the event of an incorrect migration, the backup can be restored using restorewallet.
 /// Encrypted wallets must have the passphrase provided as an argument to this call.
 /// This RPC may take a long time to complete. Increasing the RPC client timeout is recommended.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.migratewallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::migratewallet(&transport, ...).await`
+///
 /// Calls the `migratewallet` RPC method.
 pub async fn migrate_wallet(
     transport: &dyn TransportTrait,
@@ -699,11 +768,13 @@ pub async fn migrate_wallet(
 /// At a minimum, the new fee rate must be high enough to pay an additional new relay fee (incrementalfee
 /// returned by getnetworkinfo) to enter the node's mempool.
 /// * WARNING: before version 0.21, fee_rate was in BTC/kvB. As of 0.21, fee_rate is in sat/vB. *
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.psbtbumpfee(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::psbtbumpfee(&transport, ...).await`
+///
 /// Calls the `psbtbumpfee` RPC method.
 pub async fn psbt_bump_fee(
     transport: &dyn TransportTrait,
@@ -716,11 +787,13 @@ pub async fn psbt_bump_fee(
 }
 
 /// Deletes the specified transaction from the wallet. Meant for use with pruned wallets and as a companion to importprunedfunds. This will affect wallet balances.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.removeprunedfunds(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::removeprunedfunds(&transport, ...).await`
+///
 /// Calls the `removeprunedfunds` RPC method.
 pub async fn remove_pruned_funds(
     transport: &dyn TransportTrait,
@@ -735,11 +808,13 @@ pub async fn remove_pruned_funds(
 /// Note: Use "getwalletinfo" to query the scanning progress.
 /// The rescan is significantly faster if block filters are available
 /// (using startup option "-blockfilterindex=1").
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.rescanblockchain(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::rescanblockchain(&transport, ...).await`
+///
 /// Calls the `rescanblockchain` RPC method.
 pub async fn rescan_blockchain(
     transport: &dyn TransportTrait,
@@ -754,11 +829,13 @@ pub async fn rescan_blockchain(
 /// Restores and loads a wallet from backup.
 /// The rescan is significantly faster if block filters are available
 /// (using startup option "-blockfilterindex=1").
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.restorewallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::restorewallet(&transport, ...).await`
+///
 /// Calls the `restorewallet` RPC method.
 pub async fn restore_wallet(
     transport: &dyn TransportTrait,
@@ -773,11 +850,13 @@ pub async fn restore_wallet(
 
 /// EXPERIMENTAL warning: this call may be changed in future releases.
 /// Send a transaction.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.send(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::send(&transport, ...).await`
+///
 /// Calls the `send` RPC method.
 pub async fn send(
     transport: &dyn TransportTrait,
@@ -804,11 +883,13 @@ pub async fn send(
 /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
 /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
 /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.sendall(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendall(&transport, ...).await`
+///
 /// Calls the `sendall` RPC method.
 pub async fn send_all(
     transport: &dyn TransportTrait,
@@ -831,11 +912,13 @@ pub async fn send_all(
 
 /// Send multiple times. Amounts are double-precision floating point numbers.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.sendmany(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendmany(&transport, ...).await`
+///
 /// Calls the `sendmany` RPC method.
 #[allow(clippy::too_many_arguments)]
 pub async fn send_many(
@@ -869,11 +952,13 @@ pub async fn send_many(
 
 /// Send an amount to a given address.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.sendtoaddress(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::sendtoaddress(&transport, ...).await`
+///
 /// Calls the `sendtoaddress` RPC method.
 #[allow(clippy::too_many_arguments)]
 pub async fn send_to_address(
@@ -908,11 +993,13 @@ pub async fn send_to_address(
 }
 
 /// Sets the label associated with the given address.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.setlabel(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::setlabel(&transport, ...).await`
+///
 /// Calls the `setlabel` RPC method.
 pub async fn set_label(
     transport: &dyn TransportTrait,
@@ -942,11 +1029,13 @@ pub async fn set_tx_fee(
 }
 
 /// Change the state of the given wallet flag for a wallet.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.setwalletflag(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::setwalletflag(&transport, ...).await`
+///
 /// Calls the `setwalletflag` RPC method.
 pub async fn set_wallet_flag(
     transport: &dyn TransportTrait,
@@ -960,11 +1049,13 @@ pub async fn set_wallet_flag(
 
 /// Sign a message with the private key of an address
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.signmessage(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signmessage(&transport, ...).await`
+///
 /// Calls the `signmessage` RPC method.
 pub async fn sign_message(
     transport: &dyn TransportTrait,
@@ -980,11 +1071,13 @@ pub async fn sign_message(
 /// The second optional argument (may be null) is an array of previous transaction outputs that
 /// this transaction depends on but may not yet be in the block chain.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.signrawtransactionwithwallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::signrawtransactionwithwallet(&transport, ...).await`
+///
 /// Calls the `signrawtransactionwithwallet` RPC method.
 pub async fn sign_raw_transaction_with_wallet(
     transport: &dyn TransportTrait,
@@ -998,11 +1091,13 @@ pub async fn sign_raw_transaction_with_wallet(
 }
 
 /// Calculate the balance change resulting in the signing and broadcasting of the given transaction(s).
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.simulaterawtransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::simulaterawtransaction(&transport, ...).await`
+///
 /// Calls the `simulaterawtransaction` RPC method.
 pub async fn simulate_raw_transaction(
     transport: &dyn TransportTrait,
@@ -1016,11 +1111,13 @@ pub async fn simulate_raw_transaction(
 
 /// Unloads the wallet referenced by the request endpoint or the wallet_name argument.
 /// If both are specified, they must be identical.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.unloadwallet(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::unloadwallet(&transport, ...).await`
+///
 /// Calls the `unloadwallet` RPC method.
 pub async fn unload_wallet(
     transport: &dyn TransportTrait,
@@ -1036,11 +1133,13 @@ pub async fn unload_wallet(
 /// Implements the Creator and Updater roles.
 /// All existing inputs must either have their previous output transaction be in the wallet
 /// or be in the UTXO set. Solving data must be provided for non-wallet inputs.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.walletcreatefundedpsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletcreatefundedpsbt(&transport, ...).await`
+///
 /// Calls the `walletcreatefundedpsbt` RPC method.
 pub async fn wallet_create_funded_psbt(
     transport: &dyn TransportTrait,
@@ -1064,11 +1163,13 @@ pub async fn wallet_create_funded_psbt(
 }
 
 /// Display address on an external signer for verification.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.walletdisplayaddress(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletdisplayaddress(&transport, ...).await`
+///
 /// Calls the `walletdisplayaddress` RPC method.
 pub async fn wallet_display_address(
     transport: &dyn TransportTrait,
@@ -1082,11 +1183,13 @@ pub async fn wallet_display_address(
 /// Removes the wallet encryption key from memory, locking the wallet.
 /// After calling this method, you will need to call walletpassphrase again
 /// before being able to call any methods which require the wallet to be unlocked.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.walletlock(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletlock(&transport, ...).await`
+///
 /// Calls the `walletlock` RPC method.
 pub async fn wallet_lock(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -1099,11 +1202,13 @@ pub async fn wallet_lock(transport: &dyn TransportTrait) -> Result<Value, Transp
 /// Note:
 /// Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock
 /// time that overrides the old one.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.walletpassphrase(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletpassphrase(&transport, ...).await`
+///
 /// Calls the `walletpassphrase` RPC method.
 pub async fn wallet_passphrase(
     transport: &dyn TransportTrait,
@@ -1116,11 +1221,13 @@ pub async fn wallet_passphrase(
 }
 
 /// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.walletpassphrasechange(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletpassphrasechange(&transport, ...).await`
+///
 /// Calls the `walletpassphrasechange` RPC method.
 pub async fn wallet_passphrase_change(
     transport: &dyn TransportTrait,
@@ -1135,11 +1242,13 @@ pub async fn wallet_passphrase_change(
 /// Update a PSBT with input information from our wallet and then sign inputs
 /// that we can sign for.
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.walletprocesspsbt(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::walletprocesspsbt(&transport, ...).await`
+///
 /// Calls the `walletprocesspsbt` RPC method.
 pub async fn wallet_process_psbt(
     transport: &dyn TransportTrait,

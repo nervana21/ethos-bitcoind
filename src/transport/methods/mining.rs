@@ -13,11 +13,13 @@ use crate::transport::core::{TransportError, TransportTrait};
 /// <https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki>
 /// <https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes>
 /// <https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki>
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getblocktemplate(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getblocktemplate(&transport, ...).await`
+///
 /// Calls the `getblocktemplate` RPC method.
 pub async fn get_block_template(
     transport: &dyn TransportTrait,
@@ -29,11 +31,13 @@ pub async fn get_block_template(
 }
 
 /// Returns a json object containing mining-related information.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getmininginfo(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getmininginfo(&transport, ...).await`
+///
 /// Calls the `getmininginfo` RPC method.
 pub async fn get_mining_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
@@ -44,11 +48,13 @@ pub async fn get_mining_info(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Returns the estimated network hashes per second based on the last n blocks.
 /// Pass in \[blocks\] to override # of blocks, -1 specifies since last difficulty change.
 /// Pass in \[height\] to estimate the network speed at the time when a certain block was found.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getnetworkhashps(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getnetworkhashps(&transport, ...).await`
+///
 /// Calls the `getnetworkhashps` RPC method.
 pub async fn get_network_hashps(
     transport: &dyn TransportTrait,
@@ -61,11 +67,13 @@ pub async fn get_network_hashps(
 }
 
 /// Returns a map of all user-created (see prioritisetransaction) fee deltas by txid, and whether the tx is present in mempool.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.getprioritisedtransactions(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::getprioritisedtransactions(&transport, ...).await`
+///
 /// Calls the `getprioritisedtransactions` RPC method.
 pub async fn get_prioritised_transactions(
     transport: &dyn TransportTrait,
@@ -76,11 +84,13 @@ pub async fn get_prioritised_transactions(
 }
 
 /// Accepts the transaction into mined blocks at a higher (or lower) priority
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.prioritisetransaction(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::prioritisetransaction(&transport, ...).await`
+///
 /// Calls the `prioritisetransaction` RPC method.
 pub async fn prioritise_transaction(
     transport: &dyn TransportTrait,
@@ -95,11 +105,13 @@ pub async fn prioritise_transaction(
 
 /// Attempts to submit new block to network.
 /// See <https://en.bitcoin.it/wiki/BIP_0022> for full specification.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.submitblock(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::submitblock(&transport, ...).await`
+///
 /// Calls the `submitblock` RPC method.
 pub async fn submit_block(
     transport: &dyn TransportTrait,
@@ -113,11 +125,13 @@ pub async fn submit_block(
 
 /// Decode the given hexdata as a header and submit it as a candidate chain tip if valid.
 /// Throws when the header is invalid.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.submitheader(...).await`
 /// Or directly via the transport layer for advanced use cases:
 /// - `transport::submitheader(&transport, ...).await`
+///
 /// Calls the `submitheader` RPC method.
 pub async fn submit_header(
     transport: &dyn TransportTrait,
