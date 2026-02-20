@@ -195,6 +195,7 @@ impl NodeManager for BitcoinNodeManager {
         // Wait for node to be ready
         let deadline = Instant::now() + Duration::from_secs(10);
         let mut attempts = 0;
+        let mut last_error: Option<String> = None;
         while Instant::now() < deadline {
             if let Some(child) = child_guard.as_mut() {
                 if let Ok(Some(status)) = child.try_wait() {
@@ -212,6 +213,7 @@ impl NodeManager for BitcoinNodeManager {
                     return Ok(());
                 }
                 Err(e) => {
+                    last_error = Some(e.to_string());
                     debug!("Failed to connect to RPC (attempt {}): {}", attempts, e);
                 }
             }
@@ -220,10 +222,16 @@ impl NodeManager for BitcoinNodeManager {
             tokio::time::sleep(Duration::from_millis(200)).await;
         }
 
-        let error = format!(
-            "Timed out waiting for bitcoind node to start on port {} after {} attempts",
-            self.rpc_port, attempts
-        );
+        let error = match last_error {
+            Some(e) => format!(
+                "Timed out waiting for node to start on port {} after {} attempts. Last RPC error: {}",
+                self.rpc_port, attempts, e
+            ),
+            None => format!(
+                "Timed out waiting for node to start on port {} after {} attempts",
+                self.rpc_port, attempts
+            ),
+        };
         error!("{}", error);
         return Err(TransportError::Rpc(error));
     }
