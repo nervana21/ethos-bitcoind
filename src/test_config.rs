@@ -3,6 +3,7 @@
 //! This module provides configuration utilities for running Bitcoin nodes in test environments.
 
 use std::env;
+use std::path::PathBuf;
 
 use bitcoin::Network;
 
@@ -15,6 +16,7 @@ use crate::config::Config;
 /// - `rpc_port = 0` (auto‑select a free port)
 /// - `rpc_username = "rpcuser"`
 /// - `rpc_password = "rpcpassword"`
+/// - `bitcoind_path = None` (use executable from PATH)
 /// - `extra_args = ["-prune=0", "-txindex"]` (for full blockchain history and transaction lookup)
 ///
 /// To override any of these, simply modify fields on `TestConfig::default()`
@@ -32,7 +34,7 @@ use crate::config::Config;
 ///
 /// # Environment Overrides
 ///
-/// Reads `RPC_NETWORK`, `RPC_PORT`, `RPC_USER`, and `RPC_PASS` to override defaults.
+/// Reads `RPC_NETWORK`, `RPC_PORT`, `RPC_USER`, and `RPC_PASS`, and `BITCOIND_PATH` (path to bitcoind executable) to override defaults.
 #[derive(Debug, Clone)]
 pub struct TestConfig {
     /// Which Bitcoin network to run against.
@@ -46,6 +48,8 @@ pub struct TestConfig {
     /// The password for RPC authentication.
     /// Can be customized to match your `bitcoin.conf` `rpcpassword` setting.
     pub rpc_password: String,
+    /// Path to the bitcoind executable. If None, the default executable name is used (e.g. from PATH).
+    pub bitcoind_path: Option<PathBuf>,
     /// Extra command-line arguments to pass to bitcoind
     pub extra_args: Vec<String>,
 }
@@ -82,6 +86,7 @@ impl TestConfig {
     /// - `RPC_PORT`: overrides `rpc_port`
     /// - `RPC_USER`: overrides `rpc_username`
     /// - `RPC_PASS`: overrides `rpc_password`
+    /// - `BITCOIND_PATH`: overrides `bitcoind_path` (path to the bitcoind executable)
     #[allow(clippy::field_reassign_with_default)]
     pub fn from_env() -> Self {
         let mut cfg = Self::default();
@@ -100,6 +105,9 @@ impl TestConfig {
         }
         if let Ok(pass) = env::var("RPC_PASS") {
             cfg.rpc_password = pass;
+        }
+        if let Ok(path) = env::var("BITCOIND_PATH") {
+            cfg.bitcoind_path = Some(PathBuf::from(path));
         }
         cfg
     }
@@ -124,6 +132,7 @@ impl TestConfig {
             rpc_port,
             rpc_username: config.rpc_user.clone(),
             rpc_password: config.rpc_password.clone(),
+            bitcoind_path: None,
             extra_args: vec!["-prune=0".to_string(), "-txindex".to_string()], // For full blockchain history and transaction lookup
         }
     }
@@ -136,6 +145,7 @@ impl Default for TestConfig {
             rpc_port: 0,
             rpc_username: "rpcuser".to_string(),
             rpc_password: "rpcpassword".to_string(),
+            bitcoind_path: None,
             extra_args: vec!["-prune=0".to_string(), "-txindex".to_string()], // For full blockchain history and transaction lookup
         }
     }

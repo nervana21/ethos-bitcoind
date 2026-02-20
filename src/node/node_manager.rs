@@ -119,7 +119,12 @@ impl NodeManager for BitcoinNodeManager {
         }
 
         let datadir = self._datadir.as_ref().unwrap().path();
-        let mut cmd = Command::new("bitcoind");
+        let exe = self
+            .config
+            .bitcoind_path
+            .as_deref()
+            .unwrap_or_else(|| std::path::Path::new("bitcoind"));
+        let mut cmd = Command::new(exe);
 
         let chain = format!("-chain={}", self.config.as_chain_str());
         let data_dir = format!("-datadir={}", datadir.display());
