@@ -14,8 +14,6 @@ repository = "https://github.com/nervana21/ethos"
 homepage = "https://github.com/nervana21/ethos"
 documentation = "https://docs.rs/ethos-bitcoind"
 
-[workspace]
-
 [dependencies]
 async-trait = "0.1.89"
 base64 = "0.22"
