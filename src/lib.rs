@@ -7,10 +7,10 @@
 #![allow(non_snake_case)]
 #![allow(unused_imports)]
 #![allow(dead_code)]
-//! Generated bitcoin_core RPC client library.
+//! Generated Bitcoin Core RPC client library.
 //!
-//! This library provides a strongly-typed interface to the bitcoin_core RPC API.
-//! It is generated from the bitcoin_core RPC API documentation.
+//! This library provides a strongly-typed interface to the Bitcoin Core RPC API.
+//! It is generated from the Bitcoin Core RPC API documentation.
 
 // Core modules
 pub mod bitcoin_core_client;
