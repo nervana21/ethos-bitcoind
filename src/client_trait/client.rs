@@ -721,8 +721,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Note: This call can take over an hour to complete if using an early timestamp; during that time, other rpc calls
     /// may report that the imported keys, addresses or scripts exist but related transactions are still missing.
     /// The rescan is significantly faster if block filters are available (using startup option "-blockfilterindex=1").
-    ///
-    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_descriptors(
         &self,
         requests: Vec<serde_json::Value>,
@@ -737,8 +735,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<ImportMempoolResponse, Self::Error>;
 
     /// Imports funds without rescan. Corresponding address or script must previously be included in wallet. Aimed towards pruned wallets. The end-user is responsible to import additional transactions that subsequently spend the imported outputs or rescan after the point in the blockchain the transaction is included.
-    ///
-    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_pruned_funds(
         &self,
         rawtransaction: String,
@@ -2742,8 +2738,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Note: This call can take over an hour to complete if using an early timestamp; during that time, other rpc calls
     /// may report that the imported keys, addresses or scripts exist but related transactions are still missing.
     /// The rescan is significantly faster if block filters are available (using startup option "-blockfilterindex=1").
-    ///
-    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_descriptors(
         &self,
         requests: Vec<serde_json::Value>,
@@ -2769,8 +2763,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Imports funds without rescan. Corresponding address or script must previously be included in wallet. Aimed towards pruned wallets. The end-user is responsible to import additional transactions that subsequently spend the imported outputs or rescan after the point in the blockchain the transaction is included.
-    ///
-    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_pruned_funds(
         &self,
         rawtransaction: String,
