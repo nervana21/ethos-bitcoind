@@ -271,6 +271,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// For security reasons, the encryption process will generate a new HD seed, resulting
     /// in the creation of a fresh set of active descriptors. Therefore, it is crucial to
     /// securely back up the newly generated wallet file using the backupwallet RPC.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn encrypt_wallet(
         &self,
         passphrase: String,
@@ -719,6 +721,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Note: This call can take over an hour to complete if using an early timestamp; during that time, other rpc calls
     /// may report that the imported keys, addresses or scripts exist but related transactions are still missing.
     /// The rescan is significantly faster if block filters are available (using startup option "-blockfilterindex=1").
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_descriptors(
         &self,
         requests: Vec<serde_json::Value>,
@@ -733,6 +737,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<ImportMempoolResponse, Self::Error>;
 
     /// Imports funds without rescan. Corresponding address or script must previously be included in wallet. Aimed towards pruned wallets. The end-user is responsible to import additional transactions that subsequently spend the imported outputs or rescan after the point in the blockchain the transaction is included.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_pruned_funds(
         &self,
         rawtransaction: String,
@@ -1146,6 +1152,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// Sign a message with the private key of an address
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn sign_message(
         &self,
         address: bitcoin::Address,
@@ -1176,6 +1184,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// The second optional argument (may be null) is an array of previous transaction outputs that
     /// this transaction depends on but may not yet be in the block chain.
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn sign_raw_transaction_with_wallet(
         &self,
         hexstring: String,
@@ -1330,6 +1340,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Removes the wallet encryption key from memory, locking the wallet.
     /// After calling this method, you will need to call walletpassphrase again
     /// before being able to call any methods which require the wallet to be unlocked.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn wallet_lock(&self) -> Result<WalletLockResponse, Self::Error>;
 
     /// Stores the wallet decryption key in memory for 'timeout' seconds.
@@ -1337,6 +1349,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Note:
     /// Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock
     /// time that overrides the old one.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn wallet_passphrase(
         &self,
         passphrase: String,
@@ -1344,6 +1358,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<WalletPassphraseResponse, Self::Error>;
 
     /// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn wallet_passphrase_change(
         &self,
         oldpassphrase: String,
@@ -1915,6 +1931,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// For security reasons, the encryption process will generate a new HD seed, resulting
     /// in the creation of a fresh set of active descriptors. Therefore, it is crucial to
     /// securely back up the newly generated wallet file using the backupwallet RPC.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn encrypt_wallet(
         &self,
         passphrase: String,
@@ -2724,6 +2742,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Note: This call can take over an hour to complete if using an early timestamp; during that time, other rpc calls
     /// may report that the imported keys, addresses or scripts exist but related transactions are still missing.
     /// The rescan is significantly faster if block filters are available (using startup option "-blockfilterindex=1").
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_descriptors(
         &self,
         requests: Vec<serde_json::Value>,
@@ -2749,6 +2769,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Imports funds without rescan. Corresponding address or script must previously be included in wallet. Aimed towards pruned wallets. The end-user is responsible to import additional transactions that subsequently spend the imported outputs or rescan after the point in the blockchain the transaction is included.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn import_pruned_funds(
         &self,
         rawtransaction: String,
@@ -3560,6 +3582,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// Sign a message with the private key of an address
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn sign_message(
         &self,
         address: bitcoin::Address,
@@ -3612,6 +3636,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// The second optional argument (may be null) is an array of previous transaction outputs that
     /// this transaction depends on but may not yet be in the block chain.
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn sign_raw_transaction_with_wallet(
         &self,
         hexstring: String,
@@ -3916,6 +3942,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Removes the wallet encryption key from memory, locking the wallet.
     /// After calling this method, you will need to call walletpassphrase again
     /// before being able to call any methods which require the wallet to be unlocked.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn wallet_lock(&self) -> Result<WalletLockResponse, Self::Error> {
         self.call::<WalletLockResponse>("walletlock", &[]).await
     }
@@ -3925,6 +3953,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Note:
     /// Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock
     /// time that overrides the old one.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn wallet_passphrase(
         &self,
         passphrase: String,
@@ -3937,6 +3967,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     }
 
     /// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
+    ///
+    /// Requires wallet private keys to be available (e.g. unlocked).
     async fn wallet_passphrase_change(
         &self,
         oldpassphrase: String,
