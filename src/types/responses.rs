@@ -2739,7 +2739,8 @@ pub struct GetBlockTemplateResponse {
     pub curtime: u64,
     /// a valid witness commitment for the unmodified block template
     pub default_witness_commitment: Option<String>,
-    pub field_0: (),
+    #[serde(default)]
+    pub field_0: Option<()>,
     /// The height of the next block
     pub height: u64,
     /// an id to include with a request to longpoll on an update to this template
