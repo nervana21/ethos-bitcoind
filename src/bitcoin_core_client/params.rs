@@ -30,7 +30,7 @@ pub struct AddconnectionParams {
 /// Addnode connections are limited to 8 at a time and are counted separately from the -maxconnections limit.
 #[derive(Debug, Serialize)]
 pub struct AddnodeParams {
-    /// The address of the peer to connect to
+    /// The IP address/hostname optionally followed by :port of the peer to connect to
     pub node: String,
     /// 'add' to add a node to the list, 'remove' to remove a node from the list, 'onetry' to try a connection to the node once
     pub command: String,
@@ -649,6 +649,13 @@ pub struct GetmempoolancestorsParams {
     pub verbose: Option<bool>,
 }
 
+/// Returns mempool data for given cluster
+#[derive(Debug, Serialize)]
+pub struct GetmempoolclusterParams {
+    /// The txid of a transaction in the cluster
+    pub txid: bitcoin::Txid,
+}
+
 /// If txid is in the mempool, returns all in-mempool descendants.
 #[derive(Debug, Serialize)]
 pub struct GetmempooldescendantsParams {
@@ -941,7 +948,11 @@ pub struct ListsinceblockParams {
 }
 
 /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
-/// Returns up to 'count' most recent transactions skipping the first 'from' transactions.
+/// Returns up to 'count' most recent transactions ordered from oldest to newest while skipping the first number of
+/// transactions specified in the 'skip' argument. A transaction can have multiple entries in this RPC response.
+/// For instance, a wallet transaction that pays three addresses — one wallet-owned and two external — will produce
+/// four entries. The payment to the wallet-owned address appears both as a send entry and as a receive entry.
+/// As a result, the RPC response will contain one entry in the receive category and three entries in the send category.
 #[derive(Debug, Serialize)]
 pub struct ListtransactionsParams {
     /// If set, should be a valid label name to return only incoming transactions
@@ -1017,7 +1028,7 @@ pub struct LockunspentParams {
 /// When called with arguments, adds or removes categories from debug logging and return the lists above.
 /// The arguments are evaluated in order "include", "exclude".
 /// If an item is both included and excluded, it will thus end up being excluded.
-/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, leveldb, libevent, mempool, mempoolrej, net, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
+/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, libevent, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
 /// In addition, the following are available as category names with special meanings:
 /// - "all",  "1" : represent all logging categories.
 #[derive(Debug, Serialize)]
@@ -1299,10 +1310,16 @@ pub struct SendmsgtopeerParams {
     pub msg: String,
 }
 
-/// Submit a raw transaction (serialized, hex-encoded) to local node and network.
-/// The transaction will be sent unconditionally to all peers, so using sendrawtransaction
-/// for manual rebroadcast may degrade privacy by leaking the transaction's origin, as
-/// nodes will normally not rebroadcast non-wallet transactions already in their mempool.
+/// Submit a raw transaction (serialized, hex-encoded) to the network.
+/// If -privatebroadcast is disabled, then the transaction will be put into the
+/// local mempool of the node and will be sent unconditionally to all currently
+/// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
+/// privacy by leaking the transaction's origin, as nodes will normally not
+/// rebroadcast non-wallet transactions already in their mempool.
+/// If -privatebroadcast is enabled, then the transaction will be sent only via
+/// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
+/// via the Tor network. This conceals the transaction's origin. The transaction
+/// will only enter the local mempool when it is received back from the network.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
 #[derive(Debug, Serialize)]
@@ -1396,14 +1413,6 @@ pub struct SetmocktimeParams {
 pub struct SetnetworkactiveParams {
     /// true to enable networking, false to disable
     pub state: bool,
-}
-
-/// (DEPRECATED) Set the transaction fee rate in BTC/kvB for this wallet. Overrides the global -paytxfee command line parameter.
-/// Can be deactivated by passing 0 as the fee. In that case automatic fee selection will be used by default.
-#[derive(Debug, Serialize)]
-pub struct SettxfeeParams {
-    /// The transaction fee rate in BTC/kvB
-    pub amount: serde_json::Value,
 }
 
 /// Change the state of the given wallet flag for a wallet.

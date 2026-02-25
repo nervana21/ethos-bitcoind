@@ -2935,6 +2935,8 @@ pub struct GetDeploymentInfoResponse {
     pub hash: String,
     /// requested block height (or tip)
     pub height: u64,
+    /// script verify flags for the block
+    pub script_flags: serde_json::Value,
 }
 
 /// Response for the `GetDescriptorActivity` RPC method
@@ -3110,6 +3112,19 @@ pub struct GetMempoolAncestorsResponse {
     pub transactionid: serde_json::Value,
 }
 
+/// Response for the `GetMempoolCluster` RPC method
+///
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+pub struct GetMempoolClusterResponse {
+    /// chunks in this cluster (in mining order)
+    pub chunks: serde_json::Value,
+    /// total sigops-adjusted weight (as defined in BIP 141 and modified by '-bytespersigop')
+    pub clusterweight: u64,
+    /// number of transactions
+    pub txcount: u64,
+}
+
 /// Response for the `GetMempoolDescendants` RPC method
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -3131,6 +3146,8 @@ pub struct GetMempoolEntryResponse {
     /// Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability. (DEPRECATED)
     #[serde(rename = "bip125-replaceable")]
     pub bip125_replaceable: bool,
+    /// sigops-adjusted weight (as defined in BIP 141 and modified by '-bytespersigop') of this transaction's chunk
+    pub chunkweight: u64,
     /// unconfirmed transactions used as inputs for this transaction
     pub depends: serde_json::Value,
     /// number of in-mempool descendant transactions (including this one)
@@ -3154,6 +3171,14 @@ pub struct GetMempoolEntryResponse {
     pub wtxid: String,
 }
 
+/// Response for the `GetMempoolFeeRateDiagram` RPC method
+///
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+pub struct GetMempoolFeeRateDiagramResponse {
+    pub field: serde_json::Value,
+}
+
 /// Response for the `GetMempoolInfo` RPC method
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -3165,6 +3190,10 @@ pub struct GetMempoolInfoResponse {
     pub fullrbf: bool,
     /// minimum fee rate increment for mempool limiting or replacement in BTC/kvB
     pub incrementalrelayfee: f64,
+    /// Maximum number of transactions that can be in a cluster (configured by -limitclustercount)
+    pub limitclustercount: Option<u64>,
+    /// Maximum size of a cluster in virtual bytes (configured by -limitclustersize)
+    pub limitclustersize: Option<u64>,
     /// True if the initial load attempt of the persisted mempool finished
     pub loaded: bool,
     /// Maximum number of bytes that can be used by OP_RETURN outputs in the mempool
@@ -4476,9 +4505,6 @@ pub struct GetWalletInfoResponse {
     pub keypoolsize_hd_internal: Option<u64>,
     /// hash and height of the block this information was generated on
     pub lastprocessedblock: serde_json::Value,
-    /// the transaction fee configuration, set in BTC/kvB
-    #[serde(deserialize_with = "amount_from_btc_float")]
-    pub paytxfee: bitcoin::Amount,
     /// false if privatekeys are disabled for this wallet (enforced watch-only wallet)
     pub private_keys_enabled: bool,
     /// current scanning details, or false if no scan is in progress
@@ -7206,115 +7232,6 @@ impl From<SetNetworkActiveResponse> for bool {
     fn from(wrapper: SetNetworkActiveResponse) -> Self { wrapper.value }
 }
 
-/// Response for the `SetTxFee` RPC method
-///
-/// This method returns a primitive value wrapped in a transparent struct.
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct SetTxFeeResponse {
-    /// Wrapped primitive value
-    pub value: bool,
-}
-
-impl<'de> serde::Deserialize<'de> for SetTxFeeResponse {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        use std::fmt;
-
-        use serde::de::{self, Visitor};
-
-        struct PrimitiveWrapperVisitor;
-
-        #[allow(unused_variables, clippy::needless_lifetimes)]
-        impl<'de> Visitor<'de> for PrimitiveWrapperVisitor {
-            type Value = SetTxFeeResponse;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a primitive value or an object with 'value' field")
-            }
-
-            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(SetTxFeeResponse { value: v != 0 })
-            }
-
-            fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(SetTxFeeResponse { value: v != 0 })
-            }
-
-            fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(SetTxFeeResponse { value: v != 0.0 })
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                let value = v.parse::<bool>().map_err(de::Error::custom)?;
-                Ok(SetTxFeeResponse { value })
-            }
-
-            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(SetTxFeeResponse { value: v })
-            }
-
-            fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
-            where
-                M: de::MapAccess<'de>,
-            {
-                let mut value = None;
-                while let Some(key) = map.next_key::<String>()? {
-                    if key == "value" {
-                        if value.is_some() {
-                            return Err(de::Error::duplicate_field("value"));
-                        }
-                        value = Some(map.next_value()?);
-                    } else {
-                        let _ = map.next_value::<de::IgnoredAny>()?;
-                    }
-                }
-                let value = value.ok_or_else(|| de::Error::missing_field("value"))?;
-                Ok(SetTxFeeResponse { value })
-            }
-        }
-
-        deserializer.deserialize_any(PrimitiveWrapperVisitor)
-    }
-}
-
-impl std::ops::Deref for SetTxFeeResponse {
-    type Target = bool;
-    fn deref(&self) -> &Self::Target { &self.value }
-}
-
-impl std::ops::DerefMut for SetTxFeeResponse {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
-}
-
-impl AsRef<bool> for SetTxFeeResponse {
-    fn as_ref(&self) -> &bool { &self.value }
-}
-
-impl From<bool> for SetTxFeeResponse {
-    fn from(value: bool) -> Self { Self { value } }
-}
-
-impl From<SetTxFeeResponse> for bool {
-    fn from(wrapper: SetTxFeeResponse) -> Self { wrapper.value }
-}
-
 /// Response for the `SetWalletFlag` RPC method
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -7830,7 +7747,7 @@ pub struct SubmitPackageResponse {
     /// List of txids of replaced transactions
     #[serde(rename = "replaced-transactions")]
     pub replaced_transactions: Option<serde_json::Value>,
-    /// transaction results keyed by wtxid
+    /// The transaction results keyed by wtxid. An entry is returned for every submitted wtxid.
     #[serde(rename = "tx-results")]
     pub tx_results: serde_json::Value,
 }

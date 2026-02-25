@@ -321,6 +321,24 @@ pub async fn get_mempool_ancestors(
     Ok(raw)
 }
 
+/// Returns mempool data for given cluster
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.getmempoolcluster(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::getmempoolcluster(&transport, ...).await`
+///
+/// Calls the `getmempoolcluster` RPC method.
+pub async fn get_mempool_cluster(
+    transport: &dyn TransportTrait,
+    txid: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(txid)];
+    let raw = transport.send_request("getmempoolcluster", &params).await?;
+    Ok(raw)
+}
+
 /// If txid is in the mempool, returns all in-mempool descendants.
 ///
 /// # Usage

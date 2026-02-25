@@ -600,7 +600,12 @@ pub async fn list_since_block(
 }
 
 /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
-/// Returns up to 'count' most recent transactions skipping the first 'from' transactions.
+/// Returns up to 'count' most recent transactions ordered from oldest to newest while skipping the first number of
+/// transactions specified in the 'skip' argument. A transaction can have multiple entries in this RPC response.
+/// For instance, a wallet transaction that pays three addresses — one wallet-owned and two external — will produce
+/// four entries. The payment to the wallet-owned address appears both as a send entry and as a receive entry.
+/// As a result, the RPC response will contain one entry in the receive category and three entries in the send category.
+///
 /// # Usage
 /// This method can be called using the high-level client interface:
 /// - `client.listtransactions(...).await`
@@ -1008,23 +1013,6 @@ pub async fn set_label(
 ) -> Result<Value, TransportError> {
     let params = vec![json!(address), json!(label)];
     let raw = transport.send_request("setlabel", &params).await?;
-    Ok(raw)
-}
-
-/// (DEPRECATED) Set the transaction fee rate in BTC/kvB for this wallet. Overrides the global -paytxfee command line parameter.
-/// Can be deactivated by passing 0 as the fee. In that case automatic fee selection will be used by default.
-/// # Usage
-/// This method can be called using the high-level client interface:
-/// - `client.settxfee(...).await`
-/// Or directly via the transport layer for advanced use cases:
-/// - `transport::settxfee(&transport, ...).await`
-/// Calls the `settxfee` RPC method.
-pub async fn set_tx_fee(
-    transport: &dyn TransportTrait,
-    amount: serde_json::Value,
-) -> Result<Value, TransportError> {
-    let params = vec![json!(amount)];
-    let raw = transport.send_request("settxfee", &params).await?;
     Ok(raw)
 }
 

@@ -322,10 +322,16 @@ pub async fn join_psbts(
     Ok(raw)
 }
 
-/// Submit a raw transaction (serialized, hex-encoded) to local node and network.
-/// The transaction will be sent unconditionally to all peers, so using sendrawtransaction
-/// for manual rebroadcast may degrade privacy by leaking the transaction's origin, as
-/// nodes will normally not rebroadcast non-wallet transactions already in their mempool.
+/// Submit a raw transaction (serialized, hex-encoded) to the network.
+/// If -privatebroadcast is disabled, then the transaction will be put into the
+/// local mempool of the node and will be sent unconditionally to all currently
+/// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
+/// privacy by leaking the transaction's origin, as nodes will normally not
+/// rebroadcast non-wallet transactions already in their mempool.
+/// If -privatebroadcast is enabled, then the transaction will be sent only via
+/// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
+/// via the Tor network. This conceals the transaction's origin. The transaction
+/// will only enter the local mempool when it is received back from the network.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
 ///
