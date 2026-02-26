@@ -2322,8 +2322,8 @@ pub struct GetBlockResponse {
     pub time: u64,
     /// The transaction ids
     pub tx: serde_json::Value,
-    pub tx_1: Option<serde_json::Value>,
-    pub tx_2: Option<serde_json::Value>,
+    pub tx_1: serde_json::Value,
+    pub tx_2: serde_json::Value,
     /// The block version
     pub version: u32,
     /// The block version formatted in hexadecimal
