@@ -2296,10 +2296,6 @@ pub struct GetBlockResponse {
     pub confirmations: i64,
     /// The difficulty
     pub difficulty: f64,
-    /// Same output as verbosity = 1
-    pub field_20: Option<serde_json::Value>,
-    /// Same output as verbosity = 2
-    pub field_22: Option<serde_json::Value>,
     /// the block hash (same as provided)
     pub hash: String,
     /// The block height or index
@@ -3770,8 +3766,6 @@ pub struct GetRawTransactionResponse {
     pub data: Option<String>,
     /// transaction fee in BTC, omitted if block undo data is not available
     pub fee: Option<f64>,
-    /// Same output as verbosity = 1
-    pub field_16: Option<serde_json::Value>,
     /// The transaction hash (differs from txid for witness transactions)
     pub hash: Option<String>,
     /// The serialized, hex-encoded data for 'txid'
@@ -3826,7 +3820,6 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                     confirmations: None,
                     data: Some(data),
                     fee: None,
-                    field_16: None,
                     hash: None,
                     hex: None,
                     in_active_chain: None,
@@ -3852,7 +3845,6 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                 let mut confirmations = None;
                 let mut data = None;
                 let mut fee = None;
-                let mut field_16 = None;
                 let mut hash = None;
                 let mut hex = None;
                 let mut in_active_chain = None;
@@ -3896,12 +3888,6 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                             return Err(de::Error::duplicate_field("fee"));
                         }
                         fee = Some(map.next_value::<f64>()?);
-                    }
-                    if key == "field_16" {
-                        if field_16.is_some() {
-                            return Err(de::Error::duplicate_field("field_16"));
-                        }
-                        field_16 = Some(map.next_value::<serde_json::Value>()?);
                     }
                     if key == "hash" {
                         if hash.is_some() {
@@ -3990,7 +3976,6 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                     confirmations,
                     data,
                     fee,
-                    field_16,
                     hash,
                     hex,
                     in_active_chain,
