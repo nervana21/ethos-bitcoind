@@ -8,7 +8,6 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DecodedScriptPubKey {
     /// Disassembly of the output script
     pub asm: String,
@@ -16,11 +15,95 @@ pub struct DecodedScriptPubKey {
     pub desc: String,
     /// The raw output script bytes, hex-encoded
     pub hex: String,
-    /// The type, eg 'pubkeyhash'
-    #[serde(rename = "type")]
-    pub r#type: String,
     /// The Bitcoin address (only if a well-defined address exists)
     pub address: Option<String>,
+    /// The type (one of: nonstandard, anchor, pubkey, pubkeyhash, scripthash, multisig, nulldata, witness_v0_scripthash, witness_v0_keyhash, witness_v1_taproot, witness_unknown)
+    #[serde(rename = "type")]
+    pub r#type: String,
+}
+
+/// Script sig in decoded tx input.
+/// See: <https://github.com/bitcoin/bitcoin/blob/744d47fcee0d32a71154292699bfdecf954a6065/src/core_io.cpp#L458-L461>
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodedScriptSig {
+    /// scriptSig in human-readable assembly form.
+    pub asm: String,
+    /// scriptSig serialized as hex.
+    pub hex: String,
+}
+
+/// Previous output (prevout) in decoded tx input; present for getblock verbosity 3.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodedPrevout {
+    /// True if the prevout was created by a coinbase transaction.
+    pub generated: bool,
+    /// Block height where the prevout was created.
+    pub height: i64,
+    /// Decoded script pubkey of the prevout output.
+    #[serde(rename = "scriptPubKey")]
+    pub script_pub_key: DecodedScriptPubKey,
+    /// Value of the prevout output in BTC.
+    pub value: f64,
+}
+
+/// Transaction input in decoded tx; prevout is None for getblock verbosity 2, Some for verbosity 3.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodedVin {
+    /// Transaction id of the previous output being spent.
+    pub txid: String,
+    /// Index of the previous output being spent.
+    pub vout: u32,
+    /// Decoded scriptSig for this input, when present.
+    #[serde(rename = "scriptSig", default, skip_serializing_if = "Option::is_none")]
+    pub script_sig: Option<DecodedScriptSig>,
+    /// Input sequence number.
+    pub sequence: u64,
+    /// Witness stack items for this input (if any).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub txinwitness: Option<Vec<String>>,
+    /// Decoded details of the previous output when verbosity includes prevout.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prevout: Option<DecodedPrevout>,
+}
+
+/// Transaction output in decoded tx; mirrors Core vout object.
+/// See: <https://github.com/bitcoin/bitcoin/blob/744d47fcee0d32a71154292699bfdecf954a6065/src/core_io.cpp#L495-L519>
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodedVout {
+    /// Value in BTC of this output.
+    pub value: f64,
+    /// Index of this output within the transaction.
+    pub n: u32,
+    /// Decoded script pubkey of this output.
+    #[serde(rename = "scriptPubKey")]
+    pub script_pub_key: DecodedScriptPubKey,
+}
+
+/// Decoded transaction details (getblock verbosity 2/3 and getrawtransaction verbose).
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodedTxDetails {
+    /// Transaction id.
+    pub txid: String,
+    /// Witness transaction id (wtxid).
+    pub hash: String,
+    /// Transaction version.
+    pub version: i32,
+    /// Total serialized size of the transaction in bytes.
+    pub size: u32,
+    /// Virtual transaction size (vsize) as defined in BIP 141.
+    pub vsize: u32,
+    /// Transaction weight as defined in BIP 141.
+    pub weight: u32,
+    /// Transaction locktime.
+    pub locktime: u32,
+    /// List of transaction inputs.
+    pub vin: Vec<DecodedVin>,
+    /// List of transaction outputs.
+    pub vout: Vec<DecodedVout>,
+    /// Fee paid by the transaction, when undo data is available.
+    pub fee: f64,
+    /// Raw transaction serialized as hex (consistent with getrawtransaction verbose output).
+    pub hex: String,
 }
 
 /// Response for the `AbandonTransaction` RPC method
