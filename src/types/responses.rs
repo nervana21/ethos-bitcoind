@@ -7,6 +7,22 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+pub struct DecodedScriptPubKey {
+    /// Disassembly of the output script
+    pub asm: String,
+    /// Inferred descriptor for the output
+    pub desc: String,
+    /// The raw output script bytes, hex-encoded
+    pub hex: String,
+    /// The type, eg 'pubkeyhash'
+    #[serde(rename = "type")]
+    pub r#type: String,
+    /// The Bitcoin address (only if a well-defined address exists)
+    pub address: Option<String>,
+}
+
 /// Response for the `AbandonTransaction` RPC method
 ///
 /// This method returns a primitive value wrapped in a transparent struct.
@@ -4313,7 +4329,7 @@ pub struct GetTxOutResponse {
     /// The transaction value in BTC
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub value: bitcoin::Amount,
-    pub scriptPubKey: serde_json::Value,
+    pub scriptPubKey: DecodedScriptPubKey,
     /// Coinbase or not
     pub coinbase: bool,
 }
