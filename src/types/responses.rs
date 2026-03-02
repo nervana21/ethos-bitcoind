@@ -637,7 +637,7 @@ pub struct BumpFeeResponse {
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub fee: bitcoin::Amount,
     /// Errors encountered during processing (may be empty).
-    pub errors: serde_json::Value,
+    pub errors: Vec<String>,
 }
 
 /// Response for the `ClearBanned` RPC method
@@ -1098,7 +1098,7 @@ pub struct CreateMultisigResponse {
     /// The descriptor for this multisig
     pub descriptor: String,
     /// Any warnings resulting from the creation of this multisig
-    pub warnings: Option<serde_json::Value>,
+    pub warnings: Option<Vec<String>>,
 }
 
 /// Response for the `CreatePsbt` RPC method
@@ -1325,7 +1325,7 @@ pub struct CreateWalletResponse {
     /// The wallet name if created successfully. If the wallet was created using a full path, the wallet_name will be the full path.
     pub name: String,
     /// Warning messages, if any, related to creating and loading the wallet.
-    pub warnings: Option<serde_json::Value>,
+    pub warnings: Option<Vec<String>>,
 }
 
 /// Response for the `CreateWalletDescriptor` RPC method
@@ -1334,7 +1334,7 @@ pub struct CreateWalletResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct CreateWalletDescriptorResponse {
     /// The public descriptors that were added to the wallet
-    pub descs: serde_json::Value,
+    pub descs: Vec<String>,
 }
 
 /// Response for the `DecodePsbt` RPC method
@@ -1936,7 +1936,7 @@ pub struct EstimateSmartFeeResponse {
     /// estimate fee rate in BTC/kvB (only present if no errors were encountered)
     pub feerate: Option<f64>,
     /// Errors encountered during processing (if there are any)
-    pub errors: Option<serde_json::Value>,
+    pub errors: Option<Vec<String>>,
     /// block number where estimate was found
     /// The request target will be clamped between 2 and the highest target
     /// fee estimation is able to return based on how long it has been running.
@@ -2116,7 +2116,7 @@ pub struct GetAddressInfoResponse {
     /// The redeemscript for the p2sh address.
     pub hex: Option<String>,
     /// Array of pubkeys associated with the known redeemscript (only if script is multisig).
-    pub pubkeys: Option<serde_json::Value>,
+    pub pubkeys: Option<Vec<String>>,
     /// The number of signatures required to spend multisig output (only if script is multisig).
     pub sigsrequired: Option<u64>,
     /// The hex value of the raw public key for single-key addresses (possibly embedded in P2SH or P2WSH).
@@ -2135,7 +2135,7 @@ pub struct GetAddressInfoResponse {
     pub hdmasterfingerprint: Option<String>,
     /// Array of labels associated with the address. Currently limited to one label but returned
     /// as an array to keep the API stable if multiple labels are enabled in the future.
-    pub labels: serde_json::Value,
+    pub labels: Vec<String>,
 }
 
 /// Response for the `GetAddrManInfo` RPC method
@@ -2406,7 +2406,7 @@ pub struct GetBlockResponse {
     /// The merkle root
     pub merkleroot: String,
     /// The transaction ids
-    pub tx: serde_json::Value,
+    pub tx: Vec<bitcoin::Txid>,
     /// The block time expressed in UNIX epoch time
     pub time: u64,
     /// The median block time expressed in UNIX epoch time
@@ -2473,7 +2473,7 @@ pub struct GetBlockchainInfoResponse {
     /// the block challenge (aka. block script), in hexadecimal (only present if the current network is a signet)
     pub signet_challenge: Option<String>,
     /// any network and blockchain warnings (run with `-deprecatedrpc=warnings` to return the latest warning as a single string)
-    pub warnings: serde_json::Value,
+    pub warnings: Vec<String>,
 }
 
 /// Response for the `GetBlockCount` RPC method
@@ -2828,10 +2828,10 @@ pub struct GetBlockTemplateResponse {
     /// The preferred block version
     pub version: u32,
     /// specific block rules that are to be enforced
-    pub rules: serde_json::Value,
+    pub rules: Vec<String>,
     /// set of pending, supported versionbit (BIP 9) softfork deployments
     pub vbavailable: serde_json::Value,
-    pub capabilities: serde_json::Value,
+    pub capabilities: Vec<String>,
     /// bit mask of versionbits the server requires set in submissions
     pub vbrequired: u64,
     /// The hash of current highest block
@@ -2849,7 +2849,7 @@ pub struct GetBlockTemplateResponse {
     /// The minimum timestamp appropriate for the next block time, expressed in UNIX epoch time. Adjusted for the proposed BIP94 timewarp rule.
     pub mintime: u64,
     /// list of ways the block template may be changed
-    pub mutable: serde_json::Value,
+    pub mutable: Vec<String>,
     /// A range of valid nonces
     pub noncerange: String,
     /// limit of sigops in blocks
@@ -3031,7 +3031,7 @@ pub struct GetDeploymentInfoResponse {
     /// requested block height (or tip)
     pub height: u64,
     /// script verify flags for the block
-    pub script_flags: serde_json::Value,
+    pub script_flags: Vec<String>,
     pub deployments: serde_json::Value,
 }
 
@@ -3052,7 +3052,7 @@ pub struct GetDescriptorInfoResponse {
     /// The descriptor in canonical form, without private keys. For a multipath descriptor, only the first will be returned.
     pub descriptor: String,
     /// All descriptors produced by expanding multipath derivation elements. Only if the provided descriptor specifies multipath derivation elements.
-    pub multipath_expansion: Option<serde_json::Value>,
+    pub multipath_expansion: Option<Vec<String>>,
     /// The checksum for the input descriptor
     pub checksum: String,
     /// Whether the descriptor is ranged
@@ -3204,7 +3204,7 @@ pub struct GetMemoryInfoResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolAncestorsResponse {
-    pub field_0: serde_json::Value,
+    pub field_0: Vec<String>,
     pub transactionid: serde_json::Value,
 }
 
@@ -3226,7 +3226,7 @@ pub struct GetMempoolClusterResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolDescendantsResponse {
-    pub field_0: serde_json::Value,
+    pub field_0: Vec<String>,
     pub transactionid: serde_json::Value,
 }
 
@@ -3257,9 +3257,9 @@ pub struct GetMempoolEntryResponse {
     pub wtxid: String,
     pub fees: serde_json::Value,
     /// unconfirmed transactions used as inputs for this transaction
-    pub depends: serde_json::Value,
+    pub depends: Vec<String>,
     /// unconfirmed transactions spending outputs from this transaction
-    pub spentby: serde_json::Value,
+    pub spentby: Vec<String>,
     /// Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability. (DEPRECATED)
     #[serde(rename = "bip125-replaceable")]
     pub bip125_replaceable: bool,
@@ -3342,7 +3342,7 @@ pub struct GetMiningInfoResponse {
     /// The next block
     pub next: serde_json::Value,
     /// any network and blockchain warnings (run with `-deprecatedrpc=warnings` to return the latest warning as a single string)
-    pub warnings: serde_json::Value,
+    pub warnings: Vec<String>,
 }
 
 /// Response for the `GetNetTotals` RPC method
@@ -3482,7 +3482,7 @@ pub struct GetNetworkInfoResponse {
     /// the services we offer to the network
     pub localservices: String,
     /// the services we offer to the network, in human-readable form
-    pub localservicesnames: serde_json::Value,
+    pub localservicesnames: Vec<String>,
     /// true if transaction relay is requested from peers
     pub localrelay: bool,
     /// the time offset
@@ -3504,7 +3504,7 @@ pub struct GetNetworkInfoResponse {
     /// list of local addresses
     pub localaddresses: serde_json::Value,
     /// any network and blockchain warnings (run with `-deprecatedrpc=warnings` to return the latest warning as a single string)
-    pub warnings: serde_json::Value,
+    pub warnings: Vec<String>,
 }
 
 /// Response for the `GetNewAddress` RPC method
@@ -4368,13 +4368,13 @@ pub struct GetTransactionResponse {
     /// The hash of serialized transaction, including witness data.
     pub wtxid: String,
     /// Confirmed transactions that have been detected by the wallet to conflict with this transaction.
-    pub walletconflicts: serde_json::Value,
+    pub walletconflicts: Vec<String>,
     /// Only if 'category' is 'send'. The txid if this tx was replaced.
     pub replaced_by_txid: Option<String>,
     /// Only if 'category' is 'send'. The txid if this tx replaces another.
     pub replaces_txid: Option<String>,
     /// Transactions in the mempool that directly conflict with either this transaction or an ancestor transaction
-    pub mempoolconflicts: serde_json::Value,
+    pub mempoolconflicts: Vec<String>,
     /// If a comment to is associated with the transaction.
     pub to: Option<String>,
     /// The transaction time expressed in UNIX epoch time.
@@ -4388,7 +4388,7 @@ pub struct GetTransactionResponse {
     #[serde(rename = "bip125-replaceable")]
     pub bip125_replaceable: String,
     /// Only if 'category' is 'received'. List of parent descriptors for the output script of this coin.
-    pub parent_descs: Option<serde_json::Value>,
+    pub parent_descs: Option<Vec<String>>,
     pub details: serde_json::Value,
     /// Raw data for transaction
     pub hex: String,
@@ -4412,7 +4412,7 @@ pub struct GetTxOutResponse {
     /// The transaction value in BTC
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub value: bitcoin::Amount,
-    pub scriptPubKey: DecodedScriptPubKey,
+    pub scriptPubKey: serde_json::Value,
     /// Coinbase or not
     pub coinbase: bool,
 }
@@ -4599,7 +4599,7 @@ pub struct GetWalletInfoResponse {
     /// The start time for blocks scanning. It could be modified by (re)importing any descriptor with an earlier timestamp.
     pub birthtime: Option<u64>,
     /// The flags currently set on the wallet
-    pub flags: serde_json::Value,
+    pub flags: Vec<String>,
     /// hash and height of the block this information was generated on
     pub lastprocessedblock: serde_json::Value,
 }
@@ -5382,7 +5382,7 @@ pub struct ListSinceBlockResponse {
     pub transactions: serde_json::Value,
     /// &lt;structure is the same as "transactions" above, only present if include_removed=true&gt;
     /// Note: transactions that were re-added in the active chain will appear as-is in this array, and may thus have a positive confirmation count.
-    pub removed: Option<serde_json::Value>,
+    pub removed: Option<Vec<String>>,
     /// The hash of the block (target_confirmations-1) from the best block on the main chain, or the genesis hash if the referenced block does not exist yet. This is typically used to feed back into listsinceblock the next time you call it. So you would generally use a target_confirmations of say 6, so you will be continually re-notified of transactions until they've reached 6 confirmations plus any new ones
     pub lastblock: String,
 }
@@ -5499,7 +5499,7 @@ pub struct LoadWalletResponse {
     /// The wallet name if loaded successfully.
     pub name: String,
     /// Warning messages, if any, related to loading the wallet.
-    pub warnings: Option<serde_json::Value>,
+    pub warnings: Option<Vec<String>>,
 }
 
 /// Response for the `LockUnspent` RPC method
@@ -6235,7 +6235,7 @@ pub struct PsbtBumpFeeResponse {
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub fee: bitcoin::Amount,
     /// Errors encountered during processing (may be empty).
-    pub errors: serde_json::Value,
+    pub errors: Vec<String>,
 }
 
 /// Response for the `ReconsiderBlock` RPC method
@@ -6501,7 +6501,7 @@ pub struct RestoreWalletResponse {
     /// The wallet name if restored successfully.
     pub name: String,
     /// Warning messages, if any, related to restoring and loading the wallet.
-    pub warnings: Option<serde_json::Value>,
+    pub warnings: Option<Vec<String>>,
 }
 
 /// Response for the `SaveMempool` RPC method
@@ -6524,7 +6524,7 @@ pub struct ScanBlocksResponse {
     /// The height we ended the scan at
     pub to_height: u64,
     /// Blocks that may have matched a scanobject.
-    pub relevant_blocks: serde_json::Value,
+    pub relevant_blocks: Vec<String>,
     /// true if the scan process was not aborted
     pub completed: bool,
     /// Approximate percent complete
@@ -7834,7 +7834,7 @@ pub struct SubmitPackageResponse {
     pub tx_results: serde_json::Value,
     /// List of txids of replaced transactions
     #[serde(rename = "replaced-transactions")]
-    pub replaced_transactions: Option<serde_json::Value>,
+    pub replaced_transactions: Option<Vec<String>>,
 }
 
 /// Response for the `SyncWithValidationInterfaceQueue` RPC method
@@ -7975,7 +7975,7 @@ pub struct TestMempoolAcceptResponse {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct UnloadWalletResponse {
     /// Warning messages, if any, related to unloading the wallet.
-    pub warnings: Option<serde_json::Value>,
+    pub warnings: Option<Vec<String>>,
 }
 impl<'de> serde::Deserialize<'de> for UnloadWalletResponse {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -8013,7 +8013,7 @@ impl<'de> serde::Deserialize<'de> for UnloadWalletResponse {
                         if warnings.is_some() {
                             return Err(de::Error::duplicate_field("warnings"));
                         }
-                        warnings = Some(map.next_value::<serde_json::Value>()?);
+                        warnings = Some(map.next_value::<Vec<String>>()?);
                     } else {
                         let _ = map.next_value::<de::IgnoredAny>()?;
                     }
@@ -8265,7 +8265,7 @@ pub struct ValidateAddressResponse {
     /// Error message, if any
     pub error: Option<String>,
     /// Indices of likely error locations in address, if known (e.g. Bech32 errors)
-    pub error_locations: Option<serde_json::Value>,
+    pub error_locations: Option<Vec<String>>,
 }
 
 /// Response for the `VerifyChain` RPC method
