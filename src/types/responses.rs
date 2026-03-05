@@ -106,6 +106,29 @@ pub struct DecodedTxDetails {
     pub hex: String,
 }
 
+/// Hex-encoded block data returned by getblock with verbosity 0.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockV0 {
+    /// Serialized block as a hex string.
+    pub hex: String,
+}
+
+/// Verbose block view with decoded transactions (built from getblock verbosities 1 and 2).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct GetBlockWithTxsResponse {
+    /// Block header and summary information from getblock verbosity 1.
+    pub base: GetBlockResponse,
+    /// Fully decoded transactions in the block, matching getblock verbosity 2.
+    pub decoded_txs: Vec<DecodedTxDetails>,
+}
+
+/// Verbose block view with decoded transactions and prevout metadata (getblock verbosity 3).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct GetBlockWithPrevoutResponse {
+    /// Verbose block view with prevout-rich inputs; wraps the verbosity-2 representation.
+    pub inner: GetBlockWithTxsResponse,
+}
+
 /// Response for the `AbandonTransaction` RPC method
 ///
 /// This method returns a primitive value wrapped in a transparent struct.
