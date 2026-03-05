@@ -2427,8 +2427,6 @@ pub struct GetBlockResponse {
     pub previousblockhash: Option<String>,
     /// The hash of the next block (if available)
     pub nextblockhash: Option<String>,
-    pub tx_1: serde_json::Value,
-    pub tx_2: serde_json::Value,
 }
 
 /// Response for the `GetBlockchainInfo` RPC method
