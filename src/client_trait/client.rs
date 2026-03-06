@@ -5,7 +5,9 @@ use std::future::Future;
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 
-use crate::bitcoin_core_client::params::{GetBlockTemplateRequest, SendallRecipient};
+use crate::bitcoin_core_client::params::{
+    GetBlockTemplateRequest, SendallRecipient, SendmanyAmountsRef,
+};
 use crate::transport::core::TransportExt;
 use crate::transport::{TransportError, TransportTrait};
 use crate::types::{FeeRate, *};
