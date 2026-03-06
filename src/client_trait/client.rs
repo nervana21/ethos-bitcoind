@@ -468,7 +468,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// <https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki>
     async fn get_block_template(
         &self,
-        template_request: serde_json::Value,
+        template_request: GetBlockTemplateRequest,
     ) -> Result<GetBlockTemplateResponse, Self::Error>;
 
     /// Return information about chainstates.
@@ -1045,7 +1045,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
     async fn send_all(
         &self,
-        recipients: Vec<serde_json::Value>,
+        recipients: Vec<SendallRecipient>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
         fee_rate: Option<FeeRate>,
@@ -1057,10 +1057,13 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn send_many(
         &self,
         dummy: Option<String>,
-        amounts: serde_json::Value,
+        amounts: std::collections::HashMap<
+            bitcoin::Address<bitcoin::address::NetworkUnchecked>,
+            bitcoin::Amount,
+        >,
         min_conf: Option<i64>,
         comment: Option<String>,
-        subtractfeefrom: Option<Vec<serde_json::Value>>,
+        subtractfeefrom: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
         replaceable: Option<bool>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
@@ -2261,7 +2264,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// <https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki>
     async fn get_block_template(
         &self,
-        template_request: serde_json::Value,
+        template_request: GetBlockTemplateRequest,
     ) -> Result<GetBlockTemplateResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(template_request));
@@ -3345,7 +3348,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
     async fn send_all(
         &self,
-        recipients: Vec<serde_json::Value>,
+        recipients: Vec<SendallRecipient>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
         fee_rate: Option<FeeRate>,
@@ -3373,10 +3376,13 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn send_many(
         &self,
         dummy: Option<String>,
-        amounts: serde_json::Value,
+        amounts: std::collections::HashMap<
+            bitcoin::Address<bitcoin::address::NetworkUnchecked>,
+            bitcoin::Amount,
+        >,
         min_conf: Option<i64>,
         comment: Option<String>,
-        subtractfeefrom: Option<Vec<serde_json::Value>>,
+        subtractfeefrom: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
         replaceable: Option<bool>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,

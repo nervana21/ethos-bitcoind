@@ -618,7 +618,7 @@ pub struct GetblockstatsParams {
 #[derive(Debug, Serialize)]
 pub struct GetblocktemplateParams {
     /// Format of the template
-    pub template_request: serde_json::Value,
+    pub template_request: GetBlockTemplateRequest,
 }
 
 /// Compute statistics about the total number and rate of transactions in the chain.
@@ -1293,7 +1293,7 @@ pub struct SendParams {
 pub struct SendallParams {
     /// The sendall destinations. Each address may only appear once.
     /// Optionally some recipients can be specified with an amount to perform payments, but at least one address must appear without a specified amount.
-    pub recipients: Vec<serde_json::Value>,
+    pub recipients: Vec<SendallRecipient>,
     /// Confirmation target in blocks
     pub conf_target: Option<i64>,
     /// The fee estimate mode, must be one of (case insensitive):
@@ -1320,7 +1320,11 @@ pub struct SendmanyParams {
     /// Must be set to "" for backwards compatibility.
     pub dummy: Option<String>,
     /// The addresses and amounts
-    pub amounts: serde_json::Value,
+    #[serde(with = "crate::bitcoin_core_client::params::serde_amounts_map")]
+    pub amounts: std::collections::HashMap<
+        bitcoin::Address<bitcoin::address::NetworkUnchecked>,
+        bitcoin::Amount,
+    >,
     /// Ignored dummy value
     #[serde(rename = "minconf")]
     pub min_conf: Option<i64>,
@@ -1330,7 +1334,7 @@ pub struct SendmanyParams {
     /// The fee will be equally deducted from the amount of each selected address.
     /// Those recipients will receive less bitcoins than you enter in their corresponding amount field.
     /// If no addresses are specified here, the sender pays the fee.
-    pub subtractfeefrom: Option<Vec<serde_json::Value>>,
+    pub subtractfeefrom: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
     /// Signal that this transaction can be replaced by a transaction (BIP 125)
     pub replaceable: Option<bool>,
     /// Confirmation target in blocks
