@@ -1,6 +1,35 @@
 //! Parameter structs for RPC method calls
 use serde::Serialize;
 
+use crate::types::FeeRate;
+
+mod serde_fee_rate {
+    pub mod maxfeerate_opt {
+        use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+        use crate::types::FeeRate;
+
+        #[allow(clippy::ref_option)]
+        pub fn serialize<S>(f: &Option<FeeRate>, s: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            match f {
+                Some(r) => s.serialize_some(&((r.to_sat_per_kvb_floor() as f64) / 100_000_000.0)),
+                None => s.serialize_none(),
+            }
+        }
+
+        pub fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<Option<FeeRate>, D::Error> {
+            let opt: Option<f64> = Option::deserialize(d)?;
+            Ok(opt.map(|v| {
+                let sat_per_kvb = (v * 100_000_000.0).round().clamp(0.0, u32::MAX as f64) as u32;
+                FeeRate::from_sat_per_kvb(sat_per_kvb)
+            }))
+        }
+    }
+}
+
 /// Mark in-wallet transaction &lt;txid&gt; as abandoned
 /// This will mark this transaction and all its in-wallet descendants as abandoned which will allow
 /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
