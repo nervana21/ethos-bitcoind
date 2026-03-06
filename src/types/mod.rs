@@ -6,4 +6,3 @@ pub enum HashOrHeight {
     Hash(bitcoin::BlockHash),
     Height(u32),
 }
-pub type ShortChannelId = String;
