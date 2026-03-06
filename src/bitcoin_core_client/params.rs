@@ -78,6 +78,17 @@ pub struct SendallRecipient {
     pub amount: Option<bitcoin::Amount>,
 }
 
+/// Request options for the getblocktemplate RPC (mode, capabilities, rules).
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+pub struct GetBlockTemplateRequest {
+    /// Optional mode: \"template\", \"proposal\", or omitted.
+    pub mode: Option<String>,
+    /// Optional list of capability strings.
+    pub capabilities: Option<Vec<String>>,
+    /// Optional list of rule strings.
+    pub rules: Option<Vec<String>>,
+}
+
 /// Mark in-wallet transaction &lt;txid&gt; as abandoned
 /// This will mark this transaction and all its in-wallet descendants as abandoned which will allow
 /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
