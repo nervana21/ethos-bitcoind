@@ -130,6 +130,27 @@ pub struct GetBlockWithPrevoutResponse {
     pub inner: GetBlockWithTxsResponse,
 }
 
+/// One transaction entry in getblocktemplate "transactions" array (BIP 22/23/145).
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockTemplateTransaction {
+    /// Transaction data encoded in hexadecimal (byte-for-byte).
+    pub data: String,
+    /// 1-based indexes of transactions in the 'transactions' list that must be present before this one.
+    pub depends: Vec<i64>,
+    /// Difference in value between inputs and outputs (satoshis); absent when unknown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fee: Option<i64>,
+    /// Transaction hash including witness data (byte-reversed hex).
+    pub hash: String,
+    /// Total SigOps cost for block limits; absent when unknown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sigops: Option<i64>,
+    /// Transaction hash excluding witness data (byte-reversed hex).
+    pub txid: String,
+    /// Total transaction weight for block limits.
+    pub weight: i64,
+}
+
 /// Response for the `AbandonTransaction` RPC method
 ///
 /// This method returns a primitive value wrapped in a transparent struct.
@@ -2864,7 +2885,7 @@ pub struct GetBlockTemplateResponse {
     /// The hash of current highest block
     pub previousblockhash: String,
     /// contents of non-coinbase transactions that should be included in the next block
-    pub transactions: serde_json::Value,
+    pub transactions: Vec<GetBlockTemplateTransaction>,
     /// data that should be included in the coinbase's scriptSig content
     #[serde(rename = "coinbaseaux")]
     pub coinbase_aux: HashMap<String, String>,
