@@ -3,6 +3,7 @@
 //! Generated for Bitcoin Core v30.2
 //!
 //! These types are version-specific and may not match other versions.
+use std::collections::HashMap;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
@@ -1402,8 +1403,8 @@ pub struct DecodeRawTransactionResponse {
     /// The lock time
     #[serde(rename = "locktime")]
     pub lock_time: u64,
-    pub vin: serde_json::Value,
-    pub vout: serde_json::Value,
+    pub vin: Vec<DecodedVin>,
+    pub vout: Vec<DecodedVout>,
 }
 
 /// Response for the `DecodeScript` RPC method
@@ -1432,7 +1433,7 @@ pub struct DecodeScriptResponse {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct DeriveAddressesResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<String>,
 }
 
 impl<'de> serde::Deserialize<'de> for DeriveAddressesResponse {
@@ -1440,16 +1441,16 @@ impl<'de> serde::Deserialize<'de> for DeriveAddressesResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<String>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for DeriveAddressesResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<String>> for DeriveAddressesResponse {
+    fn from(value: Vec<String>) -> Self { Self { value } }
 }
 
-impl From<DeriveAddressesResponse> for Vec<serde_json::Value> {
+impl From<DeriveAddressesResponse> for Vec<String> {
     fn from(wrapper: DeriveAddressesResponse) -> Self { wrapper.value }
 }
 
@@ -2855,7 +2856,7 @@ pub struct GetBlockTemplateResponse {
     pub rules: Vec<String>,
     /// set of pending, supported versionbit (BIP 9) softfork deployments
     #[serde(rename = "vbavailable")]
-    pub vb_available: serde_json::Value,
+    pub vb_available: HashMap<String, u32>,
     pub capabilities: Vec<String>,
     /// bit mask of versionbits the server requires set in submissions
     #[serde(rename = "vbrequired")]
@@ -2866,7 +2867,7 @@ pub struct GetBlockTemplateResponse {
     pub transactions: serde_json::Value,
     /// data that should be included in the coinbase's scriptSig content
     #[serde(rename = "coinbaseaux")]
-    pub coinbase_aux: serde_json::Value,
+    pub coinbase_aux: HashMap<String, String>,
     /// maximum allowable input to coinbase transaction, including the generation award and transaction fees (in satoshis)
     #[serde(rename = "coinbasevalue")]
     pub coinbase_value: u64,
@@ -3235,7 +3236,7 @@ pub struct GetMemoryInfoResponse {
 pub struct GetMempoolAncestorsResponse {
     pub field_0: Vec<String>,
     #[serde(rename = "transactionid")]
-    pub transaction_id: serde_json::Value,
+    pub transaction_id: bitcoin::Txid,
 }
 
 /// Response for the `GetMempoolCluster` RPC method
@@ -3258,7 +3259,7 @@ pub struct GetMempoolClusterResponse {
 pub struct GetMempoolDescendantsResponse {
     pub field_0: Vec<String>,
     #[serde(rename = "transactionid")]
-    pub transaction_id: serde_json::Value,
+    pub transaction_id: bitcoin::Txid,
 }
 
 /// Response for the `GetMempoolEntry` RPC method
@@ -3679,7 +3680,7 @@ impl From<GetNodeAddressesResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetOrphanTxsResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<bitcoin::Txid>,
 }
 
 impl<'de> serde::Deserialize<'de> for GetOrphanTxsResponse {
@@ -3687,16 +3688,16 @@ impl<'de> serde::Deserialize<'de> for GetOrphanTxsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<bitcoin::Txid>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for GetOrphanTxsResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<bitcoin::Txid>> for GetOrphanTxsResponse {
+    fn from(value: Vec<bitcoin::Txid>) -> Self { Self { value } }
 }
 
-impl From<GetOrphanTxsResponse> for Vec<serde_json::Value> {
+impl From<GetOrphanTxsResponse> for Vec<bitcoin::Txid> {
     fn from(wrapper: GetOrphanTxsResponse) -> Self { wrapper.value }
 }
 
@@ -3916,8 +3917,8 @@ pub struct GetRawTransactionResponse {
     /// The lock time
     #[serde(rename = "locktime")]
     pub lock_time: Option<u64>,
-    pub vin: Option<serde_json::Value>,
-    pub vout: Option<serde_json::Value>,
+    pub vin: Option<Vec<DecodedVin>>,
+    pub vout: Option<Vec<DecodedVout>>,
     /// transaction fee in BTC, omitted if block undo data is not available
     pub fee: Option<f64>,
     pub vin_1: Option<serde_json::Value>,
@@ -4079,13 +4080,13 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                         if vin.is_some() {
                             return Err(de::Error::duplicate_field("vin"));
                         }
-                        vin = Some(map.next_value::<serde_json::Value>()?);
+                        vin = Some(map.next_value::<Vec<DecodedVin>>()?);
                     }
                     if key == "vout" {
                         if vout.is_some() {
                             return Err(de::Error::duplicate_field("vout"));
                         }
-                        vout = Some(map.next_value::<serde_json::Value>()?);
+                        vout = Some(map.next_value::<Vec<DecodedVout>>()?);
                     }
                     if key == "fee" {
                         if fee.is_some() {
