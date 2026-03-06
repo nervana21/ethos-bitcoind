@@ -3328,7 +3328,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
         }
         if let Some(val) = options {
             rpc_params.push(serde_json::json!(val));
@@ -3360,7 +3360,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
         }
         if let Some(val) = options {
             rpc_params.push(serde_json::json!(val));
@@ -3407,7 +3407,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
         }
         if let Some(val) = verbose {
             rpc_params.push(serde_json::json!(val));
@@ -3452,10 +3452,10 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hexstring));
         if let Some(val) = max_fee_rate {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0));
         }
         if let Some(val) = max_burn_amount {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!(val.to_btc()));
         }
         self.call::<SendRawTransactionResponse>("sendrawtransaction", &rpc_params).await
     }
@@ -3478,7 +3478,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SendToAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
-        rpc_params.push(serde_json::json!(amount));
+        rpc_params.push(serde_json::json!(amount.to_btc()));
         if let Some(val) = comment {
             rpc_params.push(serde_json::json!(val));
         }
@@ -3501,7 +3501,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
         }
         if let Some(val) = verbose {
             rpc_params.push(serde_json::json!(val));
@@ -3712,10 +3712,10 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(package));
         if let Some(val) = max_fee_rate {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0));
         }
         if let Some(val) = max_burn_amount {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!(val.to_btc()));
         }
         self.call::<SubmitPackageResponse>("submitpackage", &rpc_params).await
     }
@@ -3745,7 +3745,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(rawtxs));
         if let Some(val) = max_fee_rate {
-            rpc_params.push(serde_json::json!(val));
+            rpc_params.push(serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0));
         }
         self.call::<TestMempoolAcceptResponse>("testmempoolaccept", &rpc_params).await
     }
