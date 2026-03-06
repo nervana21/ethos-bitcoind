@@ -1249,7 +1249,8 @@ pub struct SendParams {
     /// potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
     /// Specify a fee rate in sat/vB.
-    pub fee_rate: Option<serde_json::Value>,
+    #[serde(with = "bitcoin_units::fee_rate::serde::as_sat_per_vb_floor::opt")]
+    pub fee_rate: Option<FeeRate>,
     pub options: Option<serde_json::Value>,
     /// Transaction version
     pub version: Option<i64>,
@@ -1278,7 +1279,8 @@ pub struct SendallParams {
     /// potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
     /// Specify a fee rate in sat/vB.
-    pub fee_rate: Option<serde_json::Value>,
+    #[serde(with = "bitcoin_units::fee_rate::serde::as_sat_per_vb_floor::opt")]
+    pub fee_rate: Option<FeeRate>,
     pub options: Option<serde_json::Value>,
 }
 
@@ -1316,7 +1318,8 @@ pub struct SendmanyParams {
     /// potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
     /// Specify a fee rate in sat/vB.
-    pub fee_rate: Option<serde_json::Value>,
+    #[serde(with = "bitcoin_units::fee_rate::serde::as_sat_per_vb_floor::opt")]
+    pub fee_rate: Option<FeeRate>,
     /// If true, return extra information about the transaction.
     pub verbose: Option<bool>,
 }
@@ -1353,13 +1356,14 @@ pub struct SendrawtransactionParams {
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
+    #[serde(with = "crate::bitcoin_core_client::params::serde_fee_rate::maxfeerate_opt")]
     #[serde(rename = "maxfeerate")]
-    pub max_fee_rate: Option<serde_json::Value>,
+    pub max_fee_rate: Option<FeeRate>,
     /// Reject transactions with provably unspendable outputs (e.g. 'datacarrier' outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
     /// If burning funds through unspendable outputs is desired, increase this value.
     /// This check is based on heuristics and does not guarantee spendability of outputs.
     #[serde(rename = "maxburnamount")]
-    pub max_burn_amount: Option<serde_json::Value>,
+    pub max_burn_amount: Option<bitcoin::Amount>,
 }
 
 /// Send an amount to a given address.
@@ -1369,7 +1373,7 @@ pub struct SendtoaddressParams {
     /// The bitcoin address to send to.
     pub address: bitcoin::Address,
     /// The amount in BTC to send. eg 0.1
-    pub amount: serde_json::Value,
+    pub amount: bitcoin::Amount,
     /// A comment used to store what the transaction is for.
     /// This is not part of the transaction, just kept in your wallet.
     pub comment: Option<String>,
@@ -1400,7 +1404,8 @@ pub struct SendtoaddressParams {
     /// dirty if they have previously been used in a transaction. If true, this also activates avoidpartialspends, grouping outputs by their addresses.
     pub avoid_reuse: Option<bool>,
     /// Specify a fee rate in sat/vB.
-    pub fee_rate: Option<serde_json::Value>,
+    #[serde(with = "bitcoin_units::fee_rate::serde::as_sat_per_vb_floor::opt")]
+    pub fee_rate: Option<FeeRate>,
     /// If true, return extra information about the transaction.
     pub verbose: Option<bool>,
 }
@@ -1562,13 +1567,14 @@ pub struct SubmitpackageParams {
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
+    #[serde(with = "crate::bitcoin_core_client::params::serde_fee_rate::maxfeerate_opt")]
     #[serde(rename = "maxfeerate")]
-    pub max_fee_rate: Option<serde_json::Value>,
+    pub max_fee_rate: Option<FeeRate>,
     /// Reject transactions with provably unspendable outputs (e.g. 'datacarrier' outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
     /// If burning funds through unspendable outputs is desired, increase this value.
     /// This check is based on heuristics and does not guarantee spendability of outputs.
     #[serde(rename = "maxburnamount")]
-    pub max_burn_amount: Option<serde_json::Value>,
+    pub max_burn_amount: Option<bitcoin::Amount>,
 }
 
 /// Returns result of mempool acceptance tests indicating if raw transaction(s) (serialized, hex-encoded) would be accepted by mempool.
@@ -1584,8 +1590,9 @@ pub struct TestmempoolacceptParams {
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
+    #[serde(with = "crate::bitcoin_core_client::params::serde_fee_rate::maxfeerate_opt")]
     #[serde(rename = "maxfeerate")]
-    pub max_fee_rate: Option<serde_json::Value>,
+    pub max_fee_rate: Option<FeeRate>,
 }
 
 /// Unloads the wallet referenced by the request endpoint or the wallet_name argument.

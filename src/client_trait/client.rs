@@ -1034,7 +1034,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         outputs: Vec<serde_json::Value>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         options: Option<serde_json::Value>,
         version: Option<i64>,
     ) -> Result<SendResponse, Self::Error>;
@@ -1048,7 +1048,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         recipients: Vec<serde_json::Value>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         options: Option<serde_json::Value>,
     ) -> Result<SendAllResponse, Self::Error>;
 
@@ -1064,7 +1064,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         replaceable: Option<bool>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         verbose: Option<bool>,
     ) -> Result<SendManyResponse, Self::Error>;
 
@@ -1093,8 +1093,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn send_raw_transaction(
         &self,
         hexstring: String,
-        max_fee_rate: Option<serde_json::Value>,
-        max_burn_amount: Option<serde_json::Value>,
+        max_fee_rate: Option<FeeRate>,
+        max_burn_amount: Option<bitcoin::Amount>,
     ) -> Result<SendRawTransactionResponse, Self::Error>;
 
     /// Send an amount to a given address.
@@ -1102,7 +1102,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn send_to_address(
         &self,
         address: bitcoin::Address,
-        amount: serde_json::Value,
+        amount: bitcoin::Amount,
         comment: Option<String>,
         comment_to: Option<String>,
         subtract_fee_from_amount: Option<bool>,
@@ -1110,7 +1110,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
         avoid_reuse: Option<bool>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         verbose: Option<bool>,
     ) -> Result<SendToAddressResponse, Self::Error>;
 
@@ -1218,8 +1218,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn submit_package(
         &self,
         package: Vec<serde_json::Value>,
-        max_fee_rate: Option<serde_json::Value>,
-        max_burn_amount: Option<serde_json::Value>,
+        max_fee_rate: Option<FeeRate>,
+        max_burn_amount: Option<bitcoin::Amount>,
     ) -> Result<SubmitPackageResponse, Self::Error>;
 
     /// Waits for the validation interface queue to catch up on everything that was there when we entered this function.
@@ -1236,7 +1236,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn test_mempool_accept(
         &self,
         rawtxs: Vec<serde_json::Value>,
-        max_fee_rate: Option<serde_json::Value>,
+        max_fee_rate: Option<FeeRate>,
     ) -> Result<TestMempoolAcceptResponse, Self::Error>;
 
     /// Unloads the wallet referenced by the request endpoint or the wallet_name argument.
@@ -3315,7 +3315,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         outputs: Vec<serde_json::Value>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         options: Option<serde_json::Value>,
         version: Option<i64>,
     ) -> Result<SendResponse, Self::Error> {
@@ -3348,7 +3348,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         recipients: Vec<serde_json::Value>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         options: Option<serde_json::Value>,
     ) -> Result<SendAllResponse, Self::Error> {
         let mut rpc_params = vec![];
@@ -3380,7 +3380,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         replaceable: Option<bool>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         verbose: Option<bool>,
     ) -> Result<SendManyResponse, Self::Error> {
         let mut rpc_params = vec![];
@@ -3446,8 +3446,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn send_raw_transaction(
         &self,
         hexstring: String,
-        max_fee_rate: Option<serde_json::Value>,
-        max_burn_amount: Option<serde_json::Value>,
+        max_fee_rate: Option<FeeRate>,
+        max_burn_amount: Option<bitcoin::Amount>,
     ) -> Result<SendRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hexstring));
@@ -3465,7 +3465,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn send_to_address(
         &self,
         address: bitcoin::Address,
-        amount: serde_json::Value,
+        amount: bitcoin::Amount,
         comment: Option<String>,
         comment_to: Option<String>,
         subtract_fee_from_amount: Option<bool>,
@@ -3473,7 +3473,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
         avoid_reuse: Option<bool>,
-        fee_rate: Option<serde_json::Value>,
+        fee_rate: Option<FeeRate>,
         verbose: Option<bool>,
     ) -> Result<SendToAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
@@ -3706,8 +3706,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn submit_package(
         &self,
         package: Vec<serde_json::Value>,
-        max_fee_rate: Option<serde_json::Value>,
-        max_burn_amount: Option<serde_json::Value>,
+        max_fee_rate: Option<FeeRate>,
+        max_burn_amount: Option<bitcoin::Amount>,
     ) -> Result<SubmitPackageResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(package));
@@ -3740,7 +3740,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn test_mempool_accept(
         &self,
         rawtxs: Vec<serde_json::Value>,
-        max_fee_rate: Option<serde_json::Value>,
+        max_fee_rate: Option<FeeRate>,
     ) -> Result<TestMempoolAcceptResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(rawtxs));
