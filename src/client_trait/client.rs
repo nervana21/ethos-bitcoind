@@ -7,7 +7,7 @@ use serde::de::DeserializeOwned;
 
 use crate::transport::core::TransportExt;
 use crate::transport::{TransportError, TransportTrait};
-use crate::types::*;
+use crate::types::{FeeRate, *};
 
 #[doc = r#"A versioned client trait for Bitcoin Core v30.2"#]
 #[async_trait]
