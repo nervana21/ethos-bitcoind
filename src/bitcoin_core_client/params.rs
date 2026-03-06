@@ -30,6 +30,54 @@ mod serde_fee_rate {
     }
 }
 
+/// (De)serializes HashMap<Address, Amount> with values as BTC floats (for sendmany "amounts" param).
+pub mod serde_amounts_map {
+    use std::collections::HashMap;
+
+    use bitcoin::address::NetworkUnchecked;
+    use bitcoin::Address;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S>(
+        map: &HashMap<Address<NetworkUnchecked>, bitcoin::Amount>,
+        s: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        use serde::ser::SerializeMap;
+        let mut m = s.serialize_map(Some(map.len()))?;
+        for (k, v) in map {
+            m.serialize_entry(k, &v.to_btc())?;
+        }
+        m.end()
+    }
+
+    pub fn deserialize<'de, D>(
+        d: D,
+    ) -> Result<HashMap<Address<NetworkUnchecked>, bitcoin::Amount>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let map = HashMap::<Address<NetworkUnchecked>, f64>::deserialize(d)?;
+        map.into_iter()
+            .map(|(k, v)| {
+                bitcoin::Amount::from_btc(v).map(|a| (k, a)).map_err(serde::de::Error::custom)
+            })
+            .collect()
+    }
+}
+
+/// One recipient for the sendall RPC (address and optional amount in BTC).
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+pub struct SendallRecipient {
+    /// Destination address (unchecked; use `.assume_checked()` or `.require_network()` when needed).
+    pub address: bitcoin::Address<bitcoin::address::NetworkUnchecked>,
+    /// Optional amount (omit to send remaining balance). Serialized as BTC in JSON.
+    #[serde(default, with = "bitcoin::amount::serde::as_btc::opt")]
+    pub amount: Option<bitcoin::Amount>,
+}
+
 /// Mark in-wallet transaction &lt;txid&gt; as abandoned
 /// This will mark this transaction and all its in-wallet descendants as abandoned which will allow
 /// for their inputs to be respent.  It can be used to replace "stuck" or evicted transactions.
