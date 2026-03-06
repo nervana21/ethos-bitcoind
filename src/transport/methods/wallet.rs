@@ -224,11 +224,11 @@ pub async fn get_address_info(
 pub async fn get_balance(
     transport: &dyn TransportTrait,
     dummy: serde_json::Value,
-    minconf: serde_json::Value,
+    min_conf: serde_json::Value,
     include_watchonly: serde_json::Value,
     avoid_reuse: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(dummy), json!(minconf), json!(include_watchonly), json!(avoid_reuse)];
+    let params = vec![json!(dummy), json!(min_conf), json!(include_watchonly), json!(avoid_reuse)];
     let raw = transport.send_request("getbalance", &params).await?;
     Ok(raw)
 }
@@ -318,10 +318,10 @@ pub async fn get_raw_change_address(
 pub async fn get_received_by_address(
     transport: &dyn TransportTrait,
     address: serde_json::Value,
-    minconf: serde_json::Value,
+    min_conf: serde_json::Value,
     include_immature_coinbase: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(address), json!(minconf), json!(include_immature_coinbase)];
+    let params = vec![json!(address), json!(min_conf), json!(include_immature_coinbase)];
     let raw = transport.send_request("getreceivedbyaddress", &params).await?;
     Ok(raw)
 }
@@ -338,10 +338,10 @@ pub async fn get_received_by_address(
 pub async fn get_received_by_label(
     transport: &dyn TransportTrait,
     label: serde_json::Value,
-    minconf: serde_json::Value,
+    min_conf: serde_json::Value,
     include_immature_coinbase: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(label), json!(minconf), json!(include_immature_coinbase)];
+    let params = vec![json!(label), json!(min_conf), json!(include_immature_coinbase)];
     let raw = transport.send_request("getreceivedbylabel", &params).await?;
     Ok(raw)
 }
@@ -524,14 +524,14 @@ pub async fn list_lock_unspent(transport: &dyn TransportTrait) -> Result<Value, 
 /// Calls the `listreceivedbyaddress` RPC method.
 pub async fn list_received_by_address(
     transport: &dyn TransportTrait,
-    minconf: serde_json::Value,
+    min_conf: serde_json::Value,
     include_empty: serde_json::Value,
     include_watchonly: serde_json::Value,
     address_filter: serde_json::Value,
     include_immature_coinbase: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![
-        json!(minconf),
+        json!(min_conf),
         json!(include_empty),
         json!(include_watchonly),
         json!(address_filter),
@@ -552,13 +552,13 @@ pub async fn list_received_by_address(
 /// Calls the `listreceivedbylabel` RPC method.
 pub async fn list_received_by_label(
     transport: &dyn TransportTrait,
-    minconf: serde_json::Value,
+    min_conf: serde_json::Value,
     include_empty: serde_json::Value,
     include_watchonly: serde_json::Value,
     include_immature_coinbase: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![
-        json!(minconf),
+        json!(min_conf),
         json!(include_empty),
         json!(include_watchonly),
         json!(include_immature_coinbase),
@@ -580,7 +580,7 @@ pub async fn list_received_by_label(
 /// Calls the `listsinceblock` RPC method.
 pub async fn list_since_block(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
     target_confirmations: serde_json::Value,
     include_watchonly: serde_json::Value,
     include_removed: serde_json::Value,
@@ -588,7 +588,7 @@ pub async fn list_since_block(
     label: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![
-        json!(blockhash),
+        json!(block_hash),
         json!(target_confirmations),
         json!(include_watchonly),
         json!(include_removed),
@@ -638,15 +638,15 @@ pub async fn list_transactions(
 /// Calls the `listunspent` RPC method.
 pub async fn list_unspent(
     transport: &dyn TransportTrait,
-    minconf: serde_json::Value,
-    maxconf: serde_json::Value,
+    min_conf: serde_json::Value,
+    max_conf: serde_json::Value,
     addresses: serde_json::Value,
     include_unsafe: serde_json::Value,
     query_options: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![
-        json!(minconf),
-        json!(maxconf),
+        json!(min_conf),
+        json!(max_conf),
         json!(addresses),
         json!(include_unsafe),
         json!(query_options),
@@ -930,7 +930,7 @@ pub async fn send_many(
     transport: &dyn TransportTrait,
     dummy: serde_json::Value,
     amounts: serde_json::Value,
-    minconf: serde_json::Value,
+    min_conf: serde_json::Value,
     comment: serde_json::Value,
     subtractfeefrom: serde_json::Value,
     replaceable: serde_json::Value,
@@ -942,7 +942,7 @@ pub async fn send_many(
     let params = vec![
         json!(dummy),
         json!(amounts),
-        json!(minconf),
+        json!(min_conf),
         json!(comment),
         json!(subtractfeefrom),
         json!(replaceable),
@@ -972,7 +972,7 @@ pub async fn send_to_address(
     amount: serde_json::Value,
     comment: serde_json::Value,
     comment_to: serde_json::Value,
-    subtractfeefromamount: serde_json::Value,
+    subtract_fee_from_amount: serde_json::Value,
     replaceable: serde_json::Value,
     conf_target: serde_json::Value,
     estimate_mode: serde_json::Value,
@@ -985,7 +985,7 @@ pub async fn send_to_address(
         json!(amount),
         json!(comment),
         json!(comment_to),
-        json!(subtractfeefromamount),
+        json!(subtract_fee_from_amount),
         json!(replaceable),
         json!(conf_target),
         json!(estimate_mode),
@@ -1133,7 +1133,7 @@ pub async fn wallet_create_funded_psbt(
     transport: &dyn TransportTrait,
     inputs: serde_json::Value,
     outputs: serde_json::Value,
-    locktime: serde_json::Value,
+    lock_time: serde_json::Value,
     options: serde_json::Value,
     bip32derivs: serde_json::Value,
     version: serde_json::Value,
@@ -1141,7 +1141,7 @@ pub async fn wallet_create_funded_psbt(
     let params = vec![
         json!(inputs),
         json!(outputs),
-        json!(locktime),
+        json!(lock_time),
         json!(options),
         json!(bip32derivs),
         json!(version),
@@ -1219,10 +1219,10 @@ pub async fn wallet_passphrase(
 /// Calls the `walletpassphrasechange` RPC method.
 pub async fn wallet_passphrase_change(
     transport: &dyn TransportTrait,
-    oldpassphrase: serde_json::Value,
-    newpassphrase: serde_json::Value,
+    old_passphrase: serde_json::Value,
+    new_passphrase: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(oldpassphrase), json!(newpassphrase)];
+    let params = vec![json!(old_passphrase), json!(new_passphrase)];
     let raw = transport.send_request("walletpassphrasechange", &params).await?;
     Ok(raw)
 }

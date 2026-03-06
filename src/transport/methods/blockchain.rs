@@ -57,10 +57,10 @@ pub async fn get_best_block_hash(transport: &dyn TransportTrait) -> Result<Value
 /// Calls the `getblock` RPC method.
 pub async fn get_block(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
     verbosity: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhash), json!(verbosity)];
+    let params = vec![json!(block_hash), json!(verbosity)];
     let raw = transport.send_request("getblock", &params).await?;
     Ok(raw)
 }
@@ -107,10 +107,10 @@ pub async fn get_block_count(transport: &dyn TransportTrait) -> Result<Value, Tr
 /// Calls the `getblockfilter` RPC method.
 pub async fn get_block_filter(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
     filtertype: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhash), json!(filtertype)];
+    let params = vec![json!(block_hash), json!(filtertype)];
     let raw = transport.send_request("getblockfilter", &params).await?;
     Ok(raw)
 }
@@ -133,10 +133,10 @@ pub async fn get_block_filter(
 /// Calls the `getblockfrompeer` RPC method.
 pub async fn get_block_from_peer(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
     peer_id: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhash), json!(peer_id)];
+    let params = vec![json!(block_hash), json!(peer_id)];
     let raw = transport.send_request("getblockfrompeer", &params).await?;
     Ok(raw)
 }
@@ -171,10 +171,10 @@ pub async fn get_block_hash(
 /// Calls the `getblockheader` RPC method.
 pub async fn get_block_header(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
     verbose: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhash), json!(verbose)];
+    let params = vec![json!(block_hash), json!(verbose)];
     let raw = transport.send_request("getblockheader", &params).await?;
     Ok(raw)
 }
@@ -241,9 +241,9 @@ pub async fn get_chain_tips(transport: &dyn TransportTrait) -> Result<Value, Tra
 pub async fn get_chain_tx_stats(
     transport: &dyn TransportTrait,
     nblocks: serde_json::Value,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(nblocks), json!(blockhash)];
+    let params = vec![json!(nblocks), json!(block_hash)];
     let raw = transport.send_request("getchaintxstats", &params).await?;
     Ok(raw)
 }
@@ -259,9 +259,9 @@ pub async fn get_chain_tx_stats(
 /// Calls the `getdeploymentinfo` RPC method.
 pub async fn get_deployment_info(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhash)];
+    let params = vec![json!(block_hash)];
     let raw = transport.send_request("getdeploymentinfo", &params).await?;
     Ok(raw)
 }
@@ -447,9 +447,9 @@ pub async fn get_txout(
 pub async fn get_txout_proof(
     transport: &dyn TransportTrait,
     txids: serde_json::Value,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(txids), json!(blockhash)];
+    let params = vec![json!(txids), json!(block_hash)];
     let raw = transport.send_request("gettxoutproof", &params).await?;
     Ok(raw)
 }
@@ -547,9 +547,9 @@ pub async fn load_txout_set(
 /// Calls the `preciousblock` RPC method.
 pub async fn precious_block(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhash)];
+    let params = vec![json!(block_hash)];
     let raw = transport.send_request("preciousblock", &params).await?;
     Ok(raw)
 }
@@ -704,10 +704,10 @@ pub async fn verify_txout_proof(
 /// Calls the `waitforblock` RPC method.
 pub async fn wait_for_block(
     transport: &dyn TransportTrait,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
     timeout: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhash), json!(timeout)];
+    let params = vec![json!(block_hash), json!(timeout)];
     let raw = transport.send_request("waitforblock", &params).await?;
     Ok(raw)
 }

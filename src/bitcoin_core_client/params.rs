@@ -144,7 +144,8 @@ pub struct CreatepsbtParams {
     /// accepted as second parameter.
     pub outputs: Vec<serde_json::Value>,
     /// Raw locktime. Non-0 value also locktime-activates inputs
-    pub locktime: Option<i64>,
+    #[serde(rename = "locktime")]
+    pub lock_time: Option<i64>,
     /// Marks this transaction as BIP125-replaceable.
     /// Allows this transaction to be replaced by a transaction with higher fees. If provided, it is an error if explicit sequence numbers are incompatible.
     pub replaceable: Option<bool>,
@@ -168,7 +169,8 @@ pub struct CreaterawtransactionParams {
     /// accepted as second parameter.
     pub outputs: Vec<serde_json::Value>,
     /// Raw locktime. Non-0 value also locktime-activates inputs
-    pub locktime: Option<i64>,
+    #[serde(rename = "locktime")]
+    pub lock_time: Option<i64>,
     /// Marks this transaction as BIP125-replaceable.
     /// Allows this transaction to be replaced by a transaction with higher fees. If provided, it is an error if explicit sequence numbers are incompatible.
     pub replaceable: Option<bool>,
@@ -202,6 +204,7 @@ pub struct CreatewalletParams {
 #[derive(Debug, Serialize)]
 pub struct CreatewalletdescriptorParams {
     /// The address type the descriptor will produce. Options are "legacy", "p2sh-segwit", "bech32", "bech32m".
+    #[serde(rename = "type")]
     pub r#type: String,
     pub options: Option<serde_json::Value>,
 }
@@ -294,6 +297,7 @@ pub struct DumptxoutsetParams {
     /// Path to the output file. If relative, will be prefixed by datadir.
     pub path: String,
     /// The type of snapshot to create. Can be "latest" to create a snapshot of the current UTXO set or "rollback" to temporarily roll back the state of the node to a historical block before creating the snapshot of a historical UTXO set. This parameter can be omitted if a separate "rollback" named parameter is specified indicating the height or hash of a specific historical block. If "rollback" is specified and separate "rollback" named parameter is not specified, this will roll back to the latest valid snapshot block that can currently be loaded with loadtxoutset.
+    #[serde(rename = "type")]
     pub r#type: Option<String>,
     pub options: Option<serde_json::Value>,
 }
@@ -499,7 +503,8 @@ pub struct GetbalanceParams {
     /// Remains for backward compatibility. Must be excluded or set to "*".
     pub dummy: Option<String>,
     /// Only include transactions confirmed at least this many times.
-    pub minconf: Option<i64>,
+    #[serde(rename = "minconf")]
+    pub min_conf: Option<i64>,
     /// No longer used
     pub include_watchonly: Option<bool>,
     /// (only available if avoid_reuse wallet flag is set) Do not include balance in dirty outputs; addresses are considered dirty if they have previously been used in a transaction.
@@ -513,7 +518,8 @@ pub struct GetbalanceParams {
 #[derive(Debug, Serialize)]
 pub struct GetblockParams {
     /// The block hash
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
     /// 0 for hex-encoded data, 1 for a JSON object, 2 for JSON object with transaction data, and 3 for JSON object with transaction data including prevout information for inputs
     pub verbosity: Option<i64>,
 }
@@ -522,7 +528,8 @@ pub struct GetblockParams {
 #[derive(Debug, Serialize)]
 pub struct GetblockfilterParams {
     /// The hash of the block
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
     /// The type name of the filter
     pub filtertype: Option<String>,
 }
@@ -538,7 +545,8 @@ pub struct GetblockfilterParams {
 #[derive(Debug, Serialize)]
 pub struct GetblockfrompeerParams {
     /// The block hash to try to fetch
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
     /// The peer to fetch it from (see getpeerinfo for peer IDs)
     pub peer_id: i64,
 }
@@ -555,7 +563,8 @@ pub struct GetblockhashParams {
 #[derive(Debug, Serialize)]
 pub struct GetblockheaderParams {
     /// The block hash
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
     /// true for a json object, false for the hex-encoded data
     pub verbose: Option<bool>,
 }
@@ -589,14 +598,16 @@ pub struct GetchaintxstatsParams {
     /// Size of the window in number of blocks
     pub nblocks: Option<i64>,
     /// The hash of the block that ends the window.
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
 }
 
 /// Returns an object containing various state info regarding deployments of consensus changes.
 #[derive(Debug, Serialize)]
 pub struct GetdeploymentinfoParams {
     /// The block hash at which to query deployment state
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
 }
 
 /// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the `relevant_blocks` output of `scanblocks()`.
@@ -746,7 +757,8 @@ pub struct GetrawtransactionParams {
     /// 0 for hex-encoded data, 1 for a JSON object, and 2 for JSON object with fee and prevout
     pub verbosity: Option<i64>,
     /// The block in which to look for the transaction
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
 }
 
 /// Returns the total amount received by the given address in transactions with at least minconf confirmations.
@@ -755,7 +767,8 @@ pub struct GetreceivedbyaddressParams {
     /// The bitcoin address for transactions.
     pub address: bitcoin::Address,
     /// Only include transactions confirmed at least this many times.
-    pub minconf: Option<i64>,
+    #[serde(rename = "minconf")]
+    pub min_conf: Option<i64>,
     /// Include immature coinbase transactions.
     pub include_immature_coinbase: Option<bool>,
 }
@@ -766,7 +779,8 @@ pub struct GetreceivedbylabelParams {
     /// The selected label, may be the default label using "".
     pub label: String,
     /// Only include transactions confirmed at least this many times.
-    pub minconf: Option<i64>,
+    #[serde(rename = "minconf")]
+    pub min_conf: Option<i64>,
     /// Include immature coinbase transactions.
     pub include_immature_coinbase: Option<bool>,
 }
@@ -803,7 +817,8 @@ pub struct GettxoutproofParams {
     /// The txids to filter
     pub txids: Vec<serde_json::Value>,
     /// If specified, looks for txid in the block with this hash
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
 }
 
 /// Returns statistics about the unspent transaction output set.
@@ -865,7 +880,8 @@ pub struct ImportprunedfundsParams {
 #[derive(Debug, Serialize)]
 pub struct InvalidateblockParams {
     /// the hash of the block to mark as invalid
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
 }
 
 /// Joins multiple distinct PSBTs with different inputs and outputs into one PSBT with inputs and outputs from all of the PSBTs
@@ -903,7 +919,8 @@ pub struct ListlabelsParams {
 #[derive(Debug, Serialize)]
 pub struct ListreceivedbyaddressParams {
     /// The minimum number of confirmations before payments are included.
-    pub minconf: Option<i64>,
+    #[serde(rename = "minconf")]
+    pub min_conf: Option<i64>,
     /// Whether to include addresses that haven't received any payments.
     pub include_empty: Option<bool>,
     /// (DEPRECATED) No longer used
@@ -918,7 +935,8 @@ pub struct ListreceivedbyaddressParams {
 #[derive(Debug, Serialize)]
 pub struct ListreceivedbylabelParams {
     /// The minimum number of confirmations before payments are included.
-    pub minconf: Option<i64>,
+    #[serde(rename = "minconf")]
+    pub min_conf: Option<i64>,
     /// Whether to include labels that haven't received any payments.
     pub include_empty: Option<bool>,
     /// (DEPRECATED) No longer used
@@ -933,7 +951,8 @@ pub struct ListreceivedbylabelParams {
 #[derive(Debug, Serialize)]
 pub struct ListsinceblockParams {
     /// If set, the block hash to list transactions since, otherwise list all transactions.
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
     /// Return the nth block hash from the main chain. e.g. 1 would mean the best block hash. Note: this is not used as a filter, but only affects \[lastblock\] in the return value
     pub target_confirmations: Option<i64>,
     /// (DEPRECATED) No longer used
@@ -972,9 +991,11 @@ pub struct ListtransactionsParams {
 #[derive(Debug, Serialize)]
 pub struct ListunspentParams {
     /// The minimum confirmations to filter
-    pub minconf: Option<i64>,
+    #[serde(rename = "minconf")]
+    pub min_conf: Option<i64>,
     /// The maximum confirmations to filter
-    pub maxconf: Option<i64>,
+    #[serde(rename = "maxconf")]
+    pub max_conf: Option<i64>,
     /// The bitcoin addresses to filter
     pub addresses: Option<Vec<serde_json::Value>>,
     /// Include outputs that are not safe to spend
@@ -1067,7 +1088,8 @@ pub struct MockschedulerParams {
 #[derive(Debug, Serialize)]
 pub struct PreciousblockParams {
     /// the hash of the block to mark as precious
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
 }
 
 /// Accepts the transaction into mined blocks at a higher (or lower) priority
@@ -1119,7 +1141,8 @@ pub struct PsbtbumpfeeParams {
 #[derive(Debug, Serialize)]
 pub struct ReconsiderblockParams {
     /// the hash of the block to reconsider
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
 }
 
 /// Deletes the specified transaction from the wallet. Meant for use with pruned wallets and as a companion to importprunedfunds. This will affect wallet balances.
@@ -1268,7 +1291,8 @@ pub struct SendmanyParams {
     /// The addresses and amounts
     pub amounts: serde_json::Value,
     /// Ignored dummy value
-    pub minconf: Option<i64>,
+    #[serde(rename = "minconf")]
+    pub min_conf: Option<i64>,
     /// A comment
     pub comment: Option<String>,
     /// The addresses.
@@ -1329,11 +1353,13 @@ pub struct SendrawtransactionParams {
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
-    pub maxfeerate: Option<serde_json::Value>,
+    #[serde(rename = "maxfeerate")]
+    pub max_fee_rate: Option<serde_json::Value>,
     /// Reject transactions with provably unspendable outputs (e.g. 'datacarrier' outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
     /// If burning funds through unspendable outputs is desired, increase this value.
     /// This check is based on heuristics and does not guarantee spendability of outputs.
-    pub maxburnamount: Option<serde_json::Value>,
+    #[serde(rename = "maxburnamount")]
+    pub max_burn_amount: Option<serde_json::Value>,
 }
 
 /// Send an amount to a given address.
@@ -1353,7 +1379,8 @@ pub struct SendtoaddressParams {
     pub comment_to: Option<String>,
     /// The fee will be deducted from the amount being sent.
     /// The recipient will receive less bitcoins than you enter in the amount field.
-    pub subtractfeefromamount: Option<bool>,
+    #[serde(rename = "subtractfeefromamount")]
+    pub subtract_fee_from_amount: Option<bool>,
     /// Signal that this transaction can be replaced by a transaction (BIP 125)
     pub replaceable: Option<bool>,
     /// Confirmation target in blocks
@@ -1535,11 +1562,13 @@ pub struct SubmitpackageParams {
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
-    pub maxfeerate: Option<serde_json::Value>,
+    #[serde(rename = "maxfeerate")]
+    pub max_fee_rate: Option<serde_json::Value>,
     /// Reject transactions with provably unspendable outputs (e.g. 'datacarrier' outputs that use the OP_RETURN opcode) greater than the specified value, expressed in BTC.
     /// If burning funds through unspendable outputs is desired, increase this value.
     /// This check is based on heuristics and does not guarantee spendability of outputs.
-    pub maxburnamount: Option<serde_json::Value>,
+    #[serde(rename = "maxburnamount")]
+    pub max_burn_amount: Option<serde_json::Value>,
 }
 
 /// Returns result of mempool acceptance tests indicating if raw transaction(s) (serialized, hex-encoded) would be accepted by mempool.
@@ -1555,7 +1584,8 @@ pub struct TestmempoolacceptParams {
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
-    pub maxfeerate: Option<serde_json::Value>,
+    #[serde(rename = "maxfeerate")]
+    pub max_fee_rate: Option<serde_json::Value>,
 }
 
 /// Unloads the wallet referenced by the request endpoint or the wallet_name argument.
@@ -1624,7 +1654,8 @@ pub struct VerifytxoutproofParams {
 #[derive(Debug, Serialize)]
 pub struct WaitforblockParams {
     /// Block hash to wait for.
-    pub blockhash: bitcoin::BlockHash,
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
     /// Time in milliseconds to wait for a response. 0 indicates no timeout.
     pub timeout: Option<i64>,
 }
@@ -1667,7 +1698,8 @@ pub struct WalletcreatefundedpsbtParams {
     /// accepted as second parameter.
     pub outputs: Vec<serde_json::Value>,
     /// Raw locktime. Non-0 value also locktime-activates inputs
-    pub locktime: Option<i64>,
+    #[serde(rename = "locktime")]
+    pub lock_time: Option<i64>,
     pub options: Option<serde_json::Value>,
     /// Include BIP 32 derivation paths for public keys if we know them
     pub bip32derivs: Option<bool>,
@@ -1699,9 +1731,11 @@ pub struct WalletpassphraseParams {
 #[derive(Debug, Serialize)]
 pub struct WalletpassphrasechangeParams {
     /// The current passphrase
-    pub oldpassphrase: String,
+    #[serde(rename = "oldpassphrase")]
+    pub old_passphrase: String,
     /// The new passphrase
-    pub newpassphrase: String,
+    #[serde(rename = "newpassphrase")]
+    pub new_passphrase: String,
 }
 
 /// Update a PSBT with input information from our wallet and then sign inputs

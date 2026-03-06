@@ -100,12 +100,12 @@ pub async fn create_psbt(
     transport: &dyn TransportTrait,
     inputs: serde_json::Value,
     outputs: serde_json::Value,
-    locktime: serde_json::Value,
+    lock_time: serde_json::Value,
     replaceable: serde_json::Value,
     version: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params =
-        vec![json!(inputs), json!(outputs), json!(locktime), json!(replaceable), json!(version)];
+        vec![json!(inputs), json!(outputs), json!(lock_time), json!(replaceable), json!(version)];
     let raw = transport.send_request("createpsbt", &params).await?;
     Ok(raw)
 }
@@ -127,12 +127,12 @@ pub async fn create_raw_transaction(
     transport: &dyn TransportTrait,
     inputs: serde_json::Value,
     outputs: serde_json::Value,
-    locktime: serde_json::Value,
+    lock_time: serde_json::Value,
     replaceable: serde_json::Value,
     version: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params =
-        vec![json!(inputs), json!(outputs), json!(locktime), json!(replaceable), json!(version)];
+        vec![json!(inputs), json!(outputs), json!(lock_time), json!(replaceable), json!(version)];
     let raw = transport.send_request("createrawtransaction", &params).await?;
     Ok(raw)
 }
@@ -296,9 +296,9 @@ pub async fn get_raw_transaction(
     transport: &dyn TransportTrait,
     txid: serde_json::Value,
     verbosity: serde_json::Value,
-    blockhash: serde_json::Value,
+    block_hash: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(txid), json!(verbosity), json!(blockhash)];
+    let params = vec![json!(txid), json!(verbosity), json!(block_hash)];
     let raw = transport.send_request("getrawtransaction", &params).await?;
     Ok(raw)
 }
@@ -345,10 +345,10 @@ pub async fn join_psbts(
 pub async fn send_raw_transaction(
     transport: &dyn TransportTrait,
     hexstring: serde_json::Value,
-    maxfeerate: serde_json::Value,
-    maxburnamount: serde_json::Value,
+    max_fee_rate: serde_json::Value,
+    max_burn_amount: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring), json!(maxfeerate), json!(maxburnamount)];
+    let params = vec![json!(hexstring), json!(max_fee_rate), json!(max_burn_amount)];
     let raw = transport.send_request("sendrawtransaction", &params).await?;
     Ok(raw)
 }
@@ -393,10 +393,10 @@ pub async fn sign_raw_transaction_with_key(
 pub async fn submit_package(
     transport: &dyn TransportTrait,
     package: serde_json::Value,
-    maxfeerate: serde_json::Value,
-    maxburnamount: serde_json::Value,
+    max_fee_rate: serde_json::Value,
+    max_burn_amount: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(package), json!(maxfeerate), json!(maxburnamount)];
+    let params = vec![json!(package), json!(max_fee_rate), json!(max_burn_amount)];
     let raw = transport.send_request("submitpackage", &params).await?;
     Ok(raw)
 }
@@ -418,9 +418,9 @@ pub async fn submit_package(
 pub async fn test_mempool_accept(
     transport: &dyn TransportTrait,
     rawtxs: serde_json::Value,
-    maxfeerate: serde_json::Value,
+    max_fee_rate: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(rawtxs), json!(maxfeerate)];
+    let params = vec![json!(rawtxs), json!(max_fee_rate)];
     let raw = transport.send_request("testmempoolaccept", &params).await?;
     Ok(raw)
 }

@@ -1400,7 +1400,8 @@ pub struct DecodeRawTransactionResponse {
     /// The version
     pub version: u32,
     /// The lock time
-    pub locktime: u64,
+    #[serde(rename = "locktime")]
+    pub lock_time: u64,
     pub vin: serde_json::Value,
     pub vout: serde_json::Value,
 }
@@ -2782,7 +2783,8 @@ pub struct GetBlockStatsResponse {
     /// Average transaction size
     pub avgtxsize: Option<u64>,
     /// The block hash (to check for potential reorgs)
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
     /// Feerates at the 10th, 25th, 50th, 75th, and 90th percentile weight unit (in satoshis per virtual byte)
     pub feerate_percentiles: Option<serde_json::Value>,
     /// The height of the block
@@ -2792,7 +2794,8 @@ pub struct GetBlockStatsResponse {
     /// Maximum fee in the block
     pub maxfee: Option<u64>,
     /// Maximum feerate (in satoshis per virtual byte)
-    pub maxfeerate: Option<f64>,
+    #[serde(rename = "maxfeerate")]
+    pub max_fee_rate: Option<f64>,
     /// Maximum transaction size
     pub maxtxsize: Option<u64>,
     /// Truncated median fee in the block
@@ -2851,20 +2854,25 @@ pub struct GetBlockTemplateResponse {
     /// specific block rules that are to be enforced
     pub rules: Vec<String>,
     /// set of pending, supported versionbit (BIP 9) softfork deployments
-    pub vbavailable: serde_json::Value,
+    #[serde(rename = "vbavailable")]
+    pub vb_available: serde_json::Value,
     pub capabilities: Vec<String>,
     /// bit mask of versionbits the server requires set in submissions
-    pub vbrequired: u64,
+    #[serde(rename = "vbrequired")]
+    pub vb_required: u64,
     /// The hash of current highest block
     pub previousblockhash: String,
     /// contents of non-coinbase transactions that should be included in the next block
     pub transactions: serde_json::Value,
     /// data that should be included in the coinbase's scriptSig content
-    pub coinbaseaux: serde_json::Value,
+    #[serde(rename = "coinbaseaux")]
+    pub coinbase_aux: serde_json::Value,
     /// maximum allowable input to coinbase transaction, including the generation award and transaction fees (in satoshis)
-    pub coinbasevalue: u64,
+    #[serde(rename = "coinbasevalue")]
+    pub coinbase_value: u64,
     /// an id to include with a request to longpoll on an update to this template
-    pub longpollid: String,
+    #[serde(rename = "longpollid")]
+    pub longpoll_id: String,
     /// The hash target
     pub target: String,
     /// The minimum timestamp appropriate for the next block time, expressed in UNIX epoch time. Adjusted for the proposed BIP94 timewarp rule.
@@ -3226,7 +3234,8 @@ pub struct GetMemoryInfoResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolAncestorsResponse {
     pub field_0: Vec<String>,
-    pub transactionid: serde_json::Value,
+    #[serde(rename = "transactionid")]
+    pub transaction_id: serde_json::Value,
 }
 
 /// Response for the `GetMempoolCluster` RPC method
@@ -3248,7 +3257,8 @@ pub struct GetMempoolClusterResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolDescendantsResponse {
     pub field_0: Vec<String>,
-    pub transactionid: serde_json::Value,
+    #[serde(rename = "transactionid")]
+    pub transaction_id: serde_json::Value,
 }
 
 /// Response for the `GetMempoolEntry` RPC method
@@ -3881,7 +3891,8 @@ pub struct GetRawTransactionResponse {
     /// Whether specified block is in the active chain or not (only present with explicit "blockhash" argument)
     pub in_active_chain: Option<bool>,
     /// the block hash
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
     /// The confirmations
     pub confirmations: Option<i64>,
     /// The block time expressed in UNIX epoch time
@@ -3903,7 +3914,8 @@ pub struct GetRawTransactionResponse {
     /// The version
     pub version: Option<u32>,
     /// The lock time
-    pub locktime: Option<u64>,
+    #[serde(rename = "locktime")]
+    pub lock_time: Option<u64>,
     pub vin: Option<serde_json::Value>,
     pub vout: Option<serde_json::Value>,
     /// transaction fee in BTC, omitted if block undo data is not available
@@ -3937,7 +3949,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                 Ok(GetRawTransactionResponse {
                     data: Some(data),
                     in_active_chain: None,
-                    blockhash: None,
+                    block_hash: None,
                     confirmations: None,
                     blocktime: None,
                     time: None,
@@ -3948,7 +3960,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                     vsize: None,
                     weight: None,
                     version: None,
-                    locktime: None,
+                    lock_time: None,
                     vin: None,
                     vout: None,
                     fee: None,
@@ -3962,7 +3974,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
             {
                 let mut data = None;
                 let mut in_active_chain = None;
-                let mut blockhash = None;
+                let mut block_hash = None;
                 let mut confirmations = None;
                 let mut blocktime = None;
                 let mut time = None;
@@ -3973,7 +3985,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                 let mut vsize = None;
                 let mut weight = None;
                 let mut version = None;
-                let mut locktime = None;
+                let mut lock_time = None;
                 let mut vin = None;
                 let mut vout = None;
                 let mut fee = None;
@@ -3992,10 +4004,10 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                         in_active_chain = Some(map.next_value::<bool>()?);
                     }
                     if key == "blockhash" {
-                        if blockhash.is_some() {
+                        if block_hash.is_some() {
                             return Err(de::Error::duplicate_field("blockhash"));
                         }
-                        blockhash = Some(map.next_value::<bitcoin::BlockHash>()?);
+                        block_hash = Some(map.next_value::<bitcoin::BlockHash>()?);
                     }
                     if key == "confirmations" {
                         if confirmations.is_some() {
@@ -4058,10 +4070,10 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                         version = Some(map.next_value::<u32>()?);
                     }
                     if key == "locktime" {
-                        if locktime.is_some() {
+                        if lock_time.is_some() {
                             return Err(de::Error::duplicate_field("locktime"));
                         }
-                        locktime = Some(map.next_value::<u64>()?);
+                        lock_time = Some(map.next_value::<u64>()?);
                     }
                     if key == "vin" {
                         if vin.is_some() {
@@ -4093,7 +4105,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                 Ok(GetRawTransactionResponse {
                     data,
                     in_active_chain,
-                    blockhash,
+                    block_hash,
                     confirmations,
                     blocktime,
                     time,
@@ -4104,7 +4116,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                     vsize,
                     weight,
                     version,
-                    locktime,
+                    lock_time,
                     vin,
                     vout,
                     fee,
@@ -4377,7 +4389,8 @@ pub struct GetTransactionResponse {
     /// Only present when the transaction has 0 confirmations (or negative confirmations, if conflicted).
     pub trusted: Option<bool>,
     /// The block hash containing the transaction.
-    pub blockhash: Option<bitcoin::BlockHash>,
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
     /// The block height containing the transaction.
     pub blockheight: Option<u64>,
     /// The index of the transaction in the block that includes it.
