@@ -68,6 +68,24 @@ pub mod serde_amounts_map {
     }
 }
 
+/// Reference wrapper for the sendmany "amounts" map; serializes to JSON with amounts as BTC.
+#[derive(Debug)]
+pub struct SendmanyAmountsRef<'a>(
+    pub  &'a std::collections::HashMap<
+        bitcoin::Address<bitcoin::address::NetworkUnchecked>,
+        bitcoin::Amount,
+    >,
+);
+
+impl serde::Serialize for SendmanyAmountsRef<'_> {
+    fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serde_amounts_map::serialize(self.0, s)
+    }
+}
+
 /// One recipient for the sendall RPC (address and optional amount in BTC).
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
 pub struct SendallRecipient {
