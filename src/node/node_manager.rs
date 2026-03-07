@@ -17,6 +17,10 @@ use crate::test_config::TestConfig;
 use crate::transport::core::TransportExt;
 use crate::transport::{DefaultTransport, TransportError};
 
+/// RPC codes indicating node still initializing (-28 warmup, -4 warmup).
+const INIT_WAIT_RPC_CODES: [&str; 2] = ["\"code\":-28", "\"code\":-4"];
+const INIT_MAX_RETRIES: u32 = 30;
+
 /// Represents the current state of a node
 #[derive(Debug, Default, Clone)]
 pub struct NodeState {
@@ -275,27 +279,19 @@ impl NodeManager for BitcoinNodeManager {
         let auth = Some((self.rpc_username().to_string(), self.rpc_password().to_string()));
         let transport = Arc::new(DefaultTransport::new(rpc_url, auth));
 
-        // Wait for node to be ready for RPC with Bitcoin Core specific initialization logic
-        // Bitcoin Core initialization states that require waiting:
-        // -28: RPC in warmup
-        // -4:  RPC in warmup (alternative code)
-        let init_states = ["\"code\":-28", "\"code\":-4"];
-
-        let max_retries = 30;
         let mut retries = 0;
 
         loop {
             match transport.call::<serde_json::Value>("getnetworkinfo", &[]).await {
                 Ok(_) => break,
                 Err(TransportError::Rpc(e)) => {
-                    // Check if the error matches any known initialization state
-                    let is_init_state = init_states.iter().any(|state| e.contains(state));
-                    if is_init_state && retries < max_retries {
+                    let is_init_state = INIT_WAIT_RPC_CODES.iter().any(|state| e.contains(state));
+                    if is_init_state && retries < INIT_MAX_RETRIES {
                         tracing::debug!(
                             "Waiting for initialization: {} (attempt {}/{})",
                             e,
                             retries + 1,
-                            max_retries
+                            INIT_MAX_RETRIES
                         );
                         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
                         retries += 1;
