@@ -270,10 +270,6 @@ impl NodeManager for BitcoinNodeManager {
     async fn create_transport(
         &self,
     ) -> Result<std::sync::Arc<crate::transport::DefaultTransport>, TransportError> {
-        use std::sync::Arc;
-
-        use crate::transport::DefaultTransport;
-
         // Create HTTP transport for Bitcoin Core
         let rpc_url = format!("http://127.0.0.1:{}", self.rpc_port());
         let auth = Some((self.rpc_username().to_string(), self.rpc_password().to_string()));
