@@ -5,8 +5,6 @@
 #![allow(clippy::empty_docs)]
 #![allow(clippy::doc_lazy_continuation)]
 #![allow(non_snake_case)]
-#![allow(unused_imports)]
-#![allow(dead_code)]
 //! Generated Bitcoin Core RPC client library.
 //!
 //! This library provides a strongly-typed interface to the Bitcoin Core RPC API.
