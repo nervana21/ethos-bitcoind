@@ -210,17 +210,20 @@ pub struct CombinerawtransactionParams {
 #[derive(Debug, Serialize)]
 pub struct ConverttopsbtParams {
     /// The hex string of a raw transaction
-    pub hexstring: String,
+    #[serde(rename = "hexstring")]
+    pub hex_string: String,
     /// If true, any signatures in the input will be discarded and conversion
     /// will continue. If false, RPC will fail if any signatures are present.
-    pub permitsigdata: Option<bool>,
+    #[serde(rename = "permitsigdata")]
+    pub permit_sig_data: Option<bool>,
     /// Whether the transaction hex is a serialized witness transaction.
     /// If iswitness is not present, heuristic tests will be used in decoding.
     /// If true, only witness deserialization will be tried.
     /// If false, only non-witness deserialization will be tried.
     /// This boolean should reflect whether the transaction has inputs
     /// (e.g. fully valid, or on-chain transactions), if known by the caller.
-    pub iswitness: Option<bool>,
+    #[serde(rename = "iswitness")]
+    pub is_witness: Option<bool>,
 }
 
 /// Creates a multi-signature address with n signatures of m keys required.
@@ -326,21 +329,24 @@ pub struct DecodepsbtParams {
 #[derive(Debug, Serialize)]
 pub struct DecoderawtransactionParams {
     /// The transaction hex string
-    pub hexstring: String,
+    #[serde(rename = "hexstring")]
+    pub hex_string: String,
     /// Whether the transaction hex is a serialized witness transaction.
     /// If iswitness is not present, heuristic tests will be used in decoding.
     /// If true, only witness deserialization will be tried.
     /// If false, only non-witness deserialization will be tried.
     /// This boolean should reflect whether the transaction has inputs
     /// (e.g. fully valid, or on-chain transactions), if known by the caller.
-    pub iswitness: Option<bool>,
+    #[serde(rename = "iswitness")]
+    pub is_witness: Option<bool>,
 }
 
 /// Decode a hex-encoded script.
 #[derive(Debug, Serialize)]
 pub struct DecodescriptParams {
     /// the hex-encoded script
-    pub hexstring: String,
+    #[serde(rename = "hexstring")]
+    pub hex_string: String,
 }
 
 /// Derives one or more addresses corresponding to an output descriptor.
@@ -377,9 +383,11 @@ pub struct DescriptorprocesspsbtParams {
     /// "ALL|ANYONECANPAY"
     /// "NONE|ANYONECANPAY"
     /// "SINGLE|ANYONECANPAY"
-    pub sighashtype: Option<String>,
+    #[serde(rename = "sighashtype")]
+    pub sighash_type: Option<String>,
     /// Include BIP 32 derivation paths for public keys if we know them
-    pub bip32derivs: Option<bool>,
+    #[serde(rename = "bip32derivs")]
+    pub bip32_derivs: Option<bool>,
     /// Also finalize inputs if possible
     pub finalize: Option<bool>,
 }
@@ -532,7 +540,8 @@ pub struct FinalizepsbtParams {
 #[derive(Debug, Serialize)]
 pub struct FundrawtransactionParams {
     /// The hex string of the raw transaction
-    pub hexstring: String,
+    #[serde(rename = "hexstring")]
+    pub hex_string: String,
     pub options: Option<serde_json::Value>,
     /// Whether the transaction hex is a serialized witness transaction.
     /// If iswitness is not present, heuristic tests will be used in decoding.
@@ -540,7 +549,8 @@ pub struct FundrawtransactionParams {
     /// If false, only non-witness deserialization will be tried.
     /// This boolean should reflect whether the transaction has inputs
     /// (e.g. fully valid, or on-chain transactions), if known by the caller.
-    pub iswitness: Option<bool>,
+    #[serde(rename = "iswitness")]
+    pub is_witness: Option<bool>,
 }
 
 /// Mine a set of ordered transactions to a specified address or descriptor and return the block hash.
@@ -969,7 +979,8 @@ pub struct ImportdescriptorsParams {
 #[derive(Debug, Serialize)]
 pub struct ImportmempoolParams {
     /// The mempool file
-    pub filepath: String,
+    #[serde(rename = "filepath")]
+    pub file_path: String,
     pub options: Option<serde_json::Value>,
 }
 
@@ -1462,7 +1473,8 @@ pub struct SendmsgtopeerParams {
 #[derive(Debug, Serialize)]
 pub struct SendrawtransactionParams {
     /// The hex string of the raw transaction
-    pub hexstring: String,
+    #[serde(rename = "hexstring")]
+    pub hex_string: String,
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
@@ -1528,7 +1540,8 @@ pub struct SetbanParams {
     /// 'add' to add an IP/Subnet to the list, 'remove' to remove an IP/Subnet from the list
     pub command: String,
     /// time in seconds how long (or until when if \[absolute\] is set) the IP is banned (0 or empty means using the default time of 24h which can also be overwritten by the -bantime startup argument)
-    pub bantime: Option<i64>,
+    #[serde(rename = "bantime")]
+    pub ban_time: Option<i64>,
     /// If set, the bantime must be an absolute timestamp expressed in UNIX epoch time
     pub absolute: Option<bool>,
 }
@@ -1593,11 +1606,14 @@ pub struct SignmessagewithprivkeyParams {
 #[derive(Debug, Serialize)]
 pub struct SignrawtransactionwithkeyParams {
     /// The transaction hex string
-    pub hexstring: String,
+    #[serde(rename = "hexstring")]
+    pub hex_string: String,
     /// The base58-encoded private keys for signing
-    pub privkeys: Vec<serde_json::Value>,
+    #[serde(rename = "privkeys")]
+    pub priv_keys: Vec<serde_json::Value>,
     /// The previous dependent transaction outputs
-    pub prevtxs: Option<Vec<serde_json::Value>>,
+    #[serde(rename = "prevtxs")]
+    pub prev_txs: Option<Vec<serde_json::Value>>,
     /// The signature hash type. Must be one of:
     /// "DEFAULT"
     /// "ALL"
@@ -1606,7 +1622,8 @@ pub struct SignrawtransactionwithkeyParams {
     /// "ALL|ANYONECANPAY"
     /// "NONE|ANYONECANPAY"
     /// "SINGLE|ANYONECANPAY"
-    pub sighashtype: Option<String>,
+    #[serde(rename = "sighashtype")]
+    pub sighash_type: Option<String>,
 }
 
 /// Sign inputs for raw transaction (serialized, hex-encoded).
@@ -1616,9 +1633,11 @@ pub struct SignrawtransactionwithkeyParams {
 #[derive(Debug, Serialize)]
 pub struct SignrawtransactionwithwalletParams {
     /// The transaction hex string
-    pub hexstring: String,
+    #[serde(rename = "hexstring")]
+    pub hex_string: String,
     /// The previous dependent transaction outputs
-    pub prevtxs: Option<Vec<serde_json::Value>>,
+    #[serde(rename = "prevtxs")]
+    pub prev_txs: Option<Vec<serde_json::Value>>,
     /// The signature hash type. Must be one of
     /// "DEFAULT"
     /// "ALL"
@@ -1627,7 +1646,8 @@ pub struct SignrawtransactionwithwalletParams {
     /// "ALL|ANYONECANPAY"
     /// "NONE|ANYONECANPAY"
     /// "SINGLE|ANYONECANPAY"
-    pub sighashtype: Option<String>,
+    #[serde(rename = "sighashtype")]
+    pub sighash_type: Option<String>,
 }
 
 /// Calculate the balance change resulting in the signing and broadcasting of the given transaction(s).
@@ -1819,7 +1839,8 @@ pub struct WalletcreatefundedpsbtParams {
     pub lock_time: Option<i64>,
     pub options: Option<serde_json::Value>,
     /// Include BIP 32 derivation paths for public keys if we know them
-    pub bip32derivs: Option<bool>,
+    #[serde(rename = "bip32derivs")]
+    pub bip32_derivs: Option<bool>,
     /// Transaction version
     pub version: Option<i64>,
 }
@@ -1872,9 +1893,11 @@ pub struct WalletprocesspsbtParams {
     /// "ALL|ANYONECANPAY"
     /// "NONE|ANYONECANPAY"
     /// "SINGLE|ANYONECANPAY"
-    pub sighashtype: Option<String>,
+    #[serde(rename = "sighashtype")]
+    pub sighash_type: Option<String>,
     /// Include BIP 32 derivation paths for public keys if we know them
-    pub bip32derivs: Option<bool>,
+    #[serde(rename = "bip32derivs")]
+    pub bip32_derivs: Option<bool>,
     /// Also finalize inputs if possible
     pub finalize: Option<bool>,
 }

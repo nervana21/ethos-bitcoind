@@ -505,10 +505,10 @@ pub async fn get_tx_spending_prevout(
 /// Calls the `importmempool` RPC method.
 pub async fn import_mempool(
     transport: &dyn TransportTrait,
-    filepath: serde_json::Value,
+    file_path: serde_json::Value,
     options: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(filepath), json!(options)];
+    let params = vec![json!(file_path), json!(options)];
     let raw = transport.send_request("importmempool", &params).await?;
     Ok(raw)
 }

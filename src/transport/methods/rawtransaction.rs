@@ -75,11 +75,11 @@ pub async fn combine_raw_transaction(
 /// Calls the `converttopsbt` RPC method.
 pub async fn convert_to_psbt(
     transport: &dyn TransportTrait,
-    hexstring: serde_json::Value,
-    permitsigdata: serde_json::Value,
-    iswitness: serde_json::Value,
+    hex_string: serde_json::Value,
+    permit_sig_data: serde_json::Value,
+    is_witness: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring), json!(permitsigdata), json!(iswitness)];
+    let params = vec![json!(hex_string), json!(permit_sig_data), json!(is_witness)];
     let raw = transport.send_request("converttopsbt", &params).await?;
     Ok(raw)
 }
@@ -166,10 +166,10 @@ pub async fn decode_psbt(
 /// Calls the `decoderawtransaction` RPC method.
 pub async fn decode_raw_transaction(
     transport: &dyn TransportTrait,
-    hexstring: serde_json::Value,
-    iswitness: serde_json::Value,
+    hex_string: serde_json::Value,
+    is_witness: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring), json!(iswitness)];
+    let params = vec![json!(hex_string), json!(is_witness)];
     let raw = transport.send_request("decoderawtransaction", &params).await?;
     Ok(raw)
 }
@@ -185,9 +185,9 @@ pub async fn decode_raw_transaction(
 /// Calls the `decodescript` RPC method.
 pub async fn decode_script(
     transport: &dyn TransportTrait,
-    hexstring: serde_json::Value,
+    hex_string: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring)];
+    let params = vec![json!(hex_string)];
     let raw = transport.send_request("decodescript", &params).await?;
     Ok(raw)
 }
@@ -206,15 +206,15 @@ pub async fn descriptor_process_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,
     descriptors: serde_json::Value,
-    sighashtype: serde_json::Value,
-    bip32derivs: serde_json::Value,
+    sighash_type: serde_json::Value,
+    bip32_derivs: serde_json::Value,
     finalize: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![
         json!(psbt),
         json!(descriptors),
-        json!(sighashtype),
-        json!(bip32derivs),
+        json!(sighash_type),
+        json!(bip32_derivs),
         json!(finalize),
     ];
     let raw = transport.send_request("descriptorprocesspsbt", &params).await?;
@@ -267,11 +267,11 @@ pub async fn finalize_psbt(
 /// Calls the `fundrawtransaction` RPC method.
 pub async fn fund_raw_transaction(
     transport: &dyn TransportTrait,
-    hexstring: serde_json::Value,
+    hex_string: serde_json::Value,
     options: serde_json::Value,
-    iswitness: serde_json::Value,
+    is_witness: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring), json!(options), json!(iswitness)];
+    let params = vec![json!(hex_string), json!(options), json!(is_witness)];
     let raw = transport.send_request("fundrawtransaction", &params).await?;
     Ok(raw)
 }
@@ -344,11 +344,11 @@ pub async fn join_psbts(
 /// Calls the `sendrawtransaction` RPC method.
 pub async fn send_raw_transaction(
     transport: &dyn TransportTrait,
-    hexstring: serde_json::Value,
+    hex_string: serde_json::Value,
     max_fee_rate: serde_json::Value,
     max_burn_amount: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring), json!(max_fee_rate), json!(max_burn_amount)];
+    let params = vec![json!(hex_string), json!(max_fee_rate), json!(max_burn_amount)];
     let raw = transport.send_request("sendrawtransaction", &params).await?;
     Ok(raw)
 }
@@ -368,12 +368,12 @@ pub async fn send_raw_transaction(
 /// Calls the `signrawtransactionwithkey` RPC method.
 pub async fn sign_raw_transaction_with_key(
     transport: &dyn TransportTrait,
-    hexstring: serde_json::Value,
-    privkeys: serde_json::Value,
-    prevtxs: serde_json::Value,
-    sighashtype: serde_json::Value,
+    hex_string: serde_json::Value,
+    priv_keys: serde_json::Value,
+    prev_txs: serde_json::Value,
+    sighash_type: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring), json!(privkeys), json!(prevtxs), json!(sighashtype)];
+    let params = vec![json!(hex_string), json!(priv_keys), json!(prev_txs), json!(sighash_type)];
     let raw = transport.send_request("signrawtransactionwithkey", &params).await?;
     Ok(raw)
 }

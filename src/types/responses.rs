@@ -60,8 +60,8 @@ pub struct DecodedVin {
     /// Input sequence number.
     pub sequence: u64,
     /// Witness stack items for this input (if any).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub txinwitness: Option<Vec<String>>,
+    #[serde(rename = "txinwitness", default, skip_serializing_if = "Option::is_none")]
+    pub tx_in_witness: Option<Vec<String>>,
     /// Decoded details of the previous output when verbosity includes prevout.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub prevout: Option<DecodedPrevout>,
@@ -676,8 +676,9 @@ pub struct BumpFeeResponse {
     /// The id of the new transaction.
     pub txid: bitcoin::Txid,
     /// The fee of the replaced transaction.
+    #[serde(rename = "origfee")]
     #[serde(deserialize_with = "amount_from_btc_float")]
-    pub origfee: bitcoin::Amount,
+    pub orig_fee: bitcoin::Amount,
     /// The fee of the new transaction.
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub fee: bitcoin::Amount,
@@ -1626,7 +1627,8 @@ pub struct DumpTxOutSetResponse {
     /// the hash of the UTXO set contents
     pub txoutset_hash: String,
     /// the number of transactions in the chain up to and including the base block
-    pub nchaintx: u64,
+    #[serde(rename = "nchaintx")]
+    pub n_chain_tx: u64,
 }
 
 /// Response for the `Echo` RPC method
@@ -1980,7 +1982,8 @@ impl<'de> serde::Deserialize<'de> for EstimateRawFeeResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct EstimateSmartFeeResponse {
     /// estimate fee rate in BTC/kvB (only present if no errors were encountered)
-    pub feerate: Option<f64>,
+    #[serde(rename = "feerate")]
+    pub fee_rate: Option<f64>,
     /// Errors encountered during processing (if there are any)
     pub errors: Option<Vec<String>>,
     /// block number where estimate was found
@@ -2150,7 +2153,8 @@ pub struct GetAddressInfoResponse {
     /// If the address was used for change output.
     pub ischange: bool,
     /// If the address is a witness address.
-    pub iswitness: bool,
+    #[serde(rename = "iswitness")]
+    pub is_witness: bool,
     /// The version number of the witness program.
     pub witness_version: Option<u64>,
     /// The hex value of the witness program.
@@ -2174,7 +2178,8 @@ pub struct GetAddressInfoResponse {
     /// The creation time of the key, if available, expressed in UNIX epoch time.
     pub timestamp: Option<u64>,
     /// The HD keypath, if the key is HD and available.
-    pub hdkeypath: Option<String>,
+    #[serde(rename = "hdkeypath")]
+    pub hd_key_path: Option<String>,
     /// The Hash160 of the HD seed.
     pub hdseedid: Option<String>,
     /// The fingerprint of the master key.
@@ -2450,7 +2455,8 @@ pub struct GetBlockResponse {
     /// The block version formatted in hexadecimal
     pub versionHex: String,
     /// The merkle root
-    pub merkleroot: String,
+    #[serde(rename = "merkleroot")]
+    pub merkle_root: String,
     /// The transaction ids
     pub tx: Vec<bitcoin::Txid>,
     /// The block time expressed in UNIX epoch time
@@ -2466,13 +2472,16 @@ pub struct GetBlockResponse {
     /// The difficulty
     pub difficulty: f64,
     /// Expected number of hashes required to produce the chain up to this block (in hex)
-    pub chainwork: String,
+    #[serde(rename = "chainwork")]
+    pub chain_work: String,
     /// The number of transactions in the block
     pub nTx: u64,
     /// The hash of the previous block (if available)
-    pub previousblockhash: Option<String>,
+    #[serde(rename = "previousblockhash")]
+    pub previous_block_hash: Option<String>,
     /// The hash of the next block (if available)
-    pub nextblockhash: Option<String>,
+    #[serde(rename = "nextblockhash")]
+    pub next_block_hash: Option<String>,
 }
 
 /// Response for the `GetBlockchainInfo` RPC method
@@ -2487,7 +2496,8 @@ pub struct GetBlockchainInfoResponse {
     /// the current number of headers we have validated
     pub headers: u64,
     /// the hash of the currently best block
-    pub bestblockhash: String,
+    #[serde(rename = "bestblockhash")]
+    pub best_block_hash: String,
     /// nBits: compact representation of the block difficulty target
     pub bits: String,
     /// The difficulty target
@@ -2503,13 +2513,15 @@ pub struct GetBlockchainInfoResponse {
     /// (debug information) estimate of whether this node is in Initial Block Download mode
     pub initialblockdownload: bool,
     /// total amount of work in active chain, in hexadecimal
-    pub chainwork: String,
+    #[serde(rename = "chainwork")]
+    pub chain_work: String,
     /// the estimated size of the block and undo files on disk
     pub size_on_disk: u64,
     /// if the blocks are subject to pruning
     pub pruned: bool,
     /// height of the last block pruned, plus one (only present if pruning is enabled)
-    pub pruneheight: Option<u64>,
+    #[serde(rename = "pruneheight")]
+    pub prune_height: Option<u64>,
     /// whether automatic pruning is enabled (only present if pruning is enabled)
     pub automatic_pruning: Option<bool>,
     /// the target size used by pruning (only present if automatic pruning is enabled)
@@ -2770,7 +2782,8 @@ pub struct GetBlockHeaderResponse {
     /// The block version formatted in hexadecimal
     pub versionHex: String,
     /// The merkle root
-    pub merkleroot: String,
+    #[serde(rename = "merkleroot")]
+    pub merkle_root: String,
     /// The block time expressed in UNIX epoch time
     pub time: u64,
     /// The median block time expressed in UNIX epoch time
@@ -2784,13 +2797,16 @@ pub struct GetBlockHeaderResponse {
     /// The difficulty
     pub difficulty: f64,
     /// Expected number of hashes required to produce the current chain
-    pub chainwork: String,
+    #[serde(rename = "chainwork")]
+    pub chain_work: String,
     /// The number of transactions in the block
     pub nTx: u64,
     /// The hash of the previous block (if available)
-    pub previousblockhash: Option<String>,
+    #[serde(rename = "previousblockhash")]
+    pub previous_block_hash: Option<String>,
     /// The hash of the next block (if available)
-    pub nextblockhash: Option<String>,
+    #[serde(rename = "nextblockhash")]
+    pub next_block_hash: Option<String>,
 }
 
 /// Response for the `GetBlockStats` RPC method
@@ -2801,7 +2817,8 @@ pub struct GetBlockStatsResponse {
     /// Average fee in the block
     pub avgfee: Option<u64>,
     /// Average feerate (in satoshis per virtual byte)
-    pub avgfeerate: Option<u64>,
+    #[serde(rename = "avgfeerate")]
+    pub avg_fee_rate: Option<u64>,
     /// Average transaction size
     pub avgtxsize: Option<u64>,
     /// The block hash (to check for potential reorgs)
@@ -2829,7 +2846,8 @@ pub struct GetBlockStatsResponse {
     /// Minimum fee in the block
     pub minfee: Option<u64>,
     /// Minimum feerate (in satoshis per virtual byte)
-    pub minfeerate: Option<u64>,
+    #[serde(rename = "minfeerate")]
+    pub min_fee_rate: Option<u64>,
     /// Minimum transaction size
     pub mintxsize: Option<u64>,
     /// The number of outputs
@@ -2883,7 +2901,8 @@ pub struct GetBlockTemplateResponse {
     #[serde(rename = "vbrequired")]
     pub vb_required: u64,
     /// The hash of current highest block
-    pub previousblockhash: String,
+    #[serde(rename = "previousblockhash")]
+    pub previous_block_hash: String,
     /// contents of non-coinbase transactions that should be included in the next block
     pub transactions: Vec<GetBlockTemplateTransaction>,
     /// data that should be included in the coinbase's scriptSig content
@@ -2910,7 +2929,8 @@ pub struct GetBlockTemplateResponse {
     /// limit of block weight
     pub weightlimit: Option<u64>,
     /// current timestamp in UNIX epoch time. Adjusted for the proposed BIP94 timewarp rule.
-    pub curtime: u64,
+    #[serde(rename = "curtime")]
+    pub cur_time: u64,
     /// compressed target of next block
     pub bits: String,
     /// The height of the next block
@@ -3918,7 +3938,8 @@ pub struct GetRawTransactionResponse {
     /// The confirmations
     pub confirmations: Option<i64>,
     /// The block time expressed in UNIX epoch time
-    pub blocktime: Option<u64>,
+    #[serde(rename = "blocktime")]
+    pub block_time: Option<u64>,
     /// Same as "blocktime"
     pub time: Option<u64>,
     /// The serialized, hex-encoded data for 'txid'
@@ -3973,7 +3994,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                     in_active_chain: None,
                     block_hash: None,
                     confirmations: None,
-                    blocktime: None,
+                    block_time: None,
                     time: None,
                     hex: None,
                     txid: None,
@@ -3998,7 +4019,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                 let mut in_active_chain = None;
                 let mut block_hash = None;
                 let mut confirmations = None;
-                let mut blocktime = None;
+                let mut block_time = None;
                 let mut time = None;
                 let mut hex = None;
                 let mut txid = None;
@@ -4038,10 +4059,10 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                         confirmations = Some(map.next_value::<i64>()?);
                     }
                     if key == "blocktime" {
-                        if blocktime.is_some() {
+                        if block_time.is_some() {
                             return Err(de::Error::duplicate_field("blocktime"));
                         }
-                        blocktime = Some(map.next_value::<u64>()?);
+                        block_time = Some(map.next_value::<u64>()?);
                     }
                     if key == "time" {
                         if time.is_some() {
@@ -4129,7 +4150,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                     in_active_chain,
                     block_hash,
                     confirmations,
-                    blocktime,
+                    block_time,
                     time,
                     hex,
                     txid,
@@ -4414,11 +4435,13 @@ pub struct GetTransactionResponse {
     #[serde(rename = "blockhash")]
     pub block_hash: Option<bitcoin::BlockHash>,
     /// The block height containing the transaction.
-    pub blockheight: Option<u64>,
+    #[serde(rename = "blockheight")]
+    pub block_height: Option<u64>,
     /// The index of the transaction in the block that includes it.
     pub blockindex: Option<u64>,
     /// The block time expressed in UNIX epoch time.
-    pub blocktime: Option<u64>,
+    #[serde(rename = "blocktime")]
+    pub block_time: Option<u64>,
     /// The transaction id.
     pub txid: bitcoin::Txid,
     /// The hash of serialized transaction, including witness data.
@@ -4436,7 +4459,8 @@ pub struct GetTransactionResponse {
     /// The transaction time expressed in UNIX epoch time.
     pub time: u64,
     /// The time received expressed in UNIX epoch time.
-    pub timereceived: u64,
+    #[serde(rename = "timereceived")]
+    pub time_received: u64,
     /// If a comment is associated with the transaction, only present if not empty.
     pub comment: Option<String>,
     /// ("yes|no|unknown") Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability.
@@ -4627,7 +4651,8 @@ pub struct GetTxSpendingPrevOutResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetWalletInfoResponse {
     /// the wallet name
-    pub walletname: String,
+    #[serde(rename = "walletname")]
+    pub wallet_name: String,
     /// (DEPRECATED) only related to unsupported legacy wallet, returns the latest version 169900 for backwards compatibility
     pub walletversion: u64,
     /// the database format (only sqlite)
@@ -4635,7 +4660,8 @@ pub struct GetWalletInfoResponse {
     /// the total number of transactions in the wallet
     pub txcount: u64,
     /// how many new keys are pre-generated (only counts external keys)
-    pub keypoolsize: u64,
+    #[serde(rename = "keypoolsize")]
+    pub key_pool_size: u64,
     /// how many new keys are pre-generated for internal use (used for change outputs, only appears if the wallet is using this feature, otherwise external keys are used)
     pub keypoolsize_hd_internal: Option<u64>,
     /// the UNIX epoch time until which the wallet is unlocked for transfers, or 0 if the wallet is locked (only present for passphrase-encrypted wallets)
@@ -4653,7 +4679,8 @@ pub struct GetWalletInfoResponse {
     /// Whether this wallet intentionally does not contain any keys, scripts, or descriptors
     pub blank: bool,
     /// The start time for blocks scanning. It could be modified by (re)importing any descriptor with an earlier timestamp.
-    pub birthtime: Option<u64>,
+    #[serde(rename = "birthtime")]
+    pub birth_time: Option<u64>,
     /// The flags currently set on the wallet
     pub flags: Vec<String>,
     /// hash and height of the block this information was generated on
@@ -5440,7 +5467,8 @@ pub struct ListSinceBlockResponse {
     /// Note: transactions that were re-added in the active chain will appear as-is in this array, and may thus have a positive confirmation count.
     pub removed: Option<Vec<String>>,
     /// The hash of the block (target_confirmations-1) from the best block on the main chain, or the genesis hash if the referenced block does not exist yet. This is typically used to feed back into listsinceblock the next time you call it. So you would generally use a target_confirmations of say 6, so you will be continually re-notified of transactions until they've reached 6 confirmations plus any new ones
-    pub lastblock: String,
+    #[serde(rename = "lastblock")]
+    pub last_block: String,
 }
 
 /// Response for the `ListTransactions` RPC method
@@ -6285,8 +6313,9 @@ pub struct PsbtBumpFeeResponse {
     /// The base64-encoded unsigned PSBT of the new transaction.
     pub psbt: String,
     /// The fee of the replaced transaction.
+    #[serde(rename = "origfee")]
     #[serde(deserialize_with = "amount_from_btc_float")]
-    pub origfee: bitcoin::Amount,
+    pub orig_fee: bitcoin::Amount,
     /// The fee of the new transaction.
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub fee: bitcoin::Amount,
@@ -8313,7 +8342,8 @@ pub struct ValidateAddressResponse {
     /// If the key is a script
     pub isscript: Option<bool>,
     /// If the address is a witness address
-    pub iswitness: Option<bool>,
+    #[serde(rename = "iswitness")]
+    pub is_witness: Option<bool>,
     /// The version number of the witness program
     pub witness_version: Option<u64>,
     /// The hex value of the witness program

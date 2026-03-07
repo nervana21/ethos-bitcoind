@@ -106,9 +106,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// createpsbt and walletcreatefundedpsbt should be used for new applications.
     async fn convert_to_psbt(
         &self,
-        hexstring: String,
-        permitsigdata: Option<bool>,
-        iswitness: Option<bool>,
+        hex_string: String,
+        permit_sig_data: Option<bool>,
+        is_witness: Option<bool>,
     ) -> Result<ConvertToPsbtResponse, Self::Error>;
 
     /// Creates a multi-signature address with n signatures of m keys required.
@@ -174,12 +174,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Return a JSON object representing the serialized, hex-encoded transaction.
     async fn decode_raw_transaction(
         &self,
-        hexstring: String,
-        iswitness: Option<bool>,
+        hex_string: String,
+        is_witness: Option<bool>,
     ) -> Result<DecodeRawTransactionResponse, Self::Error>;
 
     /// Decode a hex-encoded script.
-    async fn decode_script(&self, hexstring: String) -> Result<DecodeScriptResponse, Self::Error>;
+    async fn decode_script(&self, hex_string: String) -> Result<DecodeScriptResponse, Self::Error>;
 
     /// Derives one or more addresses corresponding to an output descriptor.
     /// Examples of output descriptors are:
@@ -203,8 +203,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         &self,
         psbt: String,
         descriptors: Vec<serde_json::Value>,
-        sighashtype: Option<String>,
-        bip32derivs: Option<bool>,
+        sighash_type: Option<String>,
+        bip32_derivs: Option<bool>,
         finalize: Option<bool>,
     ) -> Result<DescriptorProcessPsbtResponse, Self::Error>;
 
@@ -333,9 +333,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// entire package have the given fee rate, not the resulting transaction.
     async fn fund_raw_transaction(
         &self,
-        hexstring: String,
+        hex_string: String,
         options: Option<serde_json::Value>,
-        iswitness: Option<bool>,
+        is_witness: Option<bool>,
     ) -> Result<FundRawTransactionResponse, Self::Error>;
 
     /// has been replaced by the -generate cli option. Refer to -help for more information.
@@ -733,7 +733,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Warning: Importing untrusted files is dangerous, especially if metadata from the file is taken over.
     async fn import_mempool(
         &self,
-        filepath: String,
+        file_path: String,
         options: Option<serde_json::Value>,
     ) -> Result<ImportMempoolResponse, Self::Error>;
 
@@ -1098,7 +1098,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Related RPCs: createrawtransaction, signrawtransactionwithkey
     async fn send_raw_transaction(
         &self,
-        hexstring: String,
+        hex_string: String,
         max_fee_rate: Option<FeeRate>,
         max_burn_amount: Option<bitcoin::Amount>,
     ) -> Result<SendRawTransactionResponse, Self::Error>;
@@ -1125,7 +1125,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         &self,
         subnet: String,
         command: String,
-        bantime: Option<i64>,
+        ban_time: Option<i64>,
         absolute: Option<bool>,
     ) -> Result<SetBanResponse, Self::Error>;
 
@@ -1176,10 +1176,10 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// this transaction depends on but may not yet be in the block chain.
     async fn sign_raw_transaction_with_key(
         &self,
-        hexstring: String,
-        privkeys: Vec<serde_json::Value>,
-        prevtxs: Option<Vec<serde_json::Value>>,
-        sighashtype: Option<String>,
+        hex_string: String,
+        priv_keys: Vec<serde_json::Value>,
+        prev_txs: Option<Vec<serde_json::Value>>,
+        sighash_type: Option<String>,
     ) -> Result<SignRawTransactionWithKeyResponse, Self::Error>;
 
     /// Sign inputs for raw transaction (serialized, hex-encoded).
@@ -1190,9 +1190,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Requires wallet private keys to be available (e.g. unlocked).
     async fn sign_raw_transaction_with_wallet(
         &self,
-        hexstring: String,
-        prevtxs: Option<Vec<serde_json::Value>>,
-        sighashtype: Option<String>,
+        hex_string: String,
+        prev_txs: Option<Vec<serde_json::Value>>,
+        sighash_type: Option<String>,
     ) -> Result<SignRawTransactionWithWalletResponse, Self::Error>;
 
     /// Calculate the balance change resulting in the signing and broadcasting of the given transaction(s).
@@ -1329,7 +1329,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         outputs: Vec<serde_json::Value>,
         lock_time: Option<i64>,
         options: Option<serde_json::Value>,
-        bip32derivs: Option<bool>,
+        bip32_derivs: Option<bool>,
         version: Option<i64>,
     ) -> Result<WalletCreateFundedPsbtResponse, Self::Error>;
 
@@ -1375,8 +1375,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         &self,
         psbt: String,
         sign: Option<bool>,
-        sighashtype: Option<String>,
-        bip32derivs: Option<bool>,
+        sighash_type: Option<String>,
+        bip32_derivs: Option<bool>,
         finalize: Option<bool>,
     ) -> Result<WalletProcessPsbtResponse, Self::Error>;
 }
@@ -1562,16 +1562,16 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// createpsbt and walletcreatefundedpsbt should be used for new applications.
     async fn convert_to_psbt(
         &self,
-        hexstring: String,
-        permitsigdata: Option<bool>,
-        iswitness: Option<bool>,
+        hex_string: String,
+        permit_sig_data: Option<bool>,
+        is_witness: Option<bool>,
     ) -> Result<ConvertToPsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(hexstring));
-        if let Some(val) = permitsigdata {
+        rpc_params.push(serde_json::json!(hex_string));
+        if let Some(val) = permit_sig_data {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = iswitness {
+        if let Some(val) = is_witness {
             rpc_params.push(serde_json::json!(val));
         }
         self.call::<ConvertToPsbtResponse>("converttopsbt", &rpc_params).await
@@ -1712,21 +1712,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Return a JSON object representing the serialized, hex-encoded transaction.
     async fn decode_raw_transaction(
         &self,
-        hexstring: String,
-        iswitness: Option<bool>,
+        hex_string: String,
+        is_witness: Option<bool>,
     ) -> Result<DecodeRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(hexstring));
-        if let Some(val) = iswitness {
+        rpc_params.push(serde_json::json!(hex_string));
+        if let Some(val) = is_witness {
             rpc_params.push(serde_json::json!(val));
         }
         self.call::<DecodeRawTransactionResponse>("decoderawtransaction", &rpc_params).await
     }
 
     /// Decode a hex-encoded script.
-    async fn decode_script(&self, hexstring: String) -> Result<DecodeScriptResponse, Self::Error> {
+    async fn decode_script(&self, hex_string: String) -> Result<DecodeScriptResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(hexstring));
+        rpc_params.push(serde_json::json!(hex_string));
         self.call::<DecodeScriptResponse>("decodescript", &rpc_params).await
     }
 
@@ -1759,17 +1759,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         &self,
         psbt: String,
         descriptors: Vec<serde_json::Value>,
-        sighashtype: Option<String>,
-        bip32derivs: Option<bool>,
+        sighash_type: Option<String>,
+        bip32_derivs: Option<bool>,
         finalize: Option<bool>,
     ) -> Result<DescriptorProcessPsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(psbt));
         rpc_params.push(serde_json::json!(descriptors));
-        if let Some(val) = sighashtype {
+        if let Some(val) = sighash_type {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = bip32derivs {
+        if let Some(val) = bip32_derivs {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = finalize {
@@ -2019,16 +2019,16 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// entire package have the given fee rate, not the resulting transaction.
     async fn fund_raw_transaction(
         &self,
-        hexstring: String,
+        hex_string: String,
         options: Option<serde_json::Value>,
-        iswitness: Option<bool>,
+        is_witness: Option<bool>,
     ) -> Result<FundRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(hexstring));
+        rpc_params.push(serde_json::json!(hex_string));
         if let Some(val) = options {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = iswitness {
+        if let Some(val) = is_witness {
             rpc_params.push(serde_json::json!(val));
         }
         self.call::<FundRawTransactionResponse>("fundrawtransaction", &rpc_params).await
@@ -2757,11 +2757,11 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Warning: Importing untrusted files is dangerous, especially if metadata from the file is taken over.
     async fn import_mempool(
         &self,
-        filepath: String,
+        file_path: String,
         options: Option<serde_json::Value>,
     ) -> Result<ImportMempoolResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(filepath));
+        rpc_params.push(serde_json::json!(file_path));
         if let Some(val) = options {
             rpc_params.push(serde_json::json!(val));
         }
@@ -3455,12 +3455,12 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Related RPCs: createrawtransaction, signrawtransactionwithkey
     async fn send_raw_transaction(
         &self,
-        hexstring: String,
+        hex_string: String,
         max_fee_rate: Option<FeeRate>,
         max_burn_amount: Option<bitcoin::Amount>,
     ) -> Result<SendRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(hexstring));
+        rpc_params.push(serde_json::json!(hex_string));
         if let Some(val) = max_fee_rate {
             rpc_params.push(serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0));
         }
@@ -3524,13 +3524,13 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         &self,
         subnet: String,
         command: String,
-        bantime: Option<i64>,
+        ban_time: Option<i64>,
         absolute: Option<bool>,
     ) -> Result<SetBanResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(subnet));
         rpc_params.push(serde_json::json!(command));
-        if let Some(val) = bantime {
+        if let Some(val) = ban_time {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = absolute {
@@ -3616,18 +3616,18 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// this transaction depends on but may not yet be in the block chain.
     async fn sign_raw_transaction_with_key(
         &self,
-        hexstring: String,
-        privkeys: Vec<serde_json::Value>,
-        prevtxs: Option<Vec<serde_json::Value>>,
-        sighashtype: Option<String>,
+        hex_string: String,
+        priv_keys: Vec<serde_json::Value>,
+        prev_txs: Option<Vec<serde_json::Value>>,
+        sighash_type: Option<String>,
     ) -> Result<SignRawTransactionWithKeyResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(hexstring));
-        rpc_params.push(serde_json::json!(privkeys));
-        if let Some(val) = prevtxs {
+        rpc_params.push(serde_json::json!(hex_string));
+        rpc_params.push(serde_json::json!(priv_keys));
+        if let Some(val) = prev_txs {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = sighashtype {
+        if let Some(val) = sighash_type {
             rpc_params.push(serde_json::json!(val));
         }
         self.call::<SignRawTransactionWithKeyResponse>("signrawtransactionwithkey", &rpc_params)
@@ -3642,16 +3642,16 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Requires wallet private keys to be available (e.g. unlocked).
     async fn sign_raw_transaction_with_wallet(
         &self,
-        hexstring: String,
-        prevtxs: Option<Vec<serde_json::Value>>,
-        sighashtype: Option<String>,
+        hex_string: String,
+        prev_txs: Option<Vec<serde_json::Value>>,
+        sighash_type: Option<String>,
     ) -> Result<SignRawTransactionWithWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(hexstring));
-        if let Some(val) = prevtxs {
+        rpc_params.push(serde_json::json!(hex_string));
+        if let Some(val) = prev_txs {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = sighashtype {
+        if let Some(val) = sighash_type {
             rpc_params.push(serde_json::json!(val));
         }
         self.call::<SignRawTransactionWithWalletResponse>(
@@ -3908,7 +3908,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         outputs: Vec<serde_json::Value>,
         lock_time: Option<i64>,
         options: Option<serde_json::Value>,
-        bip32derivs: Option<bool>,
+        bip32_derivs: Option<bool>,
         version: Option<i64>,
     ) -> Result<WalletCreateFundedPsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
@@ -3922,7 +3922,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         if let Some(val) = options {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = bip32derivs {
+        if let Some(val) = bip32_derivs {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = version {
@@ -3989,8 +3989,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         &self,
         psbt: String,
         sign: Option<bool>,
-        sighashtype: Option<String>,
-        bip32derivs: Option<bool>,
+        sighash_type: Option<String>,
+        bip32_derivs: Option<bool>,
         finalize: Option<bool>,
     ) -> Result<WalletProcessPsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
@@ -3998,10 +3998,10 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         if let Some(val) = sign {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = sighashtype {
+        if let Some(val) = sighash_type {
             rpc_params.push(serde_json::json!(val));
         }
-        if let Some(val) = bip32derivs {
+        if let Some(val) = bip32_derivs {
             rpc_params.push(serde_json::json!(val));
         }
         if let Some(val) = finalize {

@@ -227,10 +227,10 @@ pub async fn set_ban(
     transport: &dyn TransportTrait,
     subnet: serde_json::Value,
     command: serde_json::Value,
-    bantime: serde_json::Value,
+    ban_time: serde_json::Value,
     absolute: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(subnet), json!(command), json!(bantime), json!(absolute)];
+    let params = vec![json!(subnet), json!(command), json!(ban_time), json!(absolute)];
     let raw = transport.send_request("setban", &params).await?;
     Ok(raw)
 }

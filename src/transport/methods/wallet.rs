@@ -1069,11 +1069,11 @@ pub async fn sign_message(
 /// Calls the `signrawtransactionwithwallet` RPC method.
 pub async fn sign_raw_transaction_with_wallet(
     transport: &dyn TransportTrait,
-    hexstring: serde_json::Value,
-    prevtxs: serde_json::Value,
-    sighashtype: serde_json::Value,
+    hex_string: serde_json::Value,
+    prev_txs: serde_json::Value,
+    sighash_type: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hexstring), json!(prevtxs), json!(sighashtype)];
+    let params = vec![json!(hex_string), json!(prev_txs), json!(sighash_type)];
     let raw = transport.send_request("signrawtransactionwithwallet", &params).await?;
     Ok(raw)
 }
@@ -1135,7 +1135,7 @@ pub async fn wallet_create_funded_psbt(
     outputs: serde_json::Value,
     lock_time: serde_json::Value,
     options: serde_json::Value,
-    bip32derivs: serde_json::Value,
+    bip32_derivs: serde_json::Value,
     version: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![
@@ -1143,7 +1143,7 @@ pub async fn wallet_create_funded_psbt(
         json!(outputs),
         json!(lock_time),
         json!(options),
-        json!(bip32derivs),
+        json!(bip32_derivs),
         json!(version),
     ];
     let raw = transport.send_request("walletcreatefundedpsbt", &params).await?;
@@ -1242,12 +1242,12 @@ pub async fn wallet_process_psbt(
     transport: &dyn TransportTrait,
     psbt: serde_json::Value,
     sign: serde_json::Value,
-    sighashtype: serde_json::Value,
-    bip32derivs: serde_json::Value,
+    sighash_type: serde_json::Value,
+    bip32_derivs: serde_json::Value,
     finalize: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params =
-        vec![json!(psbt), json!(sign), json!(sighashtype), json!(bip32derivs), json!(finalize)];
+        vec![json!(psbt), json!(sign), json!(sighash_type), json!(bip32_derivs), json!(finalize)];
     let raw = transport.send_request("walletprocesspsbt", &params).await?;
     Ok(raw)
 }
