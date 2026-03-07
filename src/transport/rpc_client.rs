@@ -1,5 +1,4 @@
 use std::fmt;
-use std::result::Result;
 use std::sync::Arc;
 
 use crate::transport::core::{TransportError, TransportTrait};
