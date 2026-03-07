@@ -3,7 +3,6 @@ use std::time::Duration;
 use base64::engine::general_purpose;
 use base64::Engine;
 use bitreq::{post, Client as BitreqClient, Error as BitreqError, RequestExt};
-use serde;
 use serde_json::Value;
 use thiserror::Error;
 use tokio::time::sleep;
