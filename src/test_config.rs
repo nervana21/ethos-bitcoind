@@ -9,6 +9,8 @@ use bitcoin::Network;
 
 use crate::config::Config;
 
+const DEFAULT_EXTRA_ARGS: [&str; 2] = ["-prune=0", "-txindex"];
+
 /// TestConfig represents the configuration needed to run a Bitcoin node in a test environment.
 /// This struct encapsulates test‑node settings: network, RPC port, username, password, and extra args.
 /// Defaults are:
@@ -133,7 +135,7 @@ impl TestConfig {
             rpc_username: config.rpc_user.clone(),
             rpc_password: config.rpc_password.clone(),
             bitcoind_path: None,
-            extra_args: vec!["-prune=0".to_string(), "-txindex".to_string()], // For full blockchain history and transaction lookup
+            extra_args: DEFAULT_EXTRA_ARGS.map(String::from).to_vec(),
         }
     }
 }
@@ -146,7 +148,7 @@ impl Default for TestConfig {
             rpc_username: "rpcuser".to_string(),
             rpc_password: "rpcpassword".to_string(),
             bitcoind_path: None,
-            extra_args: vec!["-prune=0".to_string(), "-txindex".to_string()], // For full blockchain history and transaction lookup
+            extra_args: DEFAULT_EXTRA_ARGS.map(String::from).to_vec(),
         }
     }
 }
