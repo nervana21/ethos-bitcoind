@@ -5,7 +5,7 @@ use crate::types::FeeRate;
 
 mod serde_fee_rate {
     pub mod maxfeerate_opt {
-        use serde::{Deserialize, Deserializer, Serialize, Serializer};
+        use serde::{Deserialize, Deserializer, Serializer};
 
         use crate::types::FeeRate;
 
@@ -36,7 +36,7 @@ pub mod serde_amounts_map {
 
     use bitcoin::address::NetworkUnchecked;
     use bitcoin::Address;
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn serialize<S>(
         map: &HashMap<Address<NetworkUnchecked>, bitcoin::Amount>,
