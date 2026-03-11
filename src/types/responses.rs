@@ -273,15 +273,6 @@ impl From<AbandonTransactionResponse> for () {
     fn from(wrapper: AbandonTransactionResponse) -> Self { wrapper.value }
 }
 
-/// Response for the `AbortPrivateBroadcast` RPC method
-///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct AbortPrivateBroadcastResponse {
-    /// Transactions removed from the private broadcast queue
-    pub removed_transactions: serde_json::Value,
-}
-
 /// Response for the `AbortRescan` RPC method
 ///
 /// This method returns a primitive value wrapped in a transparent struct.
@@ -3290,19 +3281,6 @@ pub struct GetMempoolAncestorsResponse {
     pub transaction_id: bitcoin::Txid,
 }
 
-/// Response for the `GetMempoolCluster` RPC method
-///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetMempoolClusterResponse {
-    /// total sigops-adjusted weight (as defined in BIP 141 and modified by '-bytespersigop')
-    pub clusterweight: u64,
-    /// number of transactions
-    pub txcount: u64,
-    /// chunks in this cluster (in mining order)
-    pub chunks: serde_json::Value,
-}
-
 /// Response for the `GetMempoolDescendants` RPC method
 ///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -3348,14 +3326,6 @@ pub struct GetMempoolEntryResponse {
     pub bip125_replaceable: bool,
     /// Whether this transaction is currently unbroadcast (initial broadcast not yet acknowledged by any peers)
     pub unbroadcast: bool,
-}
-
-/// Response for the `GetMempoolFeeRateDiagram` RPC method
-///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetMempoolFeeRateDiagramResponse {
-    pub field: serde_json::Value,
 }
 
 /// Response for the `GetMempoolInfo` RPC method
@@ -3727,19 +3697,6 @@ impl From<GetNodeAddressesResponse> for Vec<serde_json::Value> {
     fn from(wrapper: GetNodeAddressesResponse) -> Self { wrapper.value }
 }
 
-/// Response for the `GetOpenRpcInfo` RPC method
-///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetOpenRpcInfoResponse {
-    /// OpenRPC specification version.
-    pub openrpc: String,
-    /// Metadata about this JSON-RPC interface.
-    pub info: serde_json::Value,
-    /// Documented RPC methods.
-    pub methods: serde_json::Value,
-}
-
 /// Response for the `GetOrphanTxs` RPC method
 ///
 /// This method returns an array wrapped in a transparent struct.
@@ -3802,14 +3759,6 @@ impl From<GetPeerInfoResponse> for Vec<serde_json::Value> {
 pub struct GetPrioritisedTransactionsResponse {
     #[serde(rename = "<transactionid>")]
     pub transactionid: serde_json::Value,
-}
-
-/// Response for the `GetPrivateBroadcastInfo` RPC method
-///
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
-pub struct GetPrivateBroadcastInfoResponse {
-    pub transactions: serde_json::Value,
 }
 
 /// Response for the `GetRawAddrMan` RPC method

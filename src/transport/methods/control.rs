@@ -24,21 +24,6 @@ pub async fn get_memory_info(
     Ok(raw)
 }
 
-/// Returns an OpenRPC document for currently available RPC commands.
-///
-/// # Usage
-/// This method can be called using the high-level client interface:
-/// - `client.getopenrpcinfo(...).await`
-/// Or directly via the transport layer for advanced use cases:
-/// - `transport::getopenrpcinfo(&transport, ...).await`
-///
-/// Calls the `getopenrpcinfo` RPC method.
-pub async fn get_open_rpc_info(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
-    let params = Vec::<Value>::new();
-    let raw = transport.send_request("getopenrpcinfo", &params).await?;
-    Ok(raw)
-}
-
 /// Returns details of the RPC server.
 ///
 /// # Usage

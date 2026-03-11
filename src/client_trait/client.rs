@@ -27,13 +27,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         txid: bitcoin::Txid,
     ) -> Result<AbandonTransactionResponse, Self::Error>;
 
-    /// Abort private broadcast attempts for a transaction currently being privately broadcast.
-    /// The transaction will be removed from the private broadcast queue.
-    async fn abort_private_broadcast(
-        &self,
-        id: String,
-    ) -> Result<AbortPrivateBroadcastResponse, Self::Error>;
-
     /// Stops current wallet rescan triggered by an RPC call, e.g. by a rescanblockchain call.
     /// Note: Use "getwalletinfo" to query the scanning progress.
     async fn abort_rescan(&self) -> Result<AbortRescanResponse, Self::Error>;
@@ -546,12 +539,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         verbose: Option<bool>,
     ) -> Result<GetMempoolAncestorsResponse, Self::Error>;
 
-    /// Returns mempool data for given cluster
-    async fn get_mempool_cluster(
-        &self,
-        txid: bitcoin::Txid,
-    ) -> Result<GetMempoolClusterResponse, Self::Error>;
-
     /// If txid is in the mempool, returns all in-mempool descendants.
     async fn get_mempool_descendants(
         &self,
@@ -564,11 +551,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         &self,
         txid: bitcoin::Txid,
     ) -> Result<GetMempoolEntryResponse, Self::Error>;
-
-    /// Returns the feerate diagram for the whole mempool.
-    async fn get_mempool_fee_rate_diagram(
-        &self,
-    ) -> Result<GetMempoolFeeRateDiagramResponse, Self::Error>;
 
     /// Returns details on the active state of the TX memory pool.
     async fn get_mempool_info(&self) -> Result<GetMempoolInfoResponse, Self::Error>;
@@ -610,9 +592,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         network: Option<String>,
     ) -> Result<GetNodeAddressesResponse, Self::Error>;
 
-    /// Returns an OpenRPC document for currently available RPC commands.
-    async fn get_open_rpc_info(&self) -> Result<GetOpenRpcInfoResponse, Self::Error>;
-
     /// Shows transactions in the tx orphanage.
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     async fn get_orphan_txs(
@@ -627,11 +606,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn get_prioritised_transactions(
         &self,
     ) -> Result<GetPrioritisedTransactionsResponse, Self::Error>;
-
-    /// Returns information about transactions that are currently being privately broadcast.
-    async fn get_private_broadcast_info(
-        &self,
-    ) -> Result<GetPrivateBroadcastInfoResponse, Self::Error>;
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Returns information on all address manager entries for the new and tried tables.
@@ -1443,17 +1417,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
         self.call::<AbandonTransactionResponse>("abandontransaction", &rpc_params).await
-    }
-
-    /// Abort private broadcast attempts for a transaction currently being privately broadcast.
-    /// The transaction will be removed from the private broadcast queue.
-    async fn abort_private_broadcast(
-        &self,
-        id: String,
-    ) -> Result<AbortPrivateBroadcastResponse, Self::Error> {
-        let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(id));
-        self.call::<AbortPrivateBroadcastResponse>("abortprivatebroadcast", &rpc_params).await
     }
 
     /// Stops current wallet rescan triggered by an RPC call, e.g. by a rescanblockchain call.
@@ -2423,16 +2386,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetMempoolAncestorsResponse>("getmempoolancestors", &rpc_params).await
     }
 
-    /// Returns mempool data for given cluster
-    async fn get_mempool_cluster(
-        &self,
-        txid: bitcoin::Txid,
-    ) -> Result<GetMempoolClusterResponse, Self::Error> {
-        let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(txid));
-        self.call::<GetMempoolClusterResponse>("getmempoolcluster", &rpc_params).await
-    }
-
     /// If txid is in the mempool, returns all in-mempool descendants.
     async fn get_mempool_descendants(
         &self,
@@ -2455,13 +2408,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
         self.call::<GetMempoolEntryResponse>("getmempoolentry", &rpc_params).await
-    }
-
-    /// Returns the feerate diagram for the whole mempool.
-    async fn get_mempool_fee_rate_diagram(
-        &self,
-    ) -> Result<GetMempoolFeeRateDiagramResponse, Self::Error> {
-        self.call::<GetMempoolFeeRateDiagramResponse>("getmempoolfeeratediagram", &[]).await
     }
 
     /// Returns details on the active state of the TX memory pool.
@@ -2539,11 +2485,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetNodeAddressesResponse>("getnodeaddresses", &rpc_params).await
     }
 
-    /// Returns an OpenRPC document for currently available RPC commands.
-    async fn get_open_rpc_info(&self) -> Result<GetOpenRpcInfoResponse, Self::Error> {
-        self.call::<GetOpenRpcInfoResponse>("getopenrpcinfo", &[]).await
-    }
-
     /// Shows transactions in the tx orphanage.
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     async fn get_orphan_txs(
@@ -2567,13 +2508,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         &self,
     ) -> Result<GetPrioritisedTransactionsResponse, Self::Error> {
         self.call::<GetPrioritisedTransactionsResponse>("getprioritisedtransactions", &[]).await
-    }
-
-    /// Returns information about transactions that are currently being privately broadcast.
-    async fn get_private_broadcast_info(
-        &self,
-    ) -> Result<GetPrivateBroadcastInfoResponse, Self::Error> {
-        self.call::<GetPrivateBroadcastInfoResponse>("getprivatebroadcastinfo", &[]).await
     }
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.

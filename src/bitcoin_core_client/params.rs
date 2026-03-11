@@ -119,15 +119,6 @@ pub struct AbandontransactionParams {
     pub txid: bitcoin::Txid,
 }
 
-/// Abort private broadcast attempts for a transaction currently being privately broadcast.
-/// The transaction will be removed from the private broadcast queue.
-#[derive(Debug, Serialize)]
-pub struct AbortprivatebroadcastParams {
-    /// A transaction identifier to abort. It will be matched against both txid and wtxid for all transactions in the private broadcast queue.
-    /// If the provided id matches a txid that corresponds to multiple transactions with different wtxids, multiple transactions will be removed and returned.
-    pub id: String,
-}
-
 /// Open an outbound connection to a specified node. This RPC is for testing only.
 #[derive(Debug, Serialize)]
 pub struct AddconnectionParams {
@@ -784,13 +775,6 @@ pub struct GetmempoolancestorsParams {
     pub txid: bitcoin::Txid,
     /// True for a json object, false for array of transaction ids
     pub verbose: Option<bool>,
-}
-
-/// Returns mempool data for given cluster
-#[derive(Debug, Serialize)]
-pub struct GetmempoolclusterParams {
-    /// The txid of a transaction in the cluster
-    pub txid: bitcoin::Txid,
 }
 
 /// If txid is in the mempool, returns all in-mempool descendants.
