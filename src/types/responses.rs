@@ -16,11 +16,11 @@ pub struct DecodedScriptPubKey {
     pub desc: String,
     /// The raw output script bytes, hex-encoded
     pub hex: String,
-    /// The Bitcoin address (only if a well-defined address exists)
-    pub address: Option<String>,
-    /// The type (one of: nonstandard, anchor, pubkey, pubkeyhash, scripthash, multisig, nulldata, witness_v0_scripthash, witness_v0_keyhash, witness_v1_taproot, witness_unknown)
+    /// The type, eg 'pubkeyhash'
     #[serde(rename = "type")]
     pub r#type: String,
+    /// The Bitcoin address (only if a well-defined address exists)
+    pub address: Option<String>,
 }
 
 /// Script sig in decoded tx input.
@@ -271,6 +271,15 @@ impl From<()> for AbandonTransactionResponse {
 
 impl From<AbandonTransactionResponse> for () {
     fn from(wrapper: AbandonTransactionResponse) -> Self { wrapper.value }
+}
+
+/// Response for the `AbortPrivateBroadcast` RPC method
+///
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+pub struct AbortPrivateBroadcastResponse {
+    /// Transactions removed from the private broadcast queue
+    pub removed_transactions: serde_json::Value,
 }
 
 /// Response for the `AbortRescan` RPC method
@@ -2448,6 +2457,8 @@ pub struct GetBlockResponse {
     pub strippedsize: u64,
     /// The block weight as defined in BIP 141
     pub weight: u64,
+    /// Coinbase transaction metadata
+    pub coinbase_tx: serde_json::Value,
     /// The block height or index
     pub height: u64,
     /// The block version
@@ -2519,7 +2530,7 @@ pub struct GetBlockchainInfoResponse {
     pub size_on_disk: u64,
     /// if the blocks are subject to pruning
     pub pruned: bool,
-    /// height of the last block pruned, plus one (only present if pruning is enabled)
+    /// the first block unpruned, all previous blocks were pruned (only present if pruning is enabled)
     #[serde(rename = "pruneheight")]
     pub prune_height: Option<u64>,
     /// whether automatic pruning is enabled (only present if pruning is enabled)
@@ -2887,8 +2898,7 @@ pub struct GetBlockStatsResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBlockTemplateResponse {
-    #[serde(default)]
-    pub field_0: Option<()>,
+    pub field_0_1: (),
     /// The preferred block version
     pub version: u32,
     /// specific block rules that are to be enforced
@@ -3275,7 +3285,7 @@ pub struct GetMemoryInfoResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolAncestorsResponse {
-    pub field_0: Vec<String>,
+    pub field_0_1: Vec<String>,
     #[serde(rename = "transactionid")]
     pub transaction_id: bitcoin::Txid,
 }
@@ -3298,7 +3308,7 @@ pub struct GetMempoolClusterResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolDescendantsResponse {
-    pub field_0: Vec<String>,
+    pub field_0_1: Vec<String>,
     #[serde(rename = "transactionid")]
     pub transaction_id: bitcoin::Txid,
 }
@@ -3383,6 +3393,8 @@ pub struct GetMempoolInfoResponse {
     pub limitclustercount: Option<u64>,
     /// Maximum size of a cluster in virtual bytes (configured by -limitclustersize)
     pub limitclustersize: Option<u64>,
+    /// If the mempool is in a known-optimal transaction ordering
+    pub optimal: bool,
 }
 
 /// Response for the `GetMiningInfo` RPC method
@@ -3715,6 +3727,19 @@ impl From<GetNodeAddressesResponse> for Vec<serde_json::Value> {
     fn from(wrapper: GetNodeAddressesResponse) -> Self { wrapper.value }
 }
 
+/// Response for the `GetOpenRpcInfo` RPC method
+///
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+pub struct GetOpenRpcInfoResponse {
+    /// OpenRPC specification version.
+    pub openrpc: String,
+    /// Metadata about this JSON-RPC interface.
+    pub info: serde_json::Value,
+    /// Documented RPC methods.
+    pub methods: serde_json::Value,
+}
+
 /// Response for the `GetOrphanTxs` RPC method
 ///
 /// This method returns an array wrapped in a transparent struct.
@@ -3777,6 +3802,14 @@ impl From<GetPeerInfoResponse> for Vec<serde_json::Value> {
 pub struct GetPrioritisedTransactionsResponse {
     #[serde(rename = "<transactionid>")]
     pub transactionid: serde_json::Value,
+}
+
+/// Response for the `GetPrivateBroadcastInfo` RPC method
+///
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
+pub struct GetPrivateBroadcastInfoResponse {
+    pub transactions: serde_json::Value,
 }
 
 /// Response for the `GetRawAddrMan` RPC method
@@ -4483,8 +4516,7 @@ pub struct GetTransactionResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetTxOutResponse {
-    #[serde(default)]
-    pub field_0: Option<()>,
+    pub field_0_1: (),
     /// The hash of the block at the tip of the chain
     pub bestblock: String,
     /// The number of confirmations
@@ -6603,7 +6635,7 @@ pub struct SaveMempoolResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ScanBlocksResponse {
-    pub field_0: (),
+    pub field_0_1: (),
     /// The height we started the scan from
     pub from_height: u64,
     /// The height we ended the scan at
@@ -6641,14 +6673,8 @@ pub struct ScanTxOutSetResponse {
     pub success_1: bool,
     /// Approximate percent complete
     pub progress: u64,
-    pub field_3: (),
+    pub field_3_1: (),
 }
-
-/// Response for the `Schema` RPC method
-///
-/// This method returns no meaningful data.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct SchemaResponse;
 
 /// Response for the `Send` RPC method
 ///
@@ -7780,9 +7806,9 @@ impl From<StopResponse> for String {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SubmitBlockResponse {
-    pub field_0: (),
+    pub field_0_1: (),
     /// According to BIP22
-    pub field_1: String,
+    pub field_1_1: String,
 }
 
 /// Response for the `SubmitHeader` RPC method

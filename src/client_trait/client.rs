@@ -27,6 +27,13 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         txid: bitcoin::Txid,
     ) -> Result<AbandonTransactionResponse, Self::Error>;
 
+    /// Abort private broadcast attempts for a transaction currently being privately broadcast.
+    /// The transaction will be removed from the private broadcast queue.
+    async fn abort_private_broadcast(
+        &self,
+        id: String,
+    ) -> Result<AbortPrivateBroadcastResponse, Self::Error>;
+
     /// Stops current wallet rescan triggered by an RPC call, e.g. by a rescanblockchain call.
     /// Note: Use "getwalletinfo" to query the scanning progress.
     async fn abort_rescan(&self) -> Result<AbortRescanResponse, Self::Error>;
@@ -603,6 +610,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         network: Option<String>,
     ) -> Result<GetNodeAddressesResponse, Self::Error>;
 
+    /// Returns an OpenRPC document for currently available RPC commands.
+    async fn get_open_rpc_info(&self) -> Result<GetOpenRpcInfoResponse, Self::Error>;
+
     /// Shows transactions in the tx orphanage.
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     async fn get_orphan_txs(
@@ -617,6 +627,11 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn get_prioritised_transactions(
         &self,
     ) -> Result<GetPrioritisedTransactionsResponse, Self::Error>;
+
+    /// Returns information about transactions that are currently being privately broadcast.
+    async fn get_private_broadcast_info(
+        &self,
+    ) -> Result<GetPrivateBroadcastInfoResponse, Self::Error>;
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Returns information on all address manager entries for the new and tried tables.
@@ -707,10 +722,11 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         use_index: Option<bool>,
     ) -> Result<GetTxOutSetInfoResponse, Self::Error>;
 
-    /// Scans the mempool to find transactions spending any of the given outputs
+    /// Scans the mempool (and the txospenderindex, if available) to find transactions spending any of the given outputs
     async fn get_tx_spending_prevout(
         &self,
         outputs: Vec<serde_json::Value>,
+        options: Option<serde_json::Value>,
     ) -> Result<GetTxSpendingPrevOutResponse, Self::Error>;
 
     /// Returns an object containing various wallet state info.
@@ -1026,9 +1042,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         action: String,
         scanobjects: Option<Vec<serde_json::Value>>,
     ) -> Result<ScanTxOutSetResponse, Self::Error>;
-
-    /// Return RPC command JSON Schema descriptions.
-    async fn schema(&self) -> Result<SchemaResponse, Self::Error>;
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Send a transaction.
@@ -1430,6 +1443,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
         self.call::<AbandonTransactionResponse>("abandontransaction", &rpc_params).await
+    }
+
+    /// Abort private broadcast attempts for a transaction currently being privately broadcast.
+    /// The transaction will be removed from the private broadcast queue.
+    async fn abort_private_broadcast(
+        &self,
+        id: String,
+    ) -> Result<AbortPrivateBroadcastResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        rpc_params.push(serde_json::json!(id));
+        self.call::<AbortPrivateBroadcastResponse>("abortprivatebroadcast", &rpc_params).await
     }
 
     /// Stops current wallet rescan triggered by an RPC call, e.g. by a rescanblockchain call.
@@ -2515,6 +2539,11 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetNodeAddressesResponse>("getnodeaddresses", &rpc_params).await
     }
 
+    /// Returns an OpenRPC document for currently available RPC commands.
+    async fn get_open_rpc_info(&self) -> Result<GetOpenRpcInfoResponse, Self::Error> {
+        self.call::<GetOpenRpcInfoResponse>("getopenrpcinfo", &[]).await
+    }
+
     /// Shows transactions in the tx orphanage.
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     async fn get_orphan_txs(
@@ -2538,6 +2567,13 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         &self,
     ) -> Result<GetPrioritisedTransactionsResponse, Self::Error> {
         self.call::<GetPrioritisedTransactionsResponse>("getprioritisedtransactions", &[]).await
+    }
+
+    /// Returns information about transactions that are currently being privately broadcast.
+    async fn get_private_broadcast_info(
+        &self,
+    ) -> Result<GetPrivateBroadcastInfoResponse, Self::Error> {
+        self.call::<GetPrivateBroadcastInfoResponse>("getprivatebroadcastinfo", &[]).await
     }
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
@@ -2715,13 +2751,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         self.call::<GetTxOutSetInfoResponse>("gettxoutsetinfo", &rpc_params).await
     }
 
-    /// Scans the mempool to find transactions spending any of the given outputs
+    /// Scans the mempool (and the txospenderindex, if available) to find transactions spending any of the given outputs
     async fn get_tx_spending_prevout(
         &self,
         outputs: Vec<serde_json::Value>,
+        options: Option<serde_json::Value>,
     ) -> Result<GetTxSpendingPrevOutResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(outputs));
+        if let Some(val) = options {
+            rpc_params.push(serde_json::json!(val));
+        }
         self.call::<GetTxSpendingPrevOutResponse>("gettxspendingprevout", &rpc_params).await
     }
 
@@ -3307,11 +3347,6 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
             rpc_params.push(serde_json::json!(val));
         }
         self.call::<ScanTxOutSetResponse>("scantxoutset", &rpc_params).await
-    }
-
-    /// Return RPC command JSON Schema descriptions.
-    async fn schema(&self) -> Result<SchemaResponse, Self::Error> {
-        self.call::<SchemaResponse>("schema", &[]).await
     }
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.

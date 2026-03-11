@@ -119,6 +119,15 @@ pub struct AbandontransactionParams {
     pub txid: bitcoin::Txid,
 }
 
+/// Abort private broadcast attempts for a transaction currently being privately broadcast.
+/// The transaction will be removed from the private broadcast queue.
+#[derive(Debug, Serialize)]
+pub struct AbortprivatebroadcastParams {
+    /// A transaction identifier to abort. It will be matched against both txid and wtxid for all transactions in the private broadcast queue.
+    /// If the provided id matches a txid that corresponds to multiple transactions with different wtxids, multiple transactions will be removed and returned.
+    pub id: String,
+}
+
 /// Open an outbound connection to a specified node. This RPC is for testing only.
 #[derive(Debug, Serialize)]
 pub struct AddconnectionParams {
@@ -950,11 +959,12 @@ pub struct GettxoutsetinfoParams {
     pub use_index: Option<bool>,
 }
 
-/// Scans the mempool to find transactions spending any of the given outputs
+/// Scans the mempool (and the txospenderindex, if available) to find transactions spending any of the given outputs
 #[derive(Debug, Serialize)]
 pub struct GettxspendingprevoutParams {
     /// The transaction outputs that we want to check, and within each, the txid (string) vout (numeric).
     pub outputs: Vec<serde_json::Value>,
+    pub options: Option<serde_json::Value>,
 }
 
 /// List all commands, or get help for a specified command.

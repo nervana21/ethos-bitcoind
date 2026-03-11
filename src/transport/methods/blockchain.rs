@@ -475,7 +475,7 @@ pub async fn get_txout_set_info(
     Ok(raw)
 }
 
-/// Scans the mempool to find transactions spending any of the given outputs
+/// Scans the mempool (and the txospenderindex, if available) to find transactions spending any of the given outputs
 ///
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -487,8 +487,9 @@ pub async fn get_txout_set_info(
 pub async fn get_tx_spending_prevout(
     transport: &dyn TransportTrait,
     outputs: serde_json::Value,
+    options: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(outputs)];
+    let params = vec![json!(outputs), json!(options)];
     let raw = transport.send_request("gettxspendingprevout", &params).await?;
     Ok(raw)
 }

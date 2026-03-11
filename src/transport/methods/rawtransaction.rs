@@ -6,6 +6,25 @@ use serde_json::{json, Value};
 
 use crate::transport::core::{TransportError, TransportTrait};
 
+/// Abort private broadcast attempts for a transaction currently being privately broadcast.
+/// The transaction will be removed from the private broadcast queue.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.abortprivatebroadcast(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::abortprivatebroadcast(&transport, ...).await`
+///
+/// Calls the `abortprivatebroadcast` RPC method.
+pub async fn abort_private_broadcast(
+    transport: &dyn TransportTrait,
+    id: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(id)];
+    let raw = transport.send_request("abortprivatebroadcast", &params).await?;
+    Ok(raw)
+}
+
 /// Analyzes and provides information about the current status of a PSBT and its inputs
 ///
 /// # Usage
@@ -273,6 +292,23 @@ pub async fn fund_raw_transaction(
 ) -> Result<Value, TransportError> {
     let params = vec![json!(hex_string), json!(options), json!(is_witness)];
     let raw = transport.send_request("fundrawtransaction", &params).await?;
+    Ok(raw)
+}
+
+/// Returns information about transactions that are currently being privately broadcast.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.getprivatebroadcastinfo(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::getprivatebroadcastinfo(&transport, ...).await`
+///
+/// Calls the `getprivatebroadcastinfo` RPC method.
+pub async fn get_private_broadcast_info(
+    transport: &dyn TransportTrait,
+) -> Result<Value, TransportError> {
+    let params = Vec::<Value>::new();
+    let raw = transport.send_request("getprivatebroadcastinfo", &params).await?;
     Ok(raw)
 }
 
