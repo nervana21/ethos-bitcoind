@@ -3703,7 +3703,7 @@ impl From<GetNodeAddressesResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetOrphanTxsResponse {
     /// Wrapped array value
-    pub value: Vec<bitcoin::Txid>,
+    pub value: Vec<String>,
 }
 
 impl<'de> serde::Deserialize<'de> for GetOrphanTxsResponse {
@@ -3711,16 +3711,16 @@ impl<'de> serde::Deserialize<'de> for GetOrphanTxsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<bitcoin::Txid>::deserialize(deserializer)?;
+        let value = Vec::<String>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<bitcoin::Txid>> for GetOrphanTxsResponse {
-    fn from(value: Vec<bitcoin::Txid>) -> Self { Self { value } }
+impl From<Vec<String>> for GetOrphanTxsResponse {
+    fn from(value: Vec<String>) -> Self { Self { value } }
 }
 
-impl From<GetOrphanTxsResponse> for Vec<bitcoin::Txid> {
+impl From<GetOrphanTxsResponse> for Vec<String> {
     fn from(wrapper: GetOrphanTxsResponse) -> Self { wrapper.value }
 }
 
@@ -3885,7 +3885,7 @@ impl From<GetRawChangeAddressResponse> for String {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetRawMempoolResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<String>,
 }
 
 impl<'de> serde::Deserialize<'de> for GetRawMempoolResponse {
@@ -3893,16 +3893,16 @@ impl<'de> serde::Deserialize<'de> for GetRawMempoolResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<String>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for GetRawMempoolResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<String>> for GetRawMempoolResponse {
+    fn from(value: Vec<String>) -> Self { Self { value } }
 }
 
-impl From<GetRawMempoolResponse> for Vec<serde_json::Value> {
+impl From<GetRawMempoolResponse> for Vec<String> {
     fn from(wrapper: GetRawMempoolResponse) -> Self { wrapper.value }
 }
 
