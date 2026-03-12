@@ -102,7 +102,8 @@ pub struct DecodedTxDetails {
     /// List of transaction outputs.
     pub vout: Vec<DecodedVout>,
     /// Fee paid by the transaction, when undo data is available.
-    pub fee: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fee: Option<f64>,
     /// Raw transaction serialized as hex (consistent with getrawtransaction verbose output).
     pub hex: String,
 }
