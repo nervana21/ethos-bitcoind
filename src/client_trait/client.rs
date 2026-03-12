@@ -3365,8 +3365,10 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         if let Some(val) = dummy {
             rpc_params.push(serde_json::json!(val));
         }
-        rpc_params
-            .push(serde_json::to_value(SendmanyAmountsRef(&amounts)).expect("serialize amounts"));
+        rpc_params.push(
+            serde_json::to_value(SendmanyAmountsRef(&amounts))
+                .map_err(|e| TransportError::Json(e.to_string()))?,
+        );
         if let Some(val) = min_conf {
             rpc_params.push(serde_json::json!(val));
         }
