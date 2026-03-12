@@ -116,13 +116,14 @@ impl BitcoinNodeManager {
 
 #[async_trait]
 impl NodeManager for BitcoinNodeManager {
+    /// Start the node. The datadir is always `Some` when the manager is constructed via `new` / `new_with_config`.
     async fn start(&self) -> Result<(), TransportError> {
         let mut state = self.state.write().await;
         if state.is_running {
             return Ok(());
         }
 
-        let datadir = self._datadir.as_ref().unwrap().path();
+        let datadir = self._datadir.as_ref().expect("datadir is set at construction").path();
         let exe = self
             .config
             .bitcoind_path
@@ -130,7 +131,11 @@ impl NodeManager for BitcoinNodeManager {
             .unwrap_or_else(|| std::path::Path::new("bitcoind"));
         let mut cmd = Command::new(exe);
 
-        let chain = format!("-chain={}", self.config.as_chain_str());
+        let chain_str = self
+            .config
+            .as_chain_str()
+            .map_err(|_| TransportError::Rpc("Unsupported network".into()))?;
+        let chain = format!("-chain={}", chain_str);
         let data_dir = format!("-datadir={}", datadir.display());
         let rpc_port = format!("-rpcport={}", self.rpc_port);
         let rpc_bind = format!("-rpcbind=127.0.0.1:{}", self.rpc_port);
