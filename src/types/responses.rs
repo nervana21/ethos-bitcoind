@@ -3242,7 +3242,7 @@ pub struct GetMemoryInfoResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolAncestorsResponse {
-    pub field_0_1: Vec<String>,
+    pub field_0: Vec<String>,
     #[serde(rename = "transactionid")]
     pub transaction_id: bitcoin::Txid,
 }
@@ -3251,7 +3251,7 @@ pub struct GetMempoolAncestorsResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolDescendantsResponse {
-    pub field_0_1: Vec<String>,
+    pub field_0: Vec<String>,
     #[serde(rename = "transactionid")]
     pub transaction_id: bitcoin::Txid,
 }
