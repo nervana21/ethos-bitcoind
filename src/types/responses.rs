@@ -384,7 +384,6 @@ impl From<AbortRescanResponse> for bool {
 }
 
 /// Response for the `AddConnection` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct AddConnectionResponse {
@@ -517,7 +516,6 @@ impl From<AddNodeResponse> for () {
 }
 
 /// Response for the `AddPeerAddress` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct AddPeerAddressResponse {
@@ -528,7 +526,6 @@ pub struct AddPeerAddressResponse {
 }
 
 /// Response for the `AnalyzePsbt` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct AnalyzePsbtResponse {
@@ -670,7 +667,6 @@ impl From<BackupWalletResponse> for () {
 }
 
 /// Response for the `BumpFee` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct BumpFeeResponse {
@@ -1134,7 +1130,6 @@ impl From<ConvertToPsbtResponse> for String {
 }
 
 /// Response for the `CreateMultisig` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct CreateMultisigResponse {
@@ -1365,7 +1360,6 @@ impl From<CreateRawTransactionResponse> for String {
 }
 
 /// Response for the `CreateWallet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct CreateWalletResponse {
@@ -1376,7 +1370,6 @@ pub struct CreateWalletResponse {
 }
 
 /// Response for the `CreateWalletDescriptor` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct CreateWalletDescriptorResponse {
@@ -1385,7 +1378,6 @@ pub struct CreateWalletDescriptorResponse {
 }
 
 /// Response for the `DecodePsbt` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DecodePsbtResponse {
@@ -1407,7 +1399,6 @@ pub struct DecodePsbtResponse {
 }
 
 /// Response for the `DecodeRawTransaction` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DecodeRawTransactionResponse {
@@ -1431,7 +1422,6 @@ pub struct DecodeRawTransactionResponse {
 }
 
 /// Response for the `DecodeScript` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DecodeScriptResponse {
@@ -1478,7 +1468,6 @@ impl From<DeriveAddressesResponse> for Vec<String> {
 }
 
 /// Response for the `DescriptorProcessPsbt` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DescriptorProcessPsbtResponse {
@@ -1613,7 +1602,6 @@ impl From<DisconnectNodeResponse> for () {
 }
 
 /// Response for the `DumpTxOutSet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DumpTxOutSetResponse {
@@ -1895,7 +1883,6 @@ impl From<EncryptWalletResponse> for String {
 }
 
 /// Response for the `EnumerateSigners` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct EnumerateSignersResponse {
@@ -1978,7 +1965,6 @@ impl<'de> serde::Deserialize<'de> for EstimateRawFeeResponse {
 }
 
 /// Response for the `EstimateSmartFee` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct EstimateSmartFeeResponse {
@@ -1996,7 +1982,6 @@ pub struct EstimateSmartFeeResponse {
 }
 
 /// Response for the `FinalizePsbt` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct FinalizePsbtResponse {
@@ -2009,7 +1994,6 @@ pub struct FinalizePsbtResponse {
 }
 
 /// Response for the `FundRawTransaction` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct FundRawTransactionResponse {
@@ -2029,7 +2013,6 @@ pub struct FundRawTransactionResponse {
 pub struct GenerateResponse;
 
 /// Response for the `GenerateBlock` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GenerateBlockResponse {
@@ -2131,7 +2114,6 @@ pub struct GetAddressesByLabelResponse {
 }
 
 /// Response for the `GetAddressInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetAddressInfoResponse {
@@ -2316,7 +2298,6 @@ impl From<GetBalanceResponse> for bitcoin::Amount {
 }
 
 /// Response for the `GetBalances` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBalancesResponse {
@@ -2435,7 +2416,6 @@ impl From<GetBestBlockHashResponse> for String {
 }
 
 /// Response for the `GetBlock` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBlockResponse {
@@ -2488,7 +2468,6 @@ pub struct GetBlockResponse {
 }
 
 /// Response for the `GetBlockchainInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBlockchainInfoResponse {
@@ -2645,7 +2624,6 @@ impl From<GetBlockCountResponse> for u64 {
 }
 
 /// Response for the `GetBlockFilter` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBlockFilterResponse {
@@ -2770,7 +2748,6 @@ impl From<GetBlockHashResponse> for String {
 }
 
 /// Response for the `GetBlockHeader` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBlockHeaderResponse {
@@ -2813,7 +2790,6 @@ pub struct GetBlockHeaderResponse {
 }
 
 /// Response for the `GetBlockStats` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBlockStatsResponse {
@@ -2886,7 +2862,6 @@ pub struct GetBlockStatsResponse {
 }
 
 /// Response for the `GetBlockTemplate` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBlockTemplateResponse {
@@ -2944,7 +2919,6 @@ pub struct GetBlockTemplateResponse {
 }
 
 /// Response for the `GetChainStates` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetChainStatesResponse {
@@ -2955,7 +2929,6 @@ pub struct GetChainStatesResponse {
 }
 
 /// Response for the `GetChainTips` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetChainTipsResponse {
@@ -2963,7 +2936,6 @@ pub struct GetChainTipsResponse {
 }
 
 /// Response for the `GetChainTxStats` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetChainTxStatsResponse {
@@ -3095,7 +3067,6 @@ impl From<GetConnectionCountResponse> for u64 {
 }
 
 /// Response for the `GetDeploymentInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetDeploymentInfoResponse {
@@ -3109,7 +3080,6 @@ pub struct GetDeploymentInfoResponse {
 }
 
 /// Response for the `GetDescriptorActivity` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetDescriptorActivityResponse {
@@ -3118,7 +3088,6 @@ pub struct GetDescriptorActivityResponse {
 }
 
 /// Response for the `GetDescriptorInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetDescriptorInfoResponse {
@@ -3246,7 +3215,6 @@ impl From<GetDifficultyResponse> for u64 {
 }
 
 /// Response for the `GetHdKeys` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetHdKeysResponse {
@@ -3254,7 +3222,6 @@ pub struct GetHdKeysResponse {
 }
 
 /// Response for the `GetIndexInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetIndexInfoResponse {
@@ -3264,7 +3231,6 @@ pub struct GetIndexInfoResponse {
 }
 
 /// Response for the `GetMemoryInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMemoryInfoResponse {
@@ -3273,7 +3239,6 @@ pub struct GetMemoryInfoResponse {
 }
 
 /// Response for the `GetMempoolAncestors` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolAncestorsResponse {
@@ -3283,7 +3248,6 @@ pub struct GetMempoolAncestorsResponse {
 }
 
 /// Response for the `GetMempoolDescendants` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolDescendantsResponse {
@@ -3293,7 +3257,6 @@ pub struct GetMempoolDescendantsResponse {
 }
 
 /// Response for the `GetMempoolEntry` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolEntryResponse {
@@ -3330,7 +3293,6 @@ pub struct GetMempoolEntryResponse {
 }
 
 /// Response for the `GetMempoolInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMempoolInfoResponse {
@@ -3369,7 +3331,6 @@ pub struct GetMempoolInfoResponse {
 }
 
 /// Response for the `GetMiningInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMiningInfoResponse {
@@ -3402,7 +3363,6 @@ pub struct GetMiningInfoResponse {
 }
 
 /// Response for the `GetNetTotals` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetNetTotalsResponse {
@@ -3525,7 +3485,6 @@ impl From<GetNetworkHashPsResponse> for u64 {
 }
 
 /// Response for the `GetNetworkInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetNetworkInfoResponse {
@@ -3763,7 +3722,6 @@ pub struct GetPrioritisedTransactionsResponse {
 }
 
 /// Response for the `GetRawAddrMan` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetRawAddrManResponse {
@@ -3908,7 +3866,6 @@ impl From<GetRawMempoolResponse> for Vec<String> {
 }
 
 /// Response for the `GetRawTransaction` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetRawTransactionResponse {
     /// The serialized transaction as a hex-encoded string for 'txid'
@@ -4384,7 +4341,6 @@ impl From<GetReceivedByLabelResponse> for bitcoin::Amount {
 }
 
 /// Response for the `GetRpcInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetRpcInfoResponse {
@@ -4395,7 +4351,6 @@ pub struct GetRpcInfoResponse {
 }
 
 /// Response for the `GetTransaction` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetTransactionResponse {
@@ -4462,7 +4417,6 @@ pub struct GetTransactionResponse {
 }
 
 /// Response for the `GetTxOut` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetTxOutResponse {
@@ -4588,7 +4542,6 @@ impl From<GetTxOutProofResponse> for String {
 }
 
 /// Response for the `GetTxOutSetInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetTxOutSetInfoResponse {
@@ -4620,7 +4573,6 @@ pub struct GetTxOutSetInfoResponse {
 }
 
 /// Response for the `GetTxSpendingPrevOut` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetTxSpendingPrevOutResponse {
@@ -4628,7 +4580,6 @@ pub struct GetTxSpendingPrevOutResponse {
 }
 
 /// Response for the `GetWalletInfo` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetWalletInfoResponse {
@@ -5321,7 +5272,6 @@ impl From<ListBannedResponse> for Vec<serde_json::Value> {
 }
 
 /// Response for the `ListDescriptors` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ListDescriptorsResponse {
@@ -5440,7 +5390,6 @@ impl From<ListReceivedByLabelResponse> for Vec<serde_json::Value> {
 }
 
 /// Response for the `ListSinceBlock` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ListSinceBlockResponse {
@@ -5508,7 +5457,6 @@ impl From<ListUnspentResponse> for Vec<serde_json::Value> {
 }
 
 /// Response for the `ListWalletDir` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ListWalletDirResponse {
@@ -5543,7 +5491,6 @@ impl From<ListWalletsResponse> for Vec<serde_json::Value> {
 }
 
 /// Response for the `LoadTxOutSet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct LoadTxOutSetResponse {
@@ -5558,7 +5505,6 @@ pub struct LoadTxOutSetResponse {
 }
 
 /// Response for the `LoadWallet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct LoadWalletResponse {
@@ -5689,7 +5635,6 @@ pub struct LoggingResponse {
 }
 
 /// Response for the `MigrateWallet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct MigrateWalletResponse {
@@ -6288,7 +6233,6 @@ impl From<PruneBlockchainResponse> for u64 {
 }
 
 /// Response for the `PsbtBumpFee` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct PsbtBumpFeeResponse {
@@ -6550,7 +6494,6 @@ impl From<RemovePrunedFundsResponse> for () {
 }
 
 /// Response for the `RescanBlockchain` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct RescanBlockchainResponse {
@@ -6561,7 +6504,6 @@ pub struct RescanBlockchainResponse {
 }
 
 /// Response for the `RestoreWallet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct RestoreWalletResponse {
@@ -6572,7 +6514,6 @@ pub struct RestoreWalletResponse {
 }
 
 /// Response for the `SaveMempool` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SaveMempoolResponse {
@@ -6581,7 +6522,6 @@ pub struct SaveMempoolResponse {
 }
 
 /// Response for the `ScanBlocks` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ScanBlocksResponse {
@@ -6603,7 +6543,6 @@ pub struct ScanBlocksResponse {
 }
 
 /// Response for the `ScanTxOutSet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ScanTxOutSetResponse {
@@ -6627,7 +6566,6 @@ pub struct ScanTxOutSetResponse {
 }
 
 /// Response for the `Send` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SendResponse {
@@ -6642,7 +6580,6 @@ pub struct SendResponse {
 }
 
 /// Response for the `SendAll` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SendAllResponse {
@@ -6657,7 +6594,6 @@ pub struct SendAllResponse {
 }
 
 /// Response for the `SendMany` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SendManyResponse {
     /// The transaction id for the send. Only 1 transaction is created regardless of
@@ -6838,7 +6774,6 @@ impl From<SendRawTransactionResponse> for String {
 }
 
 /// Response for the `SendToAddress` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct SendToAddressResponse {
     /// The transaction id.
@@ -7379,7 +7314,6 @@ impl From<SetNetworkActiveResponse> for bool {
 }
 
 /// Response for the `SetWalletFlag` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SetWalletFlagResponse {
@@ -7608,7 +7542,6 @@ impl From<SignMessageWithPrivKeyResponse> for String {
 }
 
 /// Response for the `SignRawTransactionWithKey` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SignRawTransactionWithKeyResponse {
@@ -7621,7 +7554,6 @@ pub struct SignRawTransactionWithKeyResponse {
 }
 
 /// Response for the `SignRawTransactionWithWallet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SignRawTransactionWithWalletResponse {
@@ -7634,7 +7566,6 @@ pub struct SignRawTransactionWithWalletResponse {
 }
 
 /// Response for the `SimulateRawTransaction` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SimulateRawTransactionResponse {
@@ -7752,7 +7683,6 @@ impl From<StopResponse> for String {
 }
 
 /// Response for the `SubmitBlock` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SubmitBlockResponse {
@@ -7884,7 +7814,6 @@ impl From<SubmitHeaderResponse> for () {
 }
 
 /// Response for the `SubmitPackage` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct SubmitPackageResponse {
@@ -8032,7 +7961,6 @@ pub struct TestMempoolAcceptResponse {
 }
 
 /// Response for the `UnloadWallet` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct UnloadWalletResponse {
     /// Warning messages, if any, related to unloading the wallet.
@@ -8305,7 +8233,6 @@ impl From<UtxoUpdatePsbtResponse> for String {
 }
 
 /// Response for the `ValidateAddress` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ValidateAddressResponse {
@@ -8576,7 +8503,6 @@ impl From<VerifyTxOutProofResponse> for Vec<serde_json::Value> {
 }
 
 /// Response for the `WaitForBlock` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct WaitForBlockResponse {
@@ -8587,7 +8513,6 @@ pub struct WaitForBlockResponse {
 }
 
 /// Response for the `WaitForBlockHeight` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct WaitForBlockHeightResponse {
@@ -8598,7 +8523,6 @@ pub struct WaitForBlockHeightResponse {
 }
 
 /// Response for the `WaitForNewBlock` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct WaitForNewBlockResponse {
@@ -8609,7 +8533,6 @@ pub struct WaitForNewBlockResponse {
 }
 
 /// Response for the `WalletCreateFundedPsbt` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct WalletCreateFundedPsbtResponse {
@@ -8623,7 +8546,6 @@ pub struct WalletCreateFundedPsbtResponse {
 }
 
 /// Response for the `WalletDisplayAddress` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct WalletDisplayAddressResponse {
@@ -8998,7 +8920,6 @@ impl From<WalletPassphraseChangeResponse> for () {
 }
 
 /// Response for the `WalletProcessPsbt` RPC method
-///
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct WalletProcessPsbtResponse {
