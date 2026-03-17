@@ -2399,7 +2399,7 @@ impl From<GenerateToDescriptorResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetAddedNodeInfoResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<GetaddednodeinfoElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for GetAddedNodeInfoResponse {
@@ -2407,16 +2407,16 @@ impl<'de> serde::Deserialize<'de> for GetAddedNodeInfoResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<GetaddednodeinfoElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for GetAddedNodeInfoResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<GetaddednodeinfoElement>> for GetAddedNodeInfoResponse {
+    fn from(value: Vec<GetaddednodeinfoElement>) -> Self { Self { value } }
 }
 
-impl From<GetAddedNodeInfoResponse> for Vec<serde_json::Value> {
+impl From<GetAddedNodeInfoResponse> for Vec<GetaddednodeinfoElement> {
     fn from(wrapper: GetAddedNodeInfoResponse) -> Self { wrapper.value }
 }
 
@@ -4027,7 +4027,7 @@ impl From<GetNewAddressResponse> for String {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetNodeAddressesResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<GetnodeaddressesElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for GetNodeAddressesResponse {
@@ -4035,16 +4035,16 @@ impl<'de> serde::Deserialize<'de> for GetNodeAddressesResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<GetnodeaddressesElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for GetNodeAddressesResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<GetnodeaddressesElement>> for GetNodeAddressesResponse {
+    fn from(value: Vec<GetnodeaddressesElement>) -> Self { Self { value } }
 }
 
-impl From<GetNodeAddressesResponse> for Vec<serde_json::Value> {
+impl From<GetNodeAddressesResponse> for Vec<GetnodeaddressesElement> {
     fn from(wrapper: GetNodeAddressesResponse) -> Self { wrapper.value }
 }
 
@@ -4081,7 +4081,7 @@ impl From<GetOrphanTxsResponse> for Vec<String> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct GetPeerInfoResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<GetpeerinfoElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for GetPeerInfoResponse {
@@ -4089,16 +4089,16 @@ impl<'de> serde::Deserialize<'de> for GetPeerInfoResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<GetpeerinfoElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for GetPeerInfoResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<GetpeerinfoElement>> for GetPeerInfoResponse {
+    fn from(value: Vec<GetpeerinfoElement>) -> Self { Self { value } }
 }
 
-impl From<GetPeerInfoResponse> for Vec<serde_json::Value> {
+impl From<GetPeerInfoResponse> for Vec<GetpeerinfoElement> {
     fn from(wrapper: GetPeerInfoResponse) -> Self { wrapper.value }
 }
 
@@ -5654,7 +5654,7 @@ impl From<ListAddressGroupingsResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListBannedResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<ListbannedElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for ListBannedResponse {
@@ -5662,16 +5662,16 @@ impl<'de> serde::Deserialize<'de> for ListBannedResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<ListbannedElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for ListBannedResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<ListbannedElement>> for ListBannedResponse {
+    fn from(value: Vec<ListbannedElement>) -> Self { Self { value } }
 }
 
-impl From<ListBannedResponse> for Vec<serde_json::Value> {
+impl From<ListBannedResponse> for Vec<ListbannedElement> {
     fn from(wrapper: ListBannedResponse) -> Self { wrapper.value }
 }
 
@@ -5718,7 +5718,7 @@ impl From<ListLabelsResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListLockUnspentResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<ListlockunspentElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for ListLockUnspentResponse {
@@ -5726,16 +5726,16 @@ impl<'de> serde::Deserialize<'de> for ListLockUnspentResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<ListlockunspentElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for ListLockUnspentResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<ListlockunspentElement>> for ListLockUnspentResponse {
+    fn from(value: Vec<ListlockunspentElement>) -> Self { Self { value } }
 }
 
-impl From<ListLockUnspentResponse> for Vec<serde_json::Value> {
+impl From<ListLockUnspentResponse> for Vec<ListlockunspentElement> {
     fn from(wrapper: ListLockUnspentResponse) -> Self { wrapper.value }
 }
 
@@ -5745,7 +5745,7 @@ impl From<ListLockUnspentResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListReceivedByAddressResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<ListreceivedbyaddressElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for ListReceivedByAddressResponse {
@@ -5753,16 +5753,16 @@ impl<'de> serde::Deserialize<'de> for ListReceivedByAddressResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<ListreceivedbyaddressElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for ListReceivedByAddressResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<ListreceivedbyaddressElement>> for ListReceivedByAddressResponse {
+    fn from(value: Vec<ListreceivedbyaddressElement>) -> Self { Self { value } }
 }
 
-impl From<ListReceivedByAddressResponse> for Vec<serde_json::Value> {
+impl From<ListReceivedByAddressResponse> for Vec<ListreceivedbyaddressElement> {
     fn from(wrapper: ListReceivedByAddressResponse) -> Self { wrapper.value }
 }
 
@@ -5772,7 +5772,7 @@ impl From<ListReceivedByAddressResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListReceivedByLabelResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<ListreceivedbylabelElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for ListReceivedByLabelResponse {
@@ -5780,16 +5780,16 @@ impl<'de> serde::Deserialize<'de> for ListReceivedByLabelResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<ListreceivedbylabelElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for ListReceivedByLabelResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<ListreceivedbylabelElement>> for ListReceivedByLabelResponse {
+    fn from(value: Vec<ListreceivedbylabelElement>) -> Self { Self { value } }
 }
 
-impl From<ListReceivedByLabelResponse> for Vec<serde_json::Value> {
+impl From<ListReceivedByLabelResponse> for Vec<ListreceivedbylabelElement> {
     fn from(wrapper: ListReceivedByLabelResponse) -> Self { wrapper.value }
 }
 
@@ -5812,7 +5812,7 @@ pub struct ListSinceBlockResponse {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListTransactionsResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<ListtransactionsElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for ListTransactionsResponse {
@@ -5820,16 +5820,16 @@ impl<'de> serde::Deserialize<'de> for ListTransactionsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<ListtransactionsElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for ListTransactionsResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<ListtransactionsElement>> for ListTransactionsResponse {
+    fn from(value: Vec<ListtransactionsElement>) -> Self { Self { value } }
 }
 
-impl From<ListTransactionsResponse> for Vec<serde_json::Value> {
+impl From<ListTransactionsResponse> for Vec<ListtransactionsElement> {
     fn from(wrapper: ListTransactionsResponse) -> Self { wrapper.value }
 }
 
@@ -5839,7 +5839,7 @@ impl From<ListTransactionsResponse> for Vec<serde_json::Value> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ListUnspentResponse {
     /// Wrapped array value
-    pub value: Vec<serde_json::Value>,
+    pub value: Vec<ListunspentElement>,
 }
 
 impl<'de> serde::Deserialize<'de> for ListUnspentResponse {
@@ -5847,16 +5847,16 @@ impl<'de> serde::Deserialize<'de> for ListUnspentResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        let value = Vec::<serde_json::Value>::deserialize(deserializer)?;
+        let value = Vec::<ListunspentElement>::deserialize(deserializer)?;
         Ok(Self { value })
     }
 }
 
-impl From<Vec<serde_json::Value>> for ListUnspentResponse {
-    fn from(value: Vec<serde_json::Value>) -> Self { Self { value } }
+impl From<Vec<ListunspentElement>> for ListUnspentResponse {
+    fn from(value: Vec<ListunspentElement>) -> Self { Self { value } }
 }
 
-impl From<ListUnspentResponse> for Vec<serde_json::Value> {
+impl From<ListUnspentResponse> for Vec<ListunspentElement> {
     fn from(wrapper: ListUnspentResponse) -> Self { wrapper.value }
 }
 
