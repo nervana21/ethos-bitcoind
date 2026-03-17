@@ -141,9 +141,9 @@ pub struct GetpeerinfoElement {
     #[serde(rename = "minfeefilter")]
     pub min_fee_filter: u64,
     #[serde(rename = "bytessent_per_msg")]
-    pub bytes_sent_per_msg: serde_json::Value,
+    pub bytes_sent_per_msg: std::collections::HashMap<String, u64>,
     #[serde(rename = "bytesrecv_per_msg")]
-    pub bytes_recv_per_msg: serde_json::Value,
+    pub bytes_recv_per_msg: std::collections::HashMap<String, u64>,
     /// Type of connection:
     /// outbound-full-relay (default automatic connections),
     /// block-relay-only (does not relay transactions or addresses),
