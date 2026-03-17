@@ -9,6 +9,301 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct AnalyzePsbtInput {
+    /// Whether a UTXO is provided
+    pub has_utxo: bool,
+    /// Whether the input is finalized
+    pub is_final: bool,
+    /// Things that are missing that are required to complete this input
+    pub missing: Option<serde_json::Value>,
+    /// Role of the next person that this input needs to go to
+    pub next: Option<String>,
+}
+
+/// Things that are missing that are required to complete this input
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct AnalyzePsbtMissing {
+    #[serde(rename = "pubkeys")]
+    pub pub_keys: Option<Vec<String>>,
+    pub signatures: Option<Vec<String>>,
+    /// Hash160 of the redeem script that is missing
+    #[serde(rename = "redeemscript")]
+    pub redeem_script: Option<bitcoin::ScriptBuf>,
+    /// SHA256 of the witness script that is missing
+    #[serde(rename = "witnessscript")]
+    pub witness_script: Option<bitcoin::ScriptBuf>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtBip32Derivs {
+    /// The public key with the derivation path as the value.
+    pub pubkey: String,
+    /// The fingerprint of the master key
+    pub master_fingerprint: String,
+    /// The path
+    pub path: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtFinalScriptSig {
+    /// Disassembly of the final signature script
+    pub asm: String,
+    /// The raw final signature script bytes, hex-encoded
+    pub hex: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtGlobalXpubs {
+    /// The extended public key this path corresponds to
+    pub xpub: String,
+    /// The fingerprint of the master key
+    pub master_fingerprint: String,
+    /// The path
+    pub path: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtHash160Preimages {
+    /// The hash and preimage that corresponds to it.
+    pub hash: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtHash256Preimages {
+    /// The hash and preimage that corresponds to it.
+    pub hash: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtInput {
+    /// Decoded network transaction for non-witness UTXOs
+    pub non_witness_utxo: Option<serde_json::Value>,
+    /// Transaction output for witness UTXOs
+    pub witness_utxo: Option<serde_json::Value>,
+    pub partial_signatures: Option<serde_json::Value>,
+    /// The sighash type to be used
+    #[serde(rename = "sighash")]
+    pub sig_hash: Option<String>,
+    pub redeem_script: Option<serde_json::Value>,
+    pub witness_script: Option<serde_json::Value>,
+    pub bip32_derivs: Option<serde_json::Value>,
+    #[serde(rename = "final_scriptSig")]
+    pub final_script_sig: Option<serde_json::Value>,
+    #[serde(rename = "final_scriptwitness")]
+    pub final_script_witness: Option<Vec<String>>,
+    pub ripemd160_preimages: Option<serde_json::Value>,
+    pub sha256_preimages: Option<serde_json::Value>,
+    pub hash160_preimages: Option<serde_json::Value>,
+    pub hash256_preimages: Option<serde_json::Value>,
+    /// hex-encoded signature for the Taproot key path spend
+    pub taproot_key_path_sig: Option<String>,
+    pub taproot_script_path_sigs: Option<serde_json::Value>,
+    pub taproot_scripts: Option<serde_json::Value>,
+    pub taproot_bip32_derivs: Option<serde_json::Value>,
+    /// The hex-encoded Taproot x-only internal key
+    pub taproot_internal_key: Option<String>,
+    /// The hex-encoded Taproot merkle root
+    pub taproot_merkle_root: Option<String>,
+    pub musig2_participant_pubkeys: Option<serde_json::Value>,
+    pub musig2_pubnonces: Option<serde_json::Value>,
+    pub musig2_partial_sigs: Option<serde_json::Value>,
+    /// The unknown input fields
+    pub unknown: Option<serde_json::Value>,
+    /// The input proprietary map
+    pub proprietary: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtMusig2PartialSigs {
+    /// The compressed public key of the participant that created this partial signature.
+    pub participant_pubkey: String,
+    /// The compressed aggregate public key for which this partial signature is for.
+    pub aggregate_pubkey: String,
+    /// The hash of the leaf script that contains the aggregate pubkey being signed for. Omitted when signing for the internal key.
+    pub leaf_hash: Option<String>,
+    /// The partial signature itself.
+    pub partial_sig: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtMusig2ParticipantPubkeys {
+    /// The compressed aggregate public key for which the participants create.
+    pub aggregate_pubkey: String,
+    pub participant_pubkeys: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtMusig2Pubnonces {
+    /// The compressed public key of the participant that created this pubnonce.
+    pub participant_pubkey: String,
+    /// The compressed aggregate public key for which this pubnonce is for.
+    pub aggregate_pubkey: String,
+    /// The hash of the leaf script that contains the aggregate pubkey being signed for. Omitted when signing for the internal key.
+    pub leaf_hash: Option<String>,
+    /// The public nonce itself.
+    #[serde(rename = "pubnonce")]
+    pub pub_nonce: String,
+}
+
+/// Decoded network transaction for non-witness UTXOs
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtNonWitnessUtxo {}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtOutput {
+    pub redeem_script: Option<serde_json::Value>,
+    pub witness_script: Option<serde_json::Value>,
+    pub bip32_derivs: Option<serde_json::Value>,
+    /// The hex-encoded Taproot x-only internal key
+    pub taproot_internal_key: Option<String>,
+    /// The tuples that make up the Taproot tree, in depth first search order
+    pub taproot_tree: Option<serde_json::Value>,
+    pub taproot_bip32_derivs: Option<serde_json::Value>,
+    pub musig2_participant_pubkeys: Option<serde_json::Value>,
+    /// The unknown output fields
+    pub unknown: Option<serde_json::Value>,
+    /// The output proprietary map
+    pub proprietary: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtPartialSignatures {
+    /// The public key and signature that corresponds to it.
+    pub pubkey: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtProprietary {
+    /// The hex string for the proprietary identifier
+    pub identifier: String,
+    /// The number for the subtype
+    #[serde(rename = "subtype")]
+    pub sub_type: u64,
+    /// The hex for the key
+    pub key: String,
+    /// The hex for the value
+    pub value: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtRedeemScript {
+    /// Disassembly of the redeem script
+    pub asm: String,
+    /// The raw redeem script bytes, hex-encoded
+    pub hex: String,
+    /// The type, eg 'pubkeyhash'
+    #[serde(rename = "type")]
+    pub r#type: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtRipemd160Preimages {
+    /// The hash and preimage that corresponds to it.
+    pub hash: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtSha256Preimages {
+    /// The hash and preimage that corresponds to it.
+    pub hash: String,
+}
+
+/// The signature for the pubkey and leaf hash combination
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtSignature {
+    /// The x-only pubkey for this signature
+    pub pubkey: String,
+    /// The leaf hash for this signature
+    pub leaf_hash: String,
+    /// The signature itself
+    pub sig: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtTaprootBip32Derivs {
+    /// The x-only public key this path corresponds to
+    pub pubkey: String,
+    /// The fingerprint of the master key
+    pub master_fingerprint: String,
+    /// The path
+    pub path: String,
+    /// The hashes of the leaves this pubkey appears in
+    pub leaf_hashes: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtTaprootScripts {
+    /// A leaf script
+    pub script: bitcoin::ScriptBuf,
+    /// The version number for the leaf script
+    pub leaf_ver: u64,
+    /// The control blocks for this script
+    pub control_blocks: Vec<String>,
+}
+
+/// A single leaf script in the taproot tree
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtTuple {
+    /// The depth of this element in the tree
+    pub depth: u64,
+    /// The version of this leaf
+    pub leaf_ver: u64,
+    /// The hex-encoded script itself
+    pub script: bitcoin::ScriptBuf,
+}
+
+/// The decoded network-serialized unsigned transaction.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtTx {}
+
+/// The unknown global fields
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtUnknown {
+    /// (key-value pair) An unknown key-value pair
+    pub key: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtWitnessScript {
+    /// Disassembly of the witness script
+    pub asm: String,
+    /// The raw witness script bytes, hex-encoded
+    pub hex: String,
+    /// The type, eg 'pubkeyhash'
+    #[serde(rename = "type")]
+    pub r#type: String,
+}
+
+/// Transaction output for witness UTXOs
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodePsbtWitnessUtxo {
+    /// The value in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    #[serde(rename = "scriptPubKey")]
+    pub script_pubkey: serde_json::Value,
+}
+
+/// Result of a witness output script wrapping this redeem script (not returned for types that should not be wrapped)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DecodeScriptSegwit {
+    /// Disassembly of the output script
+    pub asm: String,
+    /// The raw output script bytes, hex-encoded
+    pub hex: String,
+    /// The type of the output script (e.g. witness_v0_keyhash or witness_v0_scripthash)
+    #[serde(rename = "type")]
+    pub r#type: String,
+    /// The Bitcoin address (only if a well-defined address exists)
+    pub address: Option<String>,
+    /// Inferred descriptor for the script
+    pub desc: String,
+    /// address of the P2SH script wrapping this witness redeem script
+    #[serde(rename = "p2sh-segwit")]
+    pub p2sh_segwit: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DecodedScriptPubKey {
     /// Disassembly of the output script
     pub asm: String,
@@ -24,6 +319,75 @@ pub struct DecodedScriptPubKey {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct EnumerateSignersSigners {
+    /// Master key fingerprint
+    pub fingerprint: String,
+    /// Device name
+    pub name: String,
+}
+
+/// information about the highest range of feerates to fail to meet the threshold
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct EstimateRawFeeFail {}
+
+/// estimate for long time horizon
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct EstimateRawFeeLong {}
+
+/// estimate for medium time horizon
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct EstimateRawFeeMedium {}
+
+/// information about the lowest range of feerates to succeed in meeting the threshold
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct EstimateRawFeePass {
+    /// start of feerate range
+    #[serde(rename = "startrange")]
+    pub start_range: u64,
+    /// end of feerate range
+    #[serde(rename = "endrange")]
+    pub end_range: u64,
+    /// number of txs over history horizon in the feerate range that were confirmed within target
+    #[serde(rename = "withintarget")]
+    pub within_target: u64,
+    /// number of txs over history horizon in the feerate range that were confirmed at any point
+    #[serde(rename = "totalconfirmed")]
+    pub total_confirmed: u64,
+    /// current number of txs in mempool in the feerate range unconfirmed for at least target blocks
+    #[serde(rename = "inmempool")]
+    pub in_mempool: u64,
+    /// number of txs over history horizon in the feerate range that left mempool unconfirmed after target
+    #[serde(rename = "leftmempool")]
+    pub left_mempool: u64,
+}
+
+/// estimate for short time horizon
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct EstimateRawFeeShort {
+    /// estimate fee rate in BTC/kvB
+    #[serde(rename = "feerate")]
+    pub fee_rate: Option<f64>,
+    /// exponential decay (per block) for historical moving average of confirmation data
+    pub decay: u64,
+    /// The resolution of confirmation targets at this time horizon
+    pub scale: u64,
+    /// information about the lowest range of feerates to succeed in meeting the threshold
+    pub pass: Option<serde_json::Value>,
+    /// information about the highest range of feerates to fail to meet the threshold
+    pub fail: Option<serde_json::Value>,
+    /// Errors encountered during processing (if there are any)
+    pub errors: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetAddedNodeInfoAddresses {
+    /// The bitcoin server IP and port we're connected to
+    pub address: String,
+    /// connection, inbound or outbound
+    pub connected: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct GetAddedNodeInfoElement {
     /// The node IP address or name (as provided to addnode)
     #[serde(rename = "addednode")]
@@ -32,6 +396,454 @@ pub struct GetAddedNodeInfoElement {
     pub connected: bool,
     /// Only when connected = true
     pub addresses: serde_json::Value,
+}
+
+/// the network (ipv4, ipv6, onion, i2p, cjdns, all_networks)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetAddrManInfoNetwork {
+    /// number of addresses in the new table, which represent potential peers the node has discovered but hasn't yet successfully connected to.
+    pub new: u64,
+    /// number of addresses in the tried table, which represent peers the node has successfully connected to in the past.
+    pub tried: u64,
+    /// total number of addresses in both new/tried tables
+    pub total: u64,
+}
+
+/// Information about the address embedded in P2SH or P2WSH, if relevant and known.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetAddressInfoEmbedded {}
+
+/// json object with information about address
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetAddressesByLabelAddress {
+    /// Purpose of address ("send" for sending address, "receive" for receiving address)
+    pub purpose: String,
+}
+
+/// hash and height of the block this information was generated on
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBalancesLastprocessedblock {
+    /// hash of the block this information was generated on
+    pub hash: String,
+    /// height of the block this information was generated on
+    pub height: u64,
+}
+
+/// balances from outputs that the wallet can sign
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBalancesMine {
+    /// trusted balance (outputs created by the wallet or confirmed outputs)
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub trusted: bitcoin::Amount,
+    /// untrusted pending balance (outputs created by others that are in the mempool)
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub untrusted_pending: bitcoin::Amount,
+    /// balance from immature coinbase outputs
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub immature: bitcoin::Amount,
+    /// (only present if avoid_reuse is set) balance from coins sent to addresses that were previously spent from (potentially privacy violating)
+    #[serde(deserialize_with = "option_amount_from_btc_float")]
+    pub used: Option<bitcoin::Amount>,
+}
+
+/// Type alias for GetBlockCoinbase
+pub type GetBlockCoinbase = String;
+
+/// Type alias for GetBlockStatsFeerate
+pub type GetBlockStatsFeerate = String;
+
+/// data that should be included in the coinbase's scriptSig content
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockTemplateCoinbaseaux {
+    /// values must be in the coinbase (keys may be ignored)
+    pub key: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockTemplateTransactions {
+    /// transaction data encoded in hexadecimal (byte-for-byte)
+    pub data: String,
+    /// transaction hash excluding witness data, shown in byte-reversed hex
+    pub txid: bitcoin::Txid,
+    /// transaction hash including witness data, shown in byte-reversed hex
+    pub hash: String,
+    /// array of numbers
+    pub depends: Vec<String>,
+    /// difference in value between transaction inputs and outputs (in satoshis); for coinbase transactions, this is a negative Number of the total collected block fees (ie, not including the block subsidy); if key is not present, fee is unknown and clients MUST NOT assume there isn't one
+    pub fee: f64,
+    /// total SigOps cost, as counted for purposes of block limits; if key is not present, sigop cost is unknown and clients MUST NOT assume it is zero
+    #[serde(rename = "sigops")]
+    pub sig_ops: u64,
+    /// total transaction weight, as counted for purposes of block limits
+    pub weight: u64,
+}
+
+/// set of pending, supported versionbit (BIP 9) softfork deployments
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockTemplateVbavailable {
+    /// identifies the bit number as indicating acceptance and readiness for the named softfork rule
+    #[serde(rename = "rulename")]
+    pub rule_name: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockTx {
+    /// The transaction fee in BTC, omitted if block undo data is not available
+    pub fee: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetChainStatesChainstates {
+    /// number of blocks in this chainstate
+    pub blocks: u64,
+    /// blockhash of the tip
+    #[serde(rename = "bestblockhash")]
+    pub best_block_hash: String,
+    /// nBits: compact representation of the block difficulty target
+    pub bits: String,
+    /// The difficulty target
+    pub target: String,
+    /// difficulty of the tip
+    pub difficulty: f64,
+    /// progress towards the network tip
+    #[serde(rename = "verificationprogress")]
+    pub verification_progress: f64,
+    /// the base block of the snapshot this chainstate is based on, if any
+    pub snapshot_blockhash: Option<String>,
+    /// size of the coinsdb cache
+    pub coins_db_cache_bytes: u64,
+    /// size of the coinstip cache
+    pub coins_tip_cache_bytes: u64,
+    /// whether the chainstate is fully validated. True if all blocks in the chainstate were validated, false if the chain is based on a snapshot and the snapshot has not yet been validated.
+    pub validated: bool,
+}
+
+/// status of bip9 softforks (only for "bip9" type)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDeploymentInfoBip9 {
+    /// the bit (0-28) in the block version field used to signal this softfork (only for "started" and "locked_in" status)
+    pub bit: Option<u64>,
+    /// the minimum median time past of a block at which the bit gains its meaning
+    pub start_time: u64,
+    /// the median time past of a block at which the deployment is considered failed if not yet locked in
+    pub timeout: u64,
+    /// minimum height of blocks for which the rules may be enforced
+    pub min_activation_height: u64,
+    /// status of deployment at specified block (one of "defined", "started", "locked_in", "active", "failed")
+    pub status: String,
+    /// height of the first block to which the status applies
+    pub since: u64,
+    /// status of deployment at the next block
+    pub status_next: String,
+    /// numeric statistics about signalling for a softfork (only for "started" and "locked_in" status)
+    pub statistics: Option<serde_json::Value>,
+    /// indicates blocks that signalled with a # and blocks that did not with a -
+    pub signalling: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDeploymentInfoDeployments {
+    /// name of the deployment
+    pub xxxx: serde_json::Value,
+}
+
+/// numeric statistics about signalling for a softfork (only for "started" and "locked_in" status)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDeploymentInfoStatistics {
+    /// the length in blocks of the signalling period
+    pub period: u64,
+    /// the number of blocks with the version bit set required to activate the feature (only for "started" status)
+    pub threshold: Option<u64>,
+    /// the number of blocks elapsed since the beginning of the current period
+    pub elapsed: u64,
+    /// the number of blocks with the version bit set in the current period
+    pub count: u64,
+    /// returns false if there are not enough blocks left in this period to pass activation threshold (only for "started" status)
+    pub possible: Option<bool>,
+}
+
+/// name of the deployment
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDeploymentInfoXxxx {
+    /// one of "buried", "bip9"
+    #[serde(rename = "type")]
+    pub r#type: String,
+    /// height of the first block which the rules are or will be enforced (only for "buried" type, or "bip9" type with "active" status)
+    pub height: Option<u64>,
+    /// true if the rules are enforced for the mempool and the next block
+    pub active: bool,
+    /// status of bip9 softforks (only for "bip9" type)
+    pub bip9: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDescriptorActivityActivity {
+    /// always 'spend'
+    #[serde(rename = "type")]
+    pub r#type: String,
+    /// The total amount in BTC of the spent output
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// The blockhash this spend appears in (omitted if unconfirmed)
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
+    /// Height of the spend (omitted if unconfirmed)
+    pub height: Option<u64>,
+    /// The txid of the spending transaction
+    pub spend_txid: String,
+    /// The input index of the spend
+    pub spend_vin: u64,
+    /// The txid of the prevout
+    pub prevout_txid: String,
+    /// The vout of the prevout
+    pub prevout_vout: u64,
+    pub prevout_spk: serde_json::Value,
+}
+
+/// Type alias for GetDescriptorActivityOutput
+pub type GetDescriptorActivityOutput = String;
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDescriptorActivityPrevoutSpk {
+    /// Disassembly of the output script
+    pub asm: String,
+    /// Inferred descriptor for the output
+    pub desc: String,
+    /// The raw output script bytes, hex-encoded
+    pub hex: String,
+    /// The Bitcoin address (only if a well-defined address exists)
+    pub address: Option<String>,
+    /// The type (one of: nonstandard, anchor, pubkey, pubkeyhash, scripthash, multisig, nulldata, witness_v0_scripthash, witness_v0_keyhash, witness_v1_taproot, witness_unknown)
+    #[serde(rename = "type")]
+    pub r#type: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetHdKeysDescriptors {
+    /// Descriptor string representation
+    pub desc: String,
+    /// Whether this descriptor is currently used to generate new addresses
+    pub active: bool,
+}
+
+/// The name of the index
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetIndexInfoName {
+    /// Whether the index is synced or not
+    pub synced: bool,
+    /// The block height to which the index is synced
+    pub best_block_height: u64,
+}
+
+/// Information about locked memory manager
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetMemoryInfoLocked {
+    /// Number of bytes used
+    pub used: u64,
+    /// Number of bytes available in current arenas
+    pub free: u64,
+    /// Total number of bytes managed
+    pub total: u64,
+    /// Amount of bytes that succeeded locking. If this number is smaller than total, locking pages failed at some point and key data could be swapped to disk.
+    pub locked: u64,
+    /// Number allocated chunks
+    pub chunks_used: u64,
+    /// Number unused chunks
+    pub chunks_free: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetMempoolAncestorsFees {
+    /// transaction fee, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub base: bitcoin::Amount,
+    /// transaction fee with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub modified: bitcoin::Amount,
+    /// transaction fees of in-mempool ancestors (including this one) with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub ancestor: bitcoin::Amount,
+    /// transaction fees of in-mempool descendants (including this one) with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub descendant: bitcoin::Amount,
+    /// transaction fees of chunk, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub chunk: bitcoin::Amount,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetMempoolAncestorsTransactionid {
+    /// virtual transaction size as defined in BIP 141. This is different from actual serialized size for witness transactions as witness data is discounted.
+    #[serde(rename = "vsize")]
+    pub v_size: u64,
+    /// transaction weight as defined in BIP 141.
+    pub weight: u64,
+    /// local time transaction entered pool in seconds since 1 Jan 1970 GMT
+    pub time: u64,
+    /// block height when transaction entered pool
+    pub height: u64,
+    /// number of in-mempool descendant transactions (including this one)
+    #[serde(rename = "descendantcount")]
+    pub descendant_count: u64,
+    /// virtual transaction size of in-mempool descendants (including this one)
+    #[serde(rename = "descendantsize")]
+    pub descendant_size: u64,
+    /// number of in-mempool ancestor transactions (including this one)
+    #[serde(rename = "ancestorcount")]
+    pub ancestor_count: u64,
+    /// virtual transaction size of in-mempool ancestors (including this one)
+    #[serde(rename = "ancestorsize")]
+    pub ancestor_size: u64,
+    /// sigops-adjusted weight (as defined in BIP 141 and modified by '-bytespersigop') of this transaction's chunk
+    #[serde(rename = "chunkweight")]
+    pub chunk_weight: u64,
+    /// hash of serialized transaction, including witness data
+    #[serde(rename = "wtxid")]
+    pub w_txid: String,
+    pub fees: serde_json::Value,
+    /// unconfirmed transactions used as inputs for this transaction
+    pub depends: Vec<String>,
+    /// unconfirmed transactions spending outputs from this transaction
+    #[serde(rename = "spentby")]
+    pub spent_by: Vec<String>,
+    /// Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability. (DEPRECATED)
+    #[serde(rename = "bip125-replaceable")]
+    pub bip125_replaceable: bool,
+    /// Whether this transaction is currently unbroadcast (initial broadcast not yet acknowledged by any peers)
+    pub unbroadcast: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetMempoolDescendantsFees {
+    /// transaction fee, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub base: bitcoin::Amount,
+    /// transaction fee with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub modified: bitcoin::Amount,
+    /// transaction fees of in-mempool ancestors (including this one) with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub ancestor: bitcoin::Amount,
+    /// transaction fees of in-mempool descendants (including this one) with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub descendant: bitcoin::Amount,
+    /// transaction fees of chunk, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub chunk: bitcoin::Amount,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetMempoolDescendantsTransactionid {
+    /// virtual transaction size as defined in BIP 141. This is different from actual serialized size for witness transactions as witness data is discounted.
+    #[serde(rename = "vsize")]
+    pub v_size: u64,
+    /// transaction weight as defined in BIP 141.
+    pub weight: u64,
+    /// local time transaction entered pool in seconds since 1 Jan 1970 GMT
+    pub time: u64,
+    /// block height when transaction entered pool
+    pub height: u64,
+    /// number of in-mempool descendant transactions (including this one)
+    #[serde(rename = "descendantcount")]
+    pub descendant_count: u64,
+    /// virtual transaction size of in-mempool descendants (including this one)
+    #[serde(rename = "descendantsize")]
+    pub descendant_size: u64,
+    /// number of in-mempool ancestor transactions (including this one)
+    #[serde(rename = "ancestorcount")]
+    pub ancestor_count: u64,
+    /// virtual transaction size of in-mempool ancestors (including this one)
+    #[serde(rename = "ancestorsize")]
+    pub ancestor_size: u64,
+    /// sigops-adjusted weight (as defined in BIP 141 and modified by '-bytespersigop') of this transaction's chunk
+    #[serde(rename = "chunkweight")]
+    pub chunk_weight: u64,
+    /// hash of serialized transaction, including witness data
+    #[serde(rename = "wtxid")]
+    pub w_txid: String,
+    pub fees: serde_json::Value,
+    /// unconfirmed transactions used as inputs for this transaction
+    pub depends: Vec<String>,
+    /// unconfirmed transactions spending outputs from this transaction
+    #[serde(rename = "spentby")]
+    pub spent_by: Vec<String>,
+    /// Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability. (DEPRECATED)
+    #[serde(rename = "bip125-replaceable")]
+    pub bip125_replaceable: bool,
+    /// Whether this transaction is currently unbroadcast (initial broadcast not yet acknowledged by any peers)
+    pub unbroadcast: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetMempoolEntryFees {
+    /// transaction fee, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub base: bitcoin::Amount,
+    /// transaction fee with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub modified: bitcoin::Amount,
+    /// transaction fees of in-mempool ancestors (including this one) with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub ancestor: bitcoin::Amount,
+    /// transaction fees of in-mempool descendants (including this one) with fee deltas used for mining priority, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub descendant: bitcoin::Amount,
+    /// transaction fees of chunk, denominated in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub chunk: bitcoin::Amount,
+}
+
+/// The next block
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetMiningInfoNext {
+    /// The next height
+    pub height: u64,
+    /// The next target nBits
+    pub bits: String,
+    /// The next difficulty
+    pub difficulty: f64,
+    /// The next target
+    pub target: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetNetTotalsUploadTarget {
+    /// Length of the measuring timeframe in seconds
+    pub timeframe: u64,
+    /// Target in bytes
+    pub target: u64,
+    /// True if target is reached
+    pub target_reached: bool,
+    /// True if serving historical blocks
+    pub serve_historical_blocks: bool,
+    /// Bytes left in current time cycle
+    pub bytes_left_in_cycle: u64,
+    /// Seconds left in current time cycle
+    pub time_left_in_cycle: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetNetworkInfoLocalAddresses {
+    /// network address
+    pub address: String,
+    /// network port
+    pub port: u16,
+    /// relative score
+    pub score: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetNetworkInfoNetworks {
+    /// network (ipv4, ipv6, onion, i2p, cjdns)
+    pub name: String,
+    /// is the network limited using -onlynet?
+    pub limited: bool,
+    /// is the network reachable?
+    pub reachable: bool,
+    /// ("host:port") the proxy that is used for this network, or empty if none
+    pub proxy: String,
+    /// Whether randomized credentials are used
+    pub proxy_randomize_credentials: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -46,6 +858,23 @@ pub struct GetNodeAddressesElement {
     pub port: u16,
     /// The network (ipv4, ipv6, onion, i2p, cjdns) the node connected through
     pub network: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetPeerInfoBytesRecvPerMsg {
+    /// The total bytes received aggregated by message type
+    /// When a message type is not listed in this json object, the bytes received are 0.
+    /// Only known message types can appear as keys in the object and all bytes received
+    /// of unknown message types are listed under '*other*'.
+    pub msg: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetPeerInfoBytesSentPerMsg {
+    /// The total bytes sent aggregated by message type
+    /// When a message type is not listed in this json object, the bytes sent are 0.
+    /// Only known message types can appear as keys in the object.
+    pub msg: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -165,6 +994,131 @@ pub struct GetPeerInfoElement {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetPrioritisedTransactionsTransactionId {
+    /// transaction fee delta in satoshis
+    pub fee_delta: u64,
+    /// whether this transaction is currently in mempool
+    pub in_mempool: bool,
+    /// modified fee in satoshis. Only returned if in_mempool=true
+    pub modified_fee: Option<u64>,
+}
+
+/// Type alias for GetRawAddrManBucket
+pub type GetRawAddrManBucket = String;
+
+/// buckets with addresses in the address manager table ( new, tried )
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetRawAddrManTable {
+    /// the location in the address manager table (&lt;bucket&gt;/&lt;position&gt;)
+    #[serde(rename = "bucket/position")]
+    pub bucket_position: serde_json::Value,
+}
+
+/// Type alias for GetRpcInfoActive
+pub type GetRpcInfoActive = String;
+
+/// The decoded transaction (only present when `verbose` is passed)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetTransactionDecoded {
+    /// The transaction id
+    pub txid: bitcoin::Txid,
+    /// The transaction hash (differs from txid for witness transactions)
+    pub hash: String,
+    /// The serialized transaction size
+    pub size: u64,
+    /// The virtual transaction size (differs from size for witness transactions)
+    #[serde(rename = "vsize")]
+    pub v_size: u64,
+    /// The transaction's weight (between vsize*4-3 and vsize*4)
+    pub weight: u64,
+    /// The version
+    pub version: u32,
+    /// The lock time
+    #[serde(rename = "locktime")]
+    pub lock_time: u64,
+    pub vin: Vec<DecodedVin>,
+    pub vout: Vec<DecodedVout>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetTransactionDetails {
+    /// The bitcoin address involved in the transaction.
+    pub address: Option<String>,
+    /// The transaction category.
+    /// "send"                  Transactions sent.
+    /// "receive"               Non-coinbase transactions received.
+    /// "generate"              Coinbase transactions received with more than 100 confirmations.
+    /// "immature"              Coinbase transactions received with 100 or fewer confirmations.
+    /// "orphan"                Orphaned coinbase transactions received.
+    pub category: String,
+    /// The amount in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// A comment for the address/transaction, if any
+    pub label: Option<String>,
+    /// the vout value
+    pub vout: u64,
+    /// The amount of the fee in BTC. This is negative and only available for the
+    /// 'send' category of transactions.
+    #[serde(deserialize_with = "option_amount_from_btc_float")]
+    pub fee: Option<bitcoin::Amount>,
+    /// 'true' if the transaction has been abandoned (inputs are respendable).
+    pub abandoned: bool,
+    /// Only if 'category' is 'received'. List of parent descriptors for the output script of this coin.
+    pub parent_descs: Option<Vec<String>>,
+}
+
+/// hash and height of the block this information was generated on
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetTransactionLastprocessedblock {
+    /// hash of the block this information was generated on
+    pub hash: String,
+    /// height of the block this information was generated on
+    pub height: u64,
+}
+
+/// Type alias for GetTxOutSetInfoBlock
+pub type GetTxOutSetInfoBlock = String;
+
+/// Detailed view of the unspendable categories
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetTxOutSetInfoUnspendables {
+    /// The unspendable amount of the Genesis block subsidy
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub genesis_block: bitcoin::Amount,
+    /// Transactions overridden by duplicates (no longer possible with BIP30)
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub bip30: bitcoin::Amount,
+    /// Amounts sent to scripts that are unspendable (for example OP_RETURN outputs)
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub scripts: bitcoin::Amount,
+    /// Fee rewards that miners did not claim in their coinbase transaction
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub unclaimed_rewards: bitcoin::Amount,
+}
+
+/// hash and height of the block this information was generated on
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetWalletInfoLastprocessedblock {
+    /// hash of the block this information was generated on
+    pub hash: String,
+    /// height of the block this information was generated on
+    pub height: u64,
+}
+
+/// current scanning details, or false if no scan is in progress
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetWalletInfoScanning {
+    /// elapsed seconds since scan start
+    pub duration: u64,
+    /// scanning progress percentage \[0.0, 1.0\]
+    pub progress: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ImportDescriptorsError {}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct ListBannedElement {
     /// The IP/Subnet of the banned node
     pub address: String,
@@ -176,6 +1130,33 @@ pub struct ListBannedElement {
     pub ban_duration: u64,
     /// The time remaining until the ban expires, in seconds
     pub time_remaining: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListDescriptorsDescriptors {
+    /// Descriptor string representation
+    pub desc: String,
+    /// The creation time of the descriptor
+    pub timestamp: u64,
+    /// Whether this descriptor is currently used to generate new addresses
+    pub active: bool,
+    /// True if this descriptor is used to generate change addresses. False if this descriptor is used to generate receiving addresses; defined only for active descriptors
+    pub internal: Option<bool>,
+    /// Defined only for ranged descriptors
+    pub range: Option<serde_json::Value>,
+    /// Same as next_index field. Kept for compatibility reason.
+    pub next: Option<u64>,
+    /// The next index to generate addresses from; defined only for ranged descriptors
+    pub next_index: Option<u64>,
+}
+
+/// Defined only for ranged descriptors
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListDescriptorsRange {
+    /// Range start inclusive
+    pub field_0: u64,
+    /// Range end inclusive
+    pub field_1: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -209,6 +1190,83 @@ pub struct ListReceivedByLabelElement {
     pub confirmations: i64,
     /// The label of the receiving address. The default label is ""
     pub label: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListSinceBlockTransactions {
+    /// The bitcoin address of the transaction (not returned if the output does not have an address, e.g. OP_RETURN null data).
+    pub address: Option<String>,
+    /// The transaction category.
+    /// "send"                  Transactions sent.
+    /// "receive"               Non-coinbase transactions received.
+    /// "generate"              Coinbase transactions received with more than 100 confirmations.
+    /// "immature"              Coinbase transactions received with 100 or fewer confirmations.
+    /// "orphan"                Orphaned coinbase transactions received.
+    pub category: String,
+    /// The amount in BTC. This is negative for the 'send' category, and is positive
+    /// for all other categories
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// the vout value
+    pub vout: u64,
+    /// The amount of the fee in BTC. This is negative and only available for the
+    /// 'send' category of transactions.
+    #[serde(deserialize_with = "option_amount_from_btc_float")]
+    pub fee: Option<bitcoin::Amount>,
+    /// The number of confirmations for the transaction. Negative confirmations means the
+    /// transaction conflicted that many blocks ago.
+    pub confirmations: i64,
+    /// Only present if the transaction's only input is a coinbase one.
+    pub generated: Option<bool>,
+    /// Whether we consider the transaction to be trusted and safe to spend from.
+    /// Only present when the transaction has 0 confirmations (or negative confirmations, if conflicted).
+    pub trusted: Option<bool>,
+    /// The block hash containing the transaction.
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
+    /// The block height containing the transaction.
+    #[serde(rename = "blockheight")]
+    pub block_height: Option<u64>,
+    /// The index of the transaction in the block that includes it.
+    #[serde(rename = "blockindex")]
+    pub block_index: Option<u64>,
+    /// The block time expressed in UNIX epoch time.
+    #[serde(rename = "blocktime")]
+    pub block_time: Option<u64>,
+    /// The transaction id.
+    pub txid: bitcoin::Txid,
+    /// The hash of serialized transaction, including witness data.
+    #[serde(rename = "wtxid")]
+    pub w_txid: String,
+    /// Confirmed transactions that have been detected by the wallet to conflict with this transaction.
+    #[serde(rename = "walletconflicts")]
+    pub wallet_conflicts: Vec<String>,
+    /// Only if 'category' is 'send'. The txid if this tx was replaced.
+    pub replaced_by_txid: Option<String>,
+    /// Only if 'category' is 'send'. The txid if this tx replaces another.
+    pub replaces_txid: Option<String>,
+    /// Transactions in the mempool that directly conflict with either this transaction or an ancestor transaction
+    #[serde(rename = "mempoolconflicts")]
+    pub mempool_conflicts: Vec<String>,
+    /// If a comment to is associated with the transaction.
+    pub to: Option<String>,
+    /// The transaction time expressed in UNIX epoch time.
+    pub time: u64,
+    /// The time received expressed in UNIX epoch time.
+    #[serde(rename = "timereceived")]
+    pub time_received: u64,
+    /// If a comment is associated with the transaction, only present if not empty.
+    pub comment: Option<String>,
+    /// ("yes|no|unknown") Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability.
+    /// May be unknown for unconfirmed transactions not in the mempool because their unconfirmed ancestors are unknown.
+    #[serde(rename = "bip125-replaceable")]
+    pub bip125_replaceable: String,
+    /// Only if 'category' is 'received'. List of parent descriptors for the output script of this coin.
+    pub parent_descs: Option<Vec<String>>,
+    /// 'true' if the transaction has been abandoned (inputs are respendable).
+    pub abandoned: bool,
+    /// A comment for the address/transaction, if any
+    pub label: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -336,6 +1394,126 @@ pub struct ListUnspentElement {
     /// from outside keys and unconfirmed replacement transactions are considered unsafe
     /// and are not eligible for spending by fundrawtransaction and sendtoaddress.
     pub safe: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListWalletDirWallets {
+    /// The wallet name
+    pub name: String,
+    /// Warning messages, if any, related to loading the wallet.
+    pub warnings: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ScanTxOutSetUnspents {
+    /// The transaction id
+    pub txid: bitcoin::Txid,
+    /// The vout value
+    pub vout: u64,
+    /// The output script
+    #[serde(rename = "scriptPubKey")]
+    pub script_pubkey: bitcoin::ScriptBuf,
+    /// A specialized descriptor for the matched output script
+    pub desc: String,
+    /// The total amount in BTC of the unspent output
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// Whether this is a coinbase output
+    pub coinbase: bool,
+    /// Height of the unspent transaction output
+    pub height: u64,
+    /// Blockhash of the unspent transaction output
+    #[serde(rename = "blockhash")]
+    pub block_hash: bitcoin::BlockHash,
+    /// Number of confirmations of the unspent transaction output when the scan was done
+    pub confirmations: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct SignRawTransactionWithKeyErrors {
+    /// The hash of the referenced, previous transaction
+    pub txid: bitcoin::Txid,
+    /// The index of the output to spent and used as input
+    pub vout: u64,
+    pub witness: Vec<String>,
+    /// The hex-encoded signature script
+    #[serde(rename = "scriptSig")]
+    pub script_sig: String,
+    /// Script sequence number
+    pub sequence: u64,
+    /// Verification or signing error related to the input
+    pub error: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct SignRawTransactionWithWalletErrors {
+    /// The hash of the referenced, previous transaction
+    pub txid: bitcoin::Txid,
+    /// The index of the output to spent and used as input
+    pub vout: u64,
+    pub witness: Vec<String>,
+    /// The hex-encoded signature script
+    #[serde(rename = "scriptSig")]
+    pub script_sig: String,
+    /// Script sequence number
+    pub sequence: u64,
+    /// Verification or signing error related to the input
+    pub error: String,
+}
+
+/// Transaction fees
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct SubmitPackageFees {
+    /// transaction fee in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub base: bitcoin::Amount,
+    /// if the transaction was not already in the mempool, the effective feerate in BTC per KvB. For example, the package feerate and/or feerate with modified fees from prioritisetransaction.
+    #[serde(rename = "effective-feerate")]
+    #[serde(deserialize_with = "option_amount_from_btc_float")]
+    pub effective_feerate: Option<bitcoin::Amount>,
+    /// if effective-feerate is provided, the wtxids of the transactions whose fees and vsizes are included in effective-feerate.
+    #[serde(rename = "effective-includes")]
+    pub effective_includes: Option<Vec<String>>,
+}
+
+/// The transaction results keyed by wtxid. An entry is returned for every submitted wtxid.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct SubmitPackageTxResults {
+    /// transaction wtxid
+    #[serde(rename = "wtxid")]
+    pub w_txid: serde_json::Value,
+}
+
+/// transaction wtxid
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct SubmitPackageWtxid {
+    /// The transaction hash in hex
+    pub txid: bitcoin::Txid,
+    /// The wtxid of a different transaction with the same txid but different witness found in the mempool. This means the submitted transaction was ignored.
+    #[serde(rename = "other-wtxid")]
+    pub other_wtxid: Option<String>,
+    /// Sigops-adjusted virtual transaction size.
+    #[serde(rename = "vsize")]
+    pub v_size: Option<u64>,
+    /// Transaction fees
+    pub fees: Option<serde_json::Value>,
+    /// Error string if rejected from mempool, or "package-not-validated" when the package aborts before any per-tx processing.
+    pub error: Option<String>,
+}
+
+/// Transaction fees (only present if 'allowed' is true)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct TestMempoolAcceptFees {
+    /// transaction fee in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub base: bitcoin::Amount,
+    /// the effective feerate in BTC per KvB. May differ from the base feerate if, for example, there are modified fees from prioritisetransaction or a package feerate was used.
+    #[serde(rename = "effective-feerate")]
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub effective_feerate: bitcoin::Amount,
+    /// transactions whose fees and vsizes are included in effective-feerate.
+    #[serde(rename = "effective-includes")]
+    pub effective_includes: Vec<String>,
 }
 
 /// Script sig in decoded tx input.
