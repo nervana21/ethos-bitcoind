@@ -6,7 +6,6 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use bitcoin::Transaction;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
