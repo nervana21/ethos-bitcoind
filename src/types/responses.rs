@@ -23,6 +23,321 @@ pub struct DecodedScriptPubKey {
     pub address: Option<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetaddednodeinfoElement {
+    /// The node IP address or name (as provided to addnode)
+    #[serde(rename = "addednode")]
+    pub added_node: String,
+    /// If connected
+    pub connected: bool,
+    /// Only when connected = true
+    pub addresses: serde_json::Value,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetnodeaddressesElement {
+    /// The UNIX epoch time when the node was last seen
+    pub time: u64,
+    /// The services offered by the node
+    pub services: u64,
+    /// The address of the node
+    pub address: String,
+    /// The port number of the node
+    pub port: u16,
+    /// The network (ipv4, ipv6, onion, i2p, cjdns) the node connected through
+    pub network: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetpeerinfoElement {
+    /// Peer index
+    pub id: u64,
+    /// (host:port) The IP address/hostname optionally followed by :port of the peer
+    pub addr: String,
+    /// (ip:port) Bind address of the connection to the peer
+    #[serde(rename = "addrbind")]
+    pub addr_bind: Option<String>,
+    /// (ip:port) Local address as reported by the peer
+    #[serde(rename = "addrlocal")]
+    pub addr_local: Option<String>,
+    /// Network (ipv4, ipv6, onion, i2p, cjdns, not_publicly_routable)
+    pub network: String,
+    /// Mapped AS (Autonomous System) number at the end of the BGP route to the peer, used for diversifying
+    /// peer selection (only displayed if the -asmap config option is set)
+    pub mapped_as: Option<u64>,
+    /// The services offered
+    pub services: String,
+    /// the services offered, in human-readable form
+    #[serde(rename = "servicesnames")]
+    pub services_names: Vec<String>,
+    /// Whether we relay transactions to this peer
+    #[serde(rename = "relaytxes")]
+    pub relay_txes: bool,
+    /// Mempool sequence number of this peer's last INV
+    pub last_inv_sequence: u64,
+    /// How many txs we have queued to announce to this peer
+    pub inv_to_send: u64,
+    /// The UNIX epoch time of the last send
+    #[serde(rename = "lastsend")]
+    pub last_send: u64,
+    /// The UNIX epoch time of the last receive
+    #[serde(rename = "lastrecv")]
+    pub last_recv: u64,
+    /// The UNIX epoch time of the last valid transaction received from this peer
+    pub last_transaction: u64,
+    /// The UNIX epoch time of the last block received from this peer
+    pub last_block: u64,
+    /// The total bytes sent
+    #[serde(rename = "bytessent")]
+    pub bytes_sent: u64,
+    /// The total bytes received
+    #[serde(rename = "bytesrecv")]
+    pub bytes_recv: u64,
+    /// The UNIX epoch time of the connection
+    #[serde(rename = "conntime")]
+    pub conn_time: u64,
+    /// The time offset in seconds
+    #[serde(rename = "timeoffset")]
+    pub time_offset: u64,
+    /// The last ping time in seconds, if any
+    #[serde(rename = "pingtime")]
+    pub ping_time: Option<u64>,
+    /// The minimum observed ping time in seconds, if any
+    #[serde(rename = "minping")]
+    pub min_ping: Option<u64>,
+    /// The duration in seconds of an outstanding ping (if non-zero)
+    #[serde(rename = "pingwait")]
+    pub ping_wait: Option<u64>,
+    /// The peer version, such as 70001
+    pub version: u32,
+    /// The string version
+    pub subver: String,
+    /// Inbound (true) or Outbound (false)
+    pub inbound: bool,
+    /// Whether we selected peer as (compact blocks) high-bandwidth peer
+    pub bip152_hb_to: bool,
+    /// Whether peer selected us as (compact blocks) high-bandwidth peer
+    pub bip152_hb_from: bool,
+    /// (DEPRECATED, returned only if config option -deprecatedrpc=startingheight is passed) The starting height (block) of the peer
+    #[serde(rename = "startingheight")]
+    pub starting_height: Option<u64>,
+    /// The current height of header pre-synchronization with this peer, or -1 if no low-work sync is in progress
+    pub presynced_headers: u64,
+    /// The last header we have in common with this peer
+    pub synced_headers: u64,
+    /// The last block we have in common with this peer
+    pub synced_blocks: u64,
+    #[serde(rename = "inflight")]
+    pub in_flight: Vec<String>,
+    /// Whether we participate in address relay with this peer
+    pub addr_relay_enabled: bool,
+    /// The total number of addresses processed, excluding those dropped due to rate limiting
+    pub addr_processed: u64,
+    /// The total number of addresses dropped due to rate limiting
+    pub addr_rate_limited: u64,
+    /// Any special permissions that have been granted to this peer
+    pub permissions: Vec<String>,
+    /// The minimum fee rate for transactions this peer accepts
+    #[serde(rename = "minfeefilter")]
+    pub min_fee_filter: u64,
+    #[serde(rename = "bytessent_per_msg")]
+    pub bytes_sent_per_msg: serde_json::Value,
+    #[serde(rename = "bytesrecv_per_msg")]
+    pub bytes_recv_per_msg: serde_json::Value,
+    /// Type of connection:
+    /// outbound-full-relay (default automatic connections),
+    /// block-relay-only (does not relay transactions or addresses),
+    /// inbound (initiated by the peer),
+    /// manual (added via addnode RPC or -addnode/-connect configuration options),
+    /// addr-fetch (short-lived automatic connection for soliciting addresses),
+    /// feeler (short-lived automatic connection for testing addresses),
+    /// private-broadcast (short-lived automatic connection for broadcasting privacy-sensitive transactions).
+    /// Please note this output is unlikely to be stable in upcoming releases as we iterate to
+    /// best capture connection behaviors.
+    pub connection_type: String,
+    /// Type of transport protocol:
+    /// detecting (peer could be v1 or v2),
+    /// v1 (plaintext transport protocol),
+    /// v2 (BIP324 encrypted transport protocol).
+    pub transport_protocol_type: String,
+    /// The session ID for this connection, or "" if there is none ("v2" transport protocol only).
+    pub session_id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListbannedElement {
+    /// The IP/Subnet of the banned node
+    pub address: String,
+    /// The UNIX epoch time the ban was created
+    pub ban_created: u64,
+    /// The UNIX epoch time the ban expires
+    pub banned_until: u64,
+    /// The ban duration, in seconds
+    pub ban_duration: u64,
+    /// The time remaining until the ban expires, in seconds
+    pub time_remaining: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListlockunspentElement {
+    /// The transaction id locked
+    pub txid: bitcoin::Txid,
+    /// The vout value
+    pub vout: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListreceivedbyaddressElement {
+    /// The receiving address
+    pub address: String,
+    /// The total amount in BTC received by the address
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// The number of confirmations of the most recent transaction included
+    pub confirmations: i64,
+    /// The label of the receiving address. The default label is ""
+    pub label: String,
+    pub txids: Vec<bitcoin::Txid>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListreceivedbylabelElement {
+    /// The total amount received by addresses with this label
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// The number of confirmations of the most recent transaction included
+    pub confirmations: i64,
+    /// The label of the receiving address. The default label is ""
+    pub label: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListtransactionsElement {
+    /// The bitcoin address of the transaction (not returned if the output does not have an address, e.g. OP_RETURN null data).
+    pub address: Option<String>,
+    /// The transaction category.
+    /// "send"                  Transactions sent.
+    /// "receive"               Non-coinbase transactions received.
+    /// "generate"              Coinbase transactions received with more than 100 confirmations.
+    /// "immature"              Coinbase transactions received with 100 or fewer confirmations.
+    /// "orphan"                Orphaned coinbase transactions received.
+    pub category: String,
+    /// The amount in BTC. This is negative for the 'send' category, and is positive
+    /// for all other categories
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// A comment for the address/transaction, if any
+    pub label: Option<String>,
+    /// the vout value
+    pub vout: u64,
+    /// The amount of the fee in BTC. This is negative and only available for the
+    /// 'send' category of transactions.
+    #[serde(deserialize_with = "option_amount_from_btc_float")]
+    pub fee: Option<bitcoin::Amount>,
+    /// The number of confirmations for the transaction. Negative confirmations means the
+    /// transaction conflicted that many blocks ago.
+    pub confirmations: i64,
+    /// Only present if the transaction's only input is a coinbase one.
+    pub generated: Option<bool>,
+    /// Whether we consider the transaction to be trusted and safe to spend from.
+    /// Only present when the transaction has 0 confirmations (or negative confirmations, if conflicted).
+    pub trusted: Option<bool>,
+    /// The block hash containing the transaction.
+    #[serde(rename = "blockhash")]
+    pub block_hash: Option<bitcoin::BlockHash>,
+    /// The block height containing the transaction.
+    #[serde(rename = "blockheight")]
+    pub block_height: Option<u64>,
+    /// The index of the transaction in the block that includes it.
+    #[serde(rename = "blockindex")]
+    pub block_index: Option<u64>,
+    /// The block time expressed in UNIX epoch time.
+    #[serde(rename = "blocktime")]
+    pub block_time: Option<u64>,
+    /// The transaction id.
+    pub txid: bitcoin::Txid,
+    /// The hash of serialized transaction, including witness data.
+    #[serde(rename = "wtxid")]
+    pub w_txid: String,
+    /// Confirmed transactions that have been detected by the wallet to conflict with this transaction.
+    #[serde(rename = "walletconflicts")]
+    pub wallet_conflicts: Vec<String>,
+    /// Only if 'category' is 'send'. The txid if this tx was replaced.
+    pub replaced_by_txid: Option<String>,
+    /// Only if 'category' is 'send'. The txid if this tx replaces another.
+    pub replaces_txid: Option<String>,
+    /// Transactions in the mempool that directly conflict with either this transaction or an ancestor transaction
+    #[serde(rename = "mempoolconflicts")]
+    pub mempool_conflicts: Vec<String>,
+    /// If a comment to is associated with the transaction.
+    pub to: Option<String>,
+    /// The transaction time expressed in UNIX epoch time.
+    pub time: u64,
+    /// The time received expressed in UNIX epoch time.
+    #[serde(rename = "timereceived")]
+    pub time_received: u64,
+    /// If a comment is associated with the transaction, only present if not empty.
+    pub comment: Option<String>,
+    /// ("yes|no|unknown") Whether this transaction signals BIP125 replaceability or has an unconfirmed ancestor signaling BIP125 replaceability.
+    /// May be unknown for unconfirmed transactions not in the mempool because their unconfirmed ancestors are unknown.
+    #[serde(rename = "bip125-replaceable")]
+    pub bip125_replaceable: String,
+    /// Only if 'category' is 'received'. List of parent descriptors for the output script of this coin.
+    pub parent_descs: Option<Vec<String>>,
+    /// 'true' if the transaction has been abandoned (inputs are respendable).
+    pub abandoned: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ListunspentElement {
+    /// the transaction id
+    pub txid: bitcoin::Txid,
+    /// the vout value
+    pub vout: u64,
+    /// the bitcoin address
+    pub address: Option<String>,
+    /// The associated label, or "" for the default label
+    pub label: Option<String>,
+    /// the output script
+    #[serde(rename = "scriptPubKey")]
+    pub script_pubkey: bitcoin::ScriptBuf,
+    /// the transaction output amount in BTC
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub amount: bitcoin::Amount,
+    /// The number of confirmations
+    pub confirmations: i64,
+    /// The number of in-mempool ancestor transactions, including this one (if transaction is in the mempool)
+    #[serde(rename = "ancestorcount")]
+    pub ancestor_count: Option<u64>,
+    /// The virtual transaction size of in-mempool ancestors, including this one (if transaction is in the mempool)
+    #[serde(rename = "ancestorsize")]
+    pub ancestor_size: Option<u64>,
+    /// The total fees of in-mempool ancestors (including this one) with fee deltas used for mining priority in sat (if transaction is in the mempool)
+    #[serde(rename = "ancestorfees")]
+    #[serde(deserialize_with = "option_amount_from_btc_float")]
+    pub ancestor_fees: Option<bitcoin::Amount>,
+    /// The redeem script if the output script is P2SH
+    #[serde(rename = "redeemScript")]
+    pub redeem_script: Option<bitcoin::ScriptBuf>,
+    /// witness script if the output script is P2WSH or P2SH-P2WSH
+    #[serde(rename = "witnessScript")]
+    pub witness_script: Option<bitcoin::ScriptBuf>,
+    /// (DEPRECATED) Always true
+    pub spendable: bool,
+    /// Whether we know how to spend this output, ignoring the lack of keys
+    pub solvable: bool,
+    /// (only present if avoid_reuse is set) Whether this output is reused/dirty (sent to an address that was previously spent from)
+    pub reused: Option<bool>,
+    /// (only when solvable) A descriptor for spending this output
+    pub desc: Option<String>,
+    /// List of parent descriptors for the output script of this coin.
+    pub parent_descs: Vec<String>,
+    /// Whether this output is considered safe to spend. Unconfirmed transactions
+    /// from outside keys and unconfirmed replacement transactions are considered unsafe
+    /// and are not eligible for spending by fundrawtransaction and sendtoaddress.
+    pub safe: bool,
+}
+
 /// Script sig in decoded tx input.
 /// See: <https://github.com/bitcoin/bitcoin/blob/744d47fcee0d32a71154292699bfdecf954a6065/src/core_io.cpp#L458-L461>
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
