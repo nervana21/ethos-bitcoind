@@ -1709,7 +1709,6 @@ pub struct DecodePsbtResponse {
     pub inputs: serde_json::Value,
     pub outputs: serde_json::Value,
     /// The transaction fee paid if all UTXOs slots in the PSBT have been filled.
-    #[serde(default)]
     #[serde(deserialize_with = "option_amount_from_btc_float")]
     pub fee: Option<bitcoin::Amount>,
 }
