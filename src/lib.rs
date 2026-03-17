@@ -20,7 +20,7 @@ pub mod transport;
 pub mod types;
 
 // Re-exports for ergonomic access
-pub use bitcoin::{Address, Amount, BlockHash, Network, ScriptBuf, Txid};
+pub use bitcoin::{Address, Amount, BlockHash, Network, ScriptBuf, Transaction, Txid};
 pub use bitcoin_core_client::BitcoinTestClient;
 pub use client_trait::BitcoinClient;
 pub use config::Config;
