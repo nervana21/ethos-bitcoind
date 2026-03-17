@@ -357,7 +357,7 @@ pub struct DecodedPrevout {
     pub height: i64,
     /// Decoded script pubkey of the prevout output.
     #[serde(rename = "scriptPubKey")]
-    pub script_pub_key: DecodedScriptPubKey,
+    pub script_pubkey: DecodedScriptPubKey,
     /// Value of the prevout output in BTC.
     pub value: f64,
 }
@@ -392,7 +392,7 @@ pub struct DecodedVout {
     pub n: u32,
     /// Decoded script pubkey of this output.
     #[serde(rename = "scriptPubKey")]
-    pub script_pub_key: DecodedScriptPubKey,
+    pub script_pubkey: DecodedScriptPubKey,
 }
 
 /// Decoded transaction details (getblock verbosity 2/3 and getrawtransaction verbose).
