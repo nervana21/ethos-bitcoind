@@ -2876,7 +2876,7 @@ pub struct CreateWalletDescriptorResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DecodePsbtResponse {
     /// The decoded network-serialized unsigned transaction.
-    pub tx: serde_json::Value,
+    pub tx: DecodePsbtTx,
     pub global_xpubs: serde_json::Value,
     /// The PSBT version number. Not to be confused with the unsigned transaction version
     pub psbt_version: u64,
@@ -2884,8 +2884,8 @@ pub struct DecodePsbtResponse {
     pub proprietary: serde_json::Value,
     /// The unknown global fields
     pub unknown: serde_json::Value,
-    pub inputs: serde_json::Value,
-    pub outputs: serde_json::Value,
+    pub inputs: Vec<DecodePsbtInput>,
+    pub outputs: Vec<DecodePsbtOutput>,
     /// The transaction fee paid if all UTXOs slots in the PSBT have been filled.
     #[serde(deserialize_with = "option_amount_from_btc_float")]
     pub fee: Option<bitcoin::Amount>,
