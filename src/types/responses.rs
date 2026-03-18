@@ -449,8 +449,44 @@ pub struct GetBalancesMine {
 /// Type alias for GetBlockCoinbase
 pub type GetBlockCoinbase = String;
 
+/// Coinbase transaction metadata
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockCoinbaseTx {
+    /// The coinbase transaction version
+    pub version: u32,
+    /// The coinbase transaction's locktime (nLockTime)
+    #[serde(rename = "locktime")]
+    pub lock_time: u32,
+    /// The coinbase input's sequence number (nSequence)
+    pub sequence: u64,
+    /// The coinbase input's script
+    pub coinbase: String,
+    /// The coinbase input's first (and only) witness stack element, if present
+    pub witness: Option<String>,
+}
+
 /// Type alias for GetBlockStatsFeerate
 pub type GetBlockStatsFeerate = String;
+
+/// Feerates at the 10th, 25th, 50th, 75th, and 90th percentile weight unit (in satoshis per virtual byte)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockStatsFeeratePercentiles {
+    /// The 10th percentile feerate
+    #[serde(rename = "10th_percentile_feerate")]
+    pub field_10th_percentile_feerate: u64,
+    /// The 25th percentile feerate
+    #[serde(rename = "25th_percentile_feerate")]
+    pub field_25th_percentile_feerate: u64,
+    /// The 50th percentile feerate
+    #[serde(rename = "50th_percentile_feerate")]
+    pub field_50th_percentile_feerate: u64,
+    /// The 75th percentile feerate
+    #[serde(rename = "75th_percentile_feerate")]
+    pub field_75th_percentile_feerate: u64,
+    /// The 90th percentile feerate
+    #[serde(rename = "90th_percentile_feerate")]
+    pub field_90th_percentile_feerate: u64,
+}
 
 /// data that should be included in the coinbase's scriptSig content
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -602,6 +638,21 @@ pub struct GetDescriptorActivityActivity {
 
 /// Type alias for GetDescriptorActivityOutput
 pub type GetDescriptorActivityOutput = String;
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDescriptorActivityOutputSpk {
+    /// Disassembly of the output script
+    pub asm: String,
+    /// Inferred descriptor for the output
+    pub desc: String,
+    /// The raw output script bytes, hex-encoded
+    pub hex: String,
+    /// The Bitcoin address (only if a well-defined address exists)
+    pub address: Option<String>,
+    /// The type (one of: nonstandard, anchor, pubkey, pubkeyhash, scripthash, multisig, nulldata, witness_v0_scripthash, witness_v0_keyhash, witness_v1_taproot, witness_unknown)
+    #[serde(rename = "type")]
+    pub r#type: String,
+}
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct GetDescriptorActivityPrevoutSpk {
@@ -1006,6 +1057,29 @@ pub struct GetPrioritisedTransactionsTransactionId {
 /// Type alias for GetRawAddrManBucket
 pub type GetRawAddrManBucket = String;
 
+/// the location in the address manager table (&lt;bucket&gt;/&lt;position&gt;)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetRawAddrManBucketPosition {
+    /// The address of the node
+    pub address: String,
+    /// Mapped AS (Autonomous System) number at the end of the BGP route to the peer, used for diversifying peer selection (only displayed if the -asmap config option is set)
+    pub mapped_as: Option<u64>,
+    /// The port number of the node
+    pub port: u16,
+    /// The network (ipv4, ipv6, onion, i2p, cjdns) of the address
+    pub network: String,
+    /// The services offered by the node
+    pub services: u64,
+    /// The UNIX epoch time when the node was last seen
+    pub time: u64,
+    /// The address that relayed the address to us
+    pub source: String,
+    /// The network (ipv4, ipv6, onion, i2p, cjdns) of the source address
+    pub source_network: String,
+    /// Mapped AS (Autonomous System) number at the end of the BGP route to the source, used for diversifying peer selection (only displayed if the -asmap config option is set)
+    pub source_mapped_as: Option<u64>,
+}
+
 /// buckets with addresses in the address manager table ( new, tried )
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct GetRawAddrManTable {
@@ -1016,6 +1090,15 @@ pub struct GetRawAddrManTable {
 
 /// Type alias for GetRpcInfoActive
 pub type GetRpcInfoActive = String;
+
+/// Information about an active command
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetRpcInfoActiveCommands {
+    /// The name of the RPC command
+    pub method: String,
+    /// The running time in microseconds
+    pub duration: u64,
+}
 
 /// The decoded transaction (only present when `verbose` is passed)
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -1079,6 +1162,25 @@ pub struct GetTransactionLastprocessedblock {
 
 /// Type alias for GetTxOutSetInfoBlock
 pub type GetTxOutSetInfoBlock = String;
+
+/// Info on amounts in the block at this block height (only available if coinstatsindex is used)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetTxOutSetInfoBlockInfo {
+    /// Total amount of all prevouts spent in this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub prevout_spent: bitcoin::Amount,
+    /// Coinbase subsidy amount of this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub coinbase: bitcoin::Amount,
+    /// Total amount of new outputs created by this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub new_outputs_ex_coinbase: bitcoin::Amount,
+    /// Total amount of unspendable outputs created in this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub unspendable: bitcoin::Amount,
+    /// Detailed view of the unspendable categories
+    pub unspendables: serde_json::Value,
+}
 
 /// Detailed view of the unspendable categories
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
