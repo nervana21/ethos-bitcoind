@@ -111,7 +111,7 @@ pub struct DecodePsbtInput {
     /// The hex-encoded Taproot merkle root
     pub taproot_merkle_root: Option<String>,
     pub musig2_participant_pubkeys: Option<Vec<DecodePsbtMusig2ParticipantPubkeys>>,
-    pub musig2_pubnonces: Option<Vec<DecodePsbtMusig2Pubnonces>>,
+    pub musig2_pubnonces: Option<Vec<DecodePsbtMusig2PubNonces>>,
     pub musig2_partial_sigs: Option<Vec<DecodePsbtMusig2PartialSigs>>,
     /// The unknown input fields
     pub unknown: Option<DecodePsbtUnknown>,
@@ -139,7 +139,7 @@ pub struct DecodePsbtMusig2ParticipantPubkeys {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct DecodePsbtMusig2Pubnonces {
+pub struct DecodePsbtMusig2PubNonces {
     /// The compressed public key of the participant that created this pubnonce.
     pub participant_pubkey: String,
     /// The compressed aggregate public key for which this pubnonce is for.
