@@ -428,7 +428,7 @@ pub struct GetAddressesByLabelAddress {
 
 /// hash and height of the block this information was generated on
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct GetBalancesLastprocessedblock {
+pub struct GetBalancesLastProcessedBlock {
     /// hash of the block this information was generated on
     pub hash: String,
     /// height of the block this information was generated on
@@ -1159,7 +1159,7 @@ pub struct GetTransactionDetails {
 
 /// hash and height of the block this information was generated on
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct GetTransactionLastprocessedblock {
+pub struct GetTransactionLastProcessedBlock {
     /// hash of the block this information was generated on
     pub hash: String,
     /// height of the block this information was generated on
@@ -1207,7 +1207,7 @@ pub struct GetTxOutSetInfoUnspendables {
 
 /// hash and height of the block this information was generated on
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct GetWalletInfoLastprocessedblock {
+pub struct GetWalletInfoLastProcessedBlock {
     /// hash of the block this information was generated on
     pub hash: String,
     /// height of the block this information was generated on
@@ -3919,7 +3919,7 @@ pub struct GetBalancesResponse {
     pub mine: GetBalancesMine,
     /// hash and height of the block this information was generated on
     #[serde(rename = "lastprocessedblock")]
-    pub last_processed_block: GetBalancesLastprocessedblock,
+    pub last_processed_block: GetBalancesLastProcessedBlock,
 }
 
 /// Response for the `GetBestBlockHash` RPC method
@@ -6098,7 +6098,7 @@ pub struct GetTransactionResponse {
     pub decoded: Option<GetTransactionDecoded>,
     /// hash and height of the block this information was generated on
     #[serde(rename = "lastprocessedblock")]
-    pub last_processed_block: GetTransactionLastprocessedblock,
+    pub last_processed_block: GetTransactionLastProcessedBlock,
 }
 
 /// Response for the `GetTxOut` RPC method
@@ -6309,7 +6309,7 @@ pub struct GetWalletInfoResponse {
     pub flags: Vec<String>,
     /// hash and height of the block this information was generated on
     #[serde(rename = "lastprocessedblock")]
-    pub last_processed_block: GetWalletInfoLastprocessedblock,
+    pub last_processed_block: GetWalletInfoLastProcessedBlock,
 }
 
 /// Response for the `Help` RPC method
