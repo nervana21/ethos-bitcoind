@@ -8,6 +8,9 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
+/// Type alias for Amount
+pub type Amount = bitcoin::Amount;
+
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct AnalyzePsbtInput {
     /// Whether a UTXO is provided
@@ -33,6 +36,9 @@ pub struct AnalyzePsbtMissing {
     #[serde(rename = "witnessscript")]
     pub witness_script: Option<bitcoin::ScriptBuf>,
 }
+
+/// Type alias for BlockHash
+pub type BlockHash = bitcoin::BlockHash;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DecodePsbtBip32Derivs {
@@ -1617,6 +1623,9 @@ pub struct TestMempoolAcceptFees {
     #[serde(rename = "effective-includes")]
     pub effective_includes: Vec<String>,
 }
+
+/// Type alias for Txid
+pub type Txid = bitcoin::Txid;
 
 /// Script sig in decoded tx input.
 /// See: <https://github.com/bitcoin/bitcoin/blob/744d47fcee0d32a71154292699bfdecf954a6065/src/core_io.cpp#L458-L461>
