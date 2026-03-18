@@ -86,7 +86,7 @@ pub struct DecodePsbtInput {
     pub sig_hash: Option<String>,
     pub redeem_script: Option<serde_json::Value>,
     pub witness_script: Option<serde_json::Value>,
-    pub bip32_derivs: Option<serde_json::Value>,
+    pub bip32_derivs: Option<Vec<DecodePsbtBip32Derivs>>,
     #[serde(rename = "final_scriptSig")]
     pub final_script_sig: Option<serde_json::Value>,
     #[serde(rename = "final_scriptwitness")]
@@ -97,20 +97,20 @@ pub struct DecodePsbtInput {
     pub hash256_preimages: Option<serde_json::Value>,
     /// hex-encoded signature for the Taproot key path spend
     pub taproot_key_path_sig: Option<String>,
-    pub taproot_script_path_sigs: Option<serde_json::Value>,
-    pub taproot_scripts: Option<serde_json::Value>,
-    pub taproot_bip32_derivs: Option<serde_json::Value>,
+    pub taproot_script_path_sigs: Option<Vec<DecodePsbtSignature>>,
+    pub taproot_scripts: Option<Vec<DecodePsbtTaprootScripts>>,
+    pub taproot_bip32_derivs: Option<Vec<DecodePsbtTaprootBip32Derivs>>,
     /// The hex-encoded Taproot x-only internal key
     pub taproot_internal_key: Option<String>,
     /// The hex-encoded Taproot merkle root
     pub taproot_merkle_root: Option<String>,
-    pub musig2_participant_pubkeys: Option<serde_json::Value>,
-    pub musig2_pubnonces: Option<serde_json::Value>,
-    pub musig2_partial_sigs: Option<serde_json::Value>,
+    pub musig2_participant_pubkeys: Option<Vec<DecodePsbtMusig2ParticipantPubkeys>>,
+    pub musig2_pubnonces: Option<Vec<DecodePsbtMusig2Pubnonces>>,
+    pub musig2_partial_sigs: Option<Vec<DecodePsbtMusig2PartialSigs>>,
     /// The unknown input fields
     pub unknown: Option<serde_json::Value>,
     /// The input proprietary map
-    pub proprietary: Option<serde_json::Value>,
+    pub proprietary: Option<Vec<DecodePsbtProprietary>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -153,17 +153,17 @@ pub struct DecodePsbtNonWitnessUtxo {}
 pub struct DecodePsbtOutput {
     pub redeem_script: Option<serde_json::Value>,
     pub witness_script: Option<serde_json::Value>,
-    pub bip32_derivs: Option<serde_json::Value>,
+    pub bip32_derivs: Option<Vec<DecodePsbtBip32Derivs>>,
     /// The hex-encoded Taproot x-only internal key
     pub taproot_internal_key: Option<String>,
     /// The tuples that make up the Taproot tree, in depth first search order
-    pub taproot_tree: Option<serde_json::Value>,
-    pub taproot_bip32_derivs: Option<serde_json::Value>,
-    pub musig2_participant_pubkeys: Option<serde_json::Value>,
+    pub taproot_tree: Option<Vec<DecodePsbtTuple>>,
+    pub taproot_bip32_derivs: Option<Vec<DecodePsbtTaprootBip32Derivs>>,
+    pub musig2_participant_pubkeys: Option<Vec<DecodePsbtMusig2ParticipantPubkeys>>,
     /// The unknown output fields
     pub unknown: Option<serde_json::Value>,
     /// The output proprietary map
-    pub proprietary: Option<serde_json::Value>,
+    pub proprietary: Option<Vec<DecodePsbtProprietary>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -395,7 +395,7 @@ pub struct GetAddedNodeInfoElement {
     /// If connected
     pub connected: bool,
     /// Only when connected = true
-    pub addresses: serde_json::Value,
+    pub addresses: Vec<GetAddedNodeInfoAddresses>,
 }
 
 /// the network (ipv4, ipv6, onion, i2p, cjdns, all_networks)
@@ -2124,7 +2124,7 @@ pub struct AddPeerAddressResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct AnalyzePsbtResponse {
-    pub inputs: Option<serde_json::Value>,
+    pub inputs: Option<Vec<AnalyzePsbtInput>>,
     /// Estimated vsize of the final signed transaction
     pub estimated_vsize: Option<u64>,
     /// Estimated feerate of the final signed transaction in BTC/kvB. Shown only if all UTXO slots in the PSBT have been filled
@@ -2979,11 +2979,11 @@ pub struct CreateWalletDescriptorResponse {
 pub struct DecodePsbtResponse {
     /// The decoded network-serialized unsigned transaction.
     pub tx: DecodePsbtTx,
-    pub global_xpubs: serde_json::Value,
+    pub global_xpubs: Vec<DecodePsbtGlobalXpubs>,
     /// The PSBT version number. Not to be confused with the unsigned transaction version
     pub psbt_version: u64,
     /// The global proprietary map
-    pub proprietary: serde_json::Value,
+    pub proprietary: Vec<DecodePsbtProprietary>,
     /// The unknown global fields
     pub unknown: serde_json::Value,
     pub inputs: Vec<DecodePsbtInput>,
@@ -3482,7 +3482,7 @@ impl From<EncryptWalletResponse> for String {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct EnumerateSignersResponse {
-    pub signers: serde_json::Value,
+    pub signers: Vec<EnumerateSignersSigners>,
 }
 
 /// Response for the `EstimateRawFee` RPC method
@@ -4554,7 +4554,7 @@ pub struct GetChainStatesResponse {
     /// the number of headers seen so far
     pub headers: u64,
     /// list of the chainstates ordered by work, with the most-work (active) chainstate last
-    pub chainstates: serde_json::Value,
+    pub chainstates: Vec<GetChainStatesChainstates>,
 }
 
 /// Response for the `GetChainTips` RPC method
@@ -5178,7 +5178,7 @@ pub struct GetNetworkInfoResponse {
     #[serde(rename = "networkactive")]
     pub network_active: bool,
     /// information per network
-    pub networks: serde_json::Value,
+    pub networks: Vec<GetNetworkInfoNetworks>,
     /// minimum relay fee rate for transactions in BTC/kvB
     #[serde(rename = "relayfee")]
     pub relay_fee: f64,
@@ -5187,7 +5187,7 @@ pub struct GetNetworkInfoResponse {
     pub incremental_fee: f64,
     /// list of local addresses
     #[serde(rename = "localaddresses")]
-    pub local_addresses: serde_json::Value,
+    pub local_addresses: Vec<GetNetworkInfoLocalAddresses>,
     /// any network and blockchain warnings (run with `-deprecatedrpc=warnings` to return the latest warning as a single string)
     pub warnings: Vec<String>,
 }
@@ -5574,7 +5574,7 @@ pub struct GetRawTransactionResponse {
     pub vout: Option<Vec<DecodedVout>>,
     /// transaction fee in BTC, omitted if block undo data is not available
     pub fee: Option<f64>,
-    pub vin_1: Option<serde_json::Value>,
+    pub vin_1: Option<Vec<DecodedVin>>,
 }
 impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -5751,7 +5751,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                         if vin_1.is_some() {
                             return Err(de::Error::duplicate_field("vin_1"));
                         }
-                        vin_1 = Some(map.next_value::<serde_json::Value>()?);
+                        vin_1 = Some(map.next_value::<Vec<DecodedVin>>()?);
                     } else {
                         let _ = map.next_value::<de::IgnoredAny>()?;
                     }
@@ -6016,7 +6016,7 @@ impl From<GetReceivedByLabelResponse> for bitcoin::Amount {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetRpcInfoResponse {
     /// All active commands
-    pub active_commands: serde_json::Value,
+    pub active_commands: Vec<GetRpcInfoActiveCommands>,
     /// The complete file path to the debug log
     pub logpath: String,
 }
@@ -6082,7 +6082,7 @@ pub struct GetTransactionResponse {
     pub bip125_replaceable: String,
     /// Only if 'category' is 'received'. List of parent descriptors for the output script of this coin.
     pub parent_descs: Option<Vec<String>>,
-    pub details: serde_json::Value,
+    pub details: Vec<GetTransactionDetails>,
     /// Raw data for transaction
     pub hex: String,
     /// The decoded transaction (only present when `verbose` is passed)
@@ -6961,7 +6961,7 @@ pub struct ListDescriptorsResponse {
     /// Name of wallet this operation was performed on
     pub wallet_name: String,
     /// Array of descriptor objects (sorted by descriptor string representation)
-    pub descriptors: serde_json::Value,
+    pub descriptors: Vec<ListDescriptorsDescriptors>,
 }
 
 /// Response for the `ListLabels` RPC method
@@ -7076,7 +7076,7 @@ impl From<ListReceivedByLabelResponse> for Vec<ListReceivedByLabelElement> {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ListSinceBlockResponse {
-    pub transactions: serde_json::Value,
+    pub transactions: Vec<ListSinceBlockTransactions>,
     /// &lt;structure is the same as "transactions" above, only present if include_removed=true&gt;
     /// Note: transactions that were re-added in the active chain will appear as-is in this array, and may thus have a positive confirmation count.
     pub removed: Option<Vec<String>>,
@@ -7143,7 +7143,7 @@ impl From<ListUnspentResponse> for Vec<ListUnspentElement> {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ListWalletDirResponse {
-    pub wallets: serde_json::Value,
+    pub wallets: Vec<ListWalletDirWallets>,
 }
 
 /// Response for the `ListWallets` RPC method
@@ -8238,7 +8238,7 @@ pub struct ScanTxOutSetResponse {
     /// The hash of the block at the tip of the chain
     #[serde(rename = "bestblock")]
     pub best_block: String,
-    pub unspents: serde_json::Value,
+    pub unspents: Vec<ScanTxOutSetUnspents>,
     /// The total amount of all found unspent outputs in BTC
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub total_amount: bitcoin::Amount,
@@ -9234,7 +9234,7 @@ pub struct SignRawTransactionWithKeyResponse {
     /// If the transaction has a complete set of signatures
     pub complete: bool,
     /// Script verification errors (if there are any)
-    pub errors: Option<serde_json::Value>,
+    pub errors: Option<Vec<SignRawTransactionWithKeyErrors>>,
 }
 
 /// Response for the `SignRawTransactionWithWallet` RPC method
@@ -9246,7 +9246,7 @@ pub struct SignRawTransactionWithWalletResponse {
     /// If the transaction has a complete set of signatures
     pub complete: bool,
     /// Script verification errors (if there are any)
-    pub errors: Option<serde_json::Value>,
+    pub errors: Option<Vec<SignRawTransactionWithWalletErrors>>,
 }
 
 /// Response for the `SimulateRawTransaction` RPC method
