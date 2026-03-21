@@ -8,6 +8,9 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
+/// Type alias for Amount
+pub type Amount = bitcoin::Amount;
+
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct AnalyzePsbtInput {
     /// Whether a UTXO is provided
@@ -15,7 +18,7 @@ pub struct AnalyzePsbtInput {
     /// Whether the input is finalized
     pub is_final: bool,
     /// Things that are missing that are required to complete this input
-    pub missing: Option<serde_json::Value>,
+    pub missing: Option<AnalyzePsbtMissing>,
     /// Role of the next person that this input needs to go to
     pub next: Option<String>,
 }
@@ -33,6 +36,9 @@ pub struct AnalyzePsbtMissing {
     #[serde(rename = "witnessscript")]
     pub witness_script: Option<bitcoin::ScriptBuf>,
 }
+
+/// Type alias for BlockHash
+pub type BlockHash = bitcoin::BlockHash;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DecodePsbtBip32Derivs {
@@ -77,40 +83,40 @@ pub struct DecodePsbtHash256Preimages {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DecodePsbtInput {
     /// Decoded network transaction for non-witness UTXOs
-    pub non_witness_utxo: Option<serde_json::Value>,
+    pub non_witness_utxo: Option<DecodePsbtNonWitnessUtxo>,
     /// Transaction output for witness UTXOs
-    pub witness_utxo: Option<serde_json::Value>,
-    pub partial_signatures: Option<serde_json::Value>,
+    pub witness_utxo: Option<DecodePsbtWitnessUtxo>,
+    pub partial_signatures: Option<DecodePsbtPartialSignatures>,
     /// The sighash type to be used
     #[serde(rename = "sighash")]
     pub sig_hash: Option<String>,
-    pub redeem_script: Option<serde_json::Value>,
-    pub witness_script: Option<serde_json::Value>,
-    pub bip32_derivs: Option<serde_json::Value>,
+    pub redeem_script: Option<DecodePsbtRedeemScript>,
+    pub witness_script: Option<DecodePsbtWitnessScript>,
+    pub bip32_derivs: Option<Vec<DecodePsbtBip32Derivs>>,
     #[serde(rename = "final_scriptSig")]
-    pub final_script_sig: Option<serde_json::Value>,
+    pub final_script_sig: Option<DecodePsbtFinalScriptSig>,
     #[serde(rename = "final_scriptwitness")]
     pub final_script_witness: Option<Vec<String>>,
-    pub ripemd160_preimages: Option<serde_json::Value>,
-    pub sha256_preimages: Option<serde_json::Value>,
-    pub hash160_preimages: Option<serde_json::Value>,
-    pub hash256_preimages: Option<serde_json::Value>,
+    pub ripemd160_preimages: Option<DecodePsbtRipemd160Preimages>,
+    pub sha256_preimages: Option<DecodePsbtSha256Preimages>,
+    pub hash160_preimages: Option<DecodePsbtHash160Preimages>,
+    pub hash256_preimages: Option<DecodePsbtHash256Preimages>,
     /// hex-encoded signature for the Taproot key path spend
     pub taproot_key_path_sig: Option<String>,
-    pub taproot_script_path_sigs: Option<serde_json::Value>,
-    pub taproot_scripts: Option<serde_json::Value>,
-    pub taproot_bip32_derivs: Option<serde_json::Value>,
+    pub taproot_script_path_sigs: Option<Vec<DecodePsbtSignature>>,
+    pub taproot_scripts: Option<Vec<DecodePsbtTaprootScripts>>,
+    pub taproot_bip32_derivs: Option<Vec<DecodePsbtTaprootBip32Derivs>>,
     /// The hex-encoded Taproot x-only internal key
     pub taproot_internal_key: Option<String>,
     /// The hex-encoded Taproot merkle root
     pub taproot_merkle_root: Option<String>,
-    pub musig2_participant_pubkeys: Option<serde_json::Value>,
-    pub musig2_pubnonces: Option<serde_json::Value>,
-    pub musig2_partial_sigs: Option<serde_json::Value>,
+    pub musig2_participant_pubkeys: Option<Vec<DecodePsbtMusig2ParticipantPubkeys>>,
+    pub musig2_pubnonces: Option<Vec<DecodePsbtMusig2PubNonces>>,
+    pub musig2_partial_sigs: Option<Vec<DecodePsbtMusig2PartialSigs>>,
     /// The unknown input fields
-    pub unknown: Option<serde_json::Value>,
+    pub unknown: Option<DecodePsbtUnknown>,
     /// The input proprietary map
-    pub proprietary: Option<serde_json::Value>,
+    pub proprietary: Option<Vec<DecodePsbtProprietary>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -133,7 +139,7 @@ pub struct DecodePsbtMusig2ParticipantPubkeys {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct DecodePsbtMusig2Pubnonces {
+pub struct DecodePsbtMusig2PubNonces {
     /// The compressed public key of the participant that created this pubnonce.
     pub participant_pubkey: String,
     /// The compressed aggregate public key for which this pubnonce is for.
@@ -151,19 +157,19 @@ pub struct DecodePsbtNonWitnessUtxo {}
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DecodePsbtOutput {
-    pub redeem_script: Option<serde_json::Value>,
-    pub witness_script: Option<serde_json::Value>,
-    pub bip32_derivs: Option<serde_json::Value>,
+    pub redeem_script: Option<DecodePsbtRedeemScript>,
+    pub witness_script: Option<DecodePsbtWitnessScript>,
+    pub bip32_derivs: Option<Vec<DecodePsbtBip32Derivs>>,
     /// The hex-encoded Taproot x-only internal key
     pub taproot_internal_key: Option<String>,
     /// The tuples that make up the Taproot tree, in depth first search order
-    pub taproot_tree: Option<serde_json::Value>,
-    pub taproot_bip32_derivs: Option<serde_json::Value>,
-    pub musig2_participant_pubkeys: Option<serde_json::Value>,
+    pub taproot_tree: Option<Vec<DecodePsbtTuple>>,
+    pub taproot_bip32_derivs: Option<Vec<DecodePsbtTaprootBip32Derivs>>,
+    pub musig2_participant_pubkeys: Option<Vec<DecodePsbtMusig2ParticipantPubkeys>>,
     /// The unknown output fields
-    pub unknown: Option<serde_json::Value>,
+    pub unknown: Option<DecodePsbtUnknown>,
     /// The output proprietary map
-    pub proprietary: Option<serde_json::Value>,
+    pub proprietary: Option<Vec<DecodePsbtProprietary>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -281,7 +287,7 @@ pub struct DecodePsbtWitnessUtxo {
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub amount: bitcoin::Amount,
     #[serde(rename = "scriptPubKey")]
-    pub script_pubkey: serde_json::Value,
+    pub script_pubkey: DecodedScriptPubKey,
 }
 
 /// Result of a witness output script wrapping this redeem script (not returned for types that should not be wrapped)
@@ -372,9 +378,9 @@ pub struct EstimateRawFeeShort {
     /// The resolution of confirmation targets at this time horizon
     pub scale: u64,
     /// information about the lowest range of feerates to succeed in meeting the threshold
-    pub pass: Option<serde_json::Value>,
+    pub pass: Option<EstimateRawFeePass>,
     /// information about the highest range of feerates to fail to meet the threshold
-    pub fail: Option<serde_json::Value>,
+    pub fail: Option<EstimateRawFeeFail>,
     /// Errors encountered during processing (if there are any)
     pub errors: Option<Vec<String>>,
 }
@@ -395,7 +401,7 @@ pub struct GetAddedNodeInfoElement {
     /// If connected
     pub connected: bool,
     /// Only when connected = true
-    pub addresses: serde_json::Value,
+    pub addresses: Vec<GetAddedNodeInfoAddresses>,
 }
 
 /// the network (ipv4, ipv6, onion, i2p, cjdns, all_networks)
@@ -422,7 +428,7 @@ pub struct GetAddressesByLabelAddress {
 
 /// hash and height of the block this information was generated on
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct GetBalancesLastprocessedblock {
+pub struct GetBalancesLastProcessedBlock {
     /// hash of the block this information was generated on
     pub hash: String,
     /// height of the block this information was generated on
@@ -449,8 +455,44 @@ pub struct GetBalancesMine {
 /// Type alias for GetBlockCoinbase
 pub type GetBlockCoinbase = String;
 
+/// Coinbase transaction metadata
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockCoinbaseTx {
+    /// The coinbase transaction version
+    pub version: u32,
+    /// The coinbase transaction's locktime (nLockTime)
+    #[serde(rename = "locktime")]
+    pub lock_time: u32,
+    /// The coinbase input's sequence number (nSequence)
+    pub sequence: u64,
+    /// The coinbase input's script
+    pub coinbase: String,
+    /// The coinbase input's first (and only) witness stack element, if present
+    pub witness: Option<String>,
+}
+
 /// Type alias for GetBlockStatsFeerate
 pub type GetBlockStatsFeerate = String;
+
+/// Feerates at the 10th, 25th, 50th, 75th, and 90th percentile weight unit (in satoshis per virtual byte)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockStatsFeeratePercentiles {
+    /// The 10th percentile feerate
+    #[serde(rename = "10th_percentile_feerate")]
+    pub field_10th_percentile_feerate: u64,
+    /// The 25th percentile feerate
+    #[serde(rename = "25th_percentile_feerate")]
+    pub field_25th_percentile_feerate: u64,
+    /// The 50th percentile feerate
+    #[serde(rename = "50th_percentile_feerate")]
+    pub field_50th_percentile_feerate: u64,
+    /// The 75th percentile feerate
+    #[serde(rename = "75th_percentile_feerate")]
+    pub field_75th_percentile_feerate: u64,
+    /// The 90th percentile feerate
+    #[serde(rename = "90th_percentile_feerate")]
+    pub field_90th_percentile_feerate: u64,
+}
 
 /// data that should be included in the coinbase's scriptSig content
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -536,7 +578,7 @@ pub struct GetDeploymentInfoBip9 {
     /// status of deployment at the next block
     pub status_next: String,
     /// numeric statistics about signalling for a softfork (only for "started" and "locked_in" status)
-    pub statistics: Option<serde_json::Value>,
+    pub statistics: Option<GetDeploymentInfoStatistics>,
     /// indicates blocks that signalled with a # and blocks that did not with a -
     pub signalling: Option<String>,
 }
@@ -544,7 +586,7 @@ pub struct GetDeploymentInfoBip9 {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct GetDeploymentInfoDeployments {
     /// name of the deployment
-    pub xxxx: serde_json::Value,
+    pub xxxx: GetDeploymentInfoXxxx,
 }
 
 /// numeric statistics about signalling for a softfork (only for "started" and "locked_in" status)
@@ -573,7 +615,7 @@ pub struct GetDeploymentInfoXxxx {
     /// true if the rules are enforced for the mempool and the next block
     pub active: bool,
     /// status of bip9 softforks (only for "bip9" type)
-    pub bip9: Option<serde_json::Value>,
+    pub bip9: Option<GetDeploymentInfoBip9>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -597,11 +639,26 @@ pub struct GetDescriptorActivityActivity {
     pub prevout_txid: String,
     /// The vout of the prevout
     pub prevout_vout: u64,
-    pub prevout_spk: serde_json::Value,
+    pub prevout_spk: GetDescriptorActivityPrevoutSpk,
 }
 
 /// Type alias for GetDescriptorActivityOutput
 pub type GetDescriptorActivityOutput = String;
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetDescriptorActivityOutputSpk {
+    /// Disassembly of the output script
+    pub asm: String,
+    /// Inferred descriptor for the output
+    pub desc: String,
+    /// The raw output script bytes, hex-encoded
+    pub hex: String,
+    /// The Bitcoin address (only if a well-defined address exists)
+    pub address: Option<String>,
+    /// The type (one of: nonstandard, anchor, pubkey, pubkeyhash, scripthash, multisig, nulldata, witness_v0_scripthash, witness_v0_keyhash, witness_v1_taproot, witness_unknown)
+    #[serde(rename = "type")]
+    pub r#type: String,
+}
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct GetDescriptorActivityPrevoutSpk {
@@ -700,7 +757,7 @@ pub struct GetMempoolAncestorsTransactionid {
     /// hash of serialized transaction, including witness data
     #[serde(rename = "wtxid")]
     pub w_txid: String,
-    pub fees: serde_json::Value,
+    pub fees: GetMempoolAncestorsFees,
     /// unconfirmed transactions used as inputs for this transaction
     pub depends: Vec<String>,
     /// unconfirmed transactions spending outputs from this transaction
@@ -761,7 +818,7 @@ pub struct GetMempoolDescendantsTransactionid {
     /// hash of serialized transaction, including witness data
     #[serde(rename = "wtxid")]
     pub w_txid: String,
-    pub fees: serde_json::Value,
+    pub fees: GetMempoolDescendantsFees,
     /// unconfirmed transactions used as inputs for this transaction
     pub depends: Vec<String>,
     /// unconfirmed transactions spending outputs from this transaction
@@ -1006,16 +1063,48 @@ pub struct GetPrioritisedTransactionsTransactionId {
 /// Type alias for GetRawAddrManBucket
 pub type GetRawAddrManBucket = String;
 
+/// the location in the address manager table (&lt;bucket&gt;/&lt;position&gt;)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetRawAddrManBucketPosition {
+    /// The address of the node
+    pub address: String,
+    /// Mapped AS (Autonomous System) number at the end of the BGP route to the peer, used for diversifying peer selection (only displayed if the -asmap config option is set)
+    pub mapped_as: Option<u64>,
+    /// The port number of the node
+    pub port: u16,
+    /// The network (ipv4, ipv6, onion, i2p, cjdns) of the address
+    pub network: String,
+    /// The services offered by the node
+    pub services: u64,
+    /// The UNIX epoch time when the node was last seen
+    pub time: u64,
+    /// The address that relayed the address to us
+    pub source: String,
+    /// The network (ipv4, ipv6, onion, i2p, cjdns) of the source address
+    pub source_network: String,
+    /// Mapped AS (Autonomous System) number at the end of the BGP route to the source, used for diversifying peer selection (only displayed if the -asmap config option is set)
+    pub source_mapped_as: Option<u64>,
+}
+
 /// buckets with addresses in the address manager table ( new, tried )
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct GetRawAddrManTable {
     /// the location in the address manager table (&lt;bucket&gt;/&lt;position&gt;)
     #[serde(rename = "bucket/position")]
-    pub bucket_position: serde_json::Value,
+    pub bucket_position: GetRawAddrManBucketPosition,
 }
 
 /// Type alias for GetRpcInfoActive
 pub type GetRpcInfoActive = String;
+
+/// Information about an active command
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetRpcInfoActiveCommands {
+    /// The name of the RPC command
+    pub method: String,
+    /// The running time in microseconds
+    pub duration: u64,
+}
 
 /// The decoded transaction (only present when `verbose` is passed)
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -1070,7 +1159,7 @@ pub struct GetTransactionDetails {
 
 /// hash and height of the block this information was generated on
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct GetTransactionLastprocessedblock {
+pub struct GetTransactionLastProcessedBlock {
     /// hash of the block this information was generated on
     pub hash: String,
     /// height of the block this information was generated on
@@ -1079,6 +1168,25 @@ pub struct GetTransactionLastprocessedblock {
 
 /// Type alias for GetTxOutSetInfoBlock
 pub type GetTxOutSetInfoBlock = String;
+
+/// Info on amounts in the block at this block height (only available if coinstatsindex is used)
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct GetTxOutSetInfoBlockInfo {
+    /// Total amount of all prevouts spent in this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub prevout_spent: bitcoin::Amount,
+    /// Coinbase subsidy amount of this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub coinbase: bitcoin::Amount,
+    /// Total amount of new outputs created by this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub new_outputs_ex_coinbase: bitcoin::Amount,
+    /// Total amount of unspendable outputs created in this block
+    #[serde(deserialize_with = "amount_from_btc_float")]
+    pub unspendable: bitcoin::Amount,
+    /// Detailed view of the unspendable categories
+    pub unspendables: GetTxOutSetInfoUnspendables,
+}
 
 /// Detailed view of the unspendable categories
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -1099,7 +1207,7 @@ pub struct GetTxOutSetInfoUnspendables {
 
 /// hash and height of the block this information was generated on
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct GetWalletInfoLastprocessedblock {
+pub struct GetWalletInfoLastProcessedBlock {
     /// hash of the block this information was generated on
     pub hash: String,
     /// height of the block this information was generated on
@@ -1143,7 +1251,7 @@ pub struct ListDescriptorsDescriptors {
     /// True if this descriptor is used to generate change addresses. False if this descriptor is used to generate receiving addresses; defined only for active descriptors
     pub internal: Option<bool>,
     /// Defined only for ranged descriptors
-    pub range: Option<serde_json::Value>,
+    pub range: Option<ListDescriptorsRange>,
     /// Same as next_index field. Kept for compatibility reason.
     pub next: Option<u64>,
     /// The next index to generate addresses from; defined only for ranged descriptors
@@ -1481,7 +1589,7 @@ pub struct SubmitPackageFees {
 pub struct SubmitPackageTxResults {
     /// transaction wtxid
     #[serde(rename = "wtxid")]
-    pub w_txid: serde_json::Value,
+    pub w_txid: SubmitPackageWtxid,
 }
 
 /// transaction wtxid
@@ -1496,7 +1604,7 @@ pub struct SubmitPackageWtxid {
     #[serde(rename = "vsize")]
     pub v_size: Option<u64>,
     /// Transaction fees
-    pub fees: Option<serde_json::Value>,
+    pub fees: Option<SubmitPackageFees>,
     /// Error string if rejected from mempool, or "package-not-validated" when the package aborts before any per-tx processing.
     pub error: Option<String>,
 }
@@ -1515,6 +1623,9 @@ pub struct TestMempoolAcceptFees {
     #[serde(rename = "effective-includes")]
     pub effective_includes: Vec<String>,
 }
+
+/// Type alias for Txid
+pub type Txid = bitcoin::Txid;
 
 /// Script sig in decoded tx input.
 /// See: <https://github.com/bitcoin/bitcoin/blob/744d47fcee0d32a71154292699bfdecf954a6065/src/core_io.cpp#L458-L461>
@@ -2022,7 +2133,7 @@ pub struct AddPeerAddressResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct AnalyzePsbtResponse {
-    pub inputs: Option<serde_json::Value>,
+    pub inputs: Option<Vec<AnalyzePsbtInput>>,
     /// Estimated vsize of the final signed transaction
     pub estimated_vsize: Option<u64>,
     /// Estimated feerate of the final signed transaction in BTC/kvB. Shown only if all UTXO slots in the PSBT have been filled
@@ -2876,16 +2987,16 @@ pub struct CreateWalletDescriptorResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct DecodePsbtResponse {
     /// The decoded network-serialized unsigned transaction.
-    pub tx: serde_json::Value,
-    pub global_xpubs: serde_json::Value,
+    pub tx: DecodePsbtTx,
+    pub global_xpubs: Vec<DecodePsbtGlobalXpubs>,
     /// The PSBT version number. Not to be confused with the unsigned transaction version
     pub psbt_version: u64,
     /// The global proprietary map
-    pub proprietary: serde_json::Value,
+    pub proprietary: Vec<DecodePsbtProprietary>,
     /// The unknown global fields
-    pub unknown: serde_json::Value,
-    pub inputs: serde_json::Value,
-    pub outputs: serde_json::Value,
+    pub unknown: DecodePsbtUnknown,
+    pub inputs: Vec<DecodePsbtInput>,
+    pub outputs: Vec<DecodePsbtOutput>,
     /// The transaction fee paid if all UTXOs slots in the PSBT have been filled.
     #[serde(deserialize_with = "option_amount_from_btc_float")]
     pub fee: Option<bitcoin::Amount>,
@@ -2931,7 +3042,7 @@ pub struct DecodeScriptResponse {
     /// address of P2SH script wrapping this redeem script (not returned for types that should not be wrapped)
     pub p2sh: Option<String>,
     /// Result of a witness output script wrapping this redeem script (not returned for types that should not be wrapped)
-    pub segwit: Option<serde_json::Value>,
+    pub segwit: Option<DecodeScriptSegwit>,
 }
 
 /// Response for the `DeriveAddresses` RPC method
@@ -3380,7 +3491,7 @@ impl From<EncryptWalletResponse> for String {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct EnumerateSignersResponse {
-    pub signers: serde_json::Value,
+    pub signers: Vec<EnumerateSignersSigners>,
 }
 
 /// Response for the `EstimateRawFee` RPC method
@@ -3389,11 +3500,11 @@ pub struct EnumerateSignersResponse {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EstimateRawFeeResponse {
     /// estimate for short time horizon
-    pub short: Option<serde_json::Value>,
+    pub short: Option<EstimateRawFeeShort>,
     /// estimate for medium time horizon
-    pub medium: Option<serde_json::Value>,
+    pub medium: Option<EstimateRawFeeMedium>,
     /// estimate for long time horizon
-    pub long: Option<serde_json::Value>,
+    pub long: Option<EstimateRawFeeLong>,
 }
 impl<'de> serde::Deserialize<'de> for EstimateRawFeeResponse {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -3433,19 +3544,19 @@ impl<'de> serde::Deserialize<'de> for EstimateRawFeeResponse {
                         if short.is_some() {
                             return Err(de::Error::duplicate_field("short"));
                         }
-                        short = Some(map.next_value::<serde_json::Value>()?);
+                        short = Some(map.next_value::<EstimateRawFeeShort>()?);
                     }
                     if key == "medium" {
                         if medium.is_some() {
                             return Err(de::Error::duplicate_field("medium"));
                         }
-                        medium = Some(map.next_value::<serde_json::Value>()?);
+                        medium = Some(map.next_value::<EstimateRawFeeMedium>()?);
                     }
                     if key == "long" {
                         if long.is_some() {
                             return Err(de::Error::duplicate_field("long"));
                         }
-                        long = Some(map.next_value::<serde_json::Value>()?);
+                        long = Some(map.next_value::<EstimateRawFeeLong>()?);
                     } else {
                         let _ = map.next_value::<de::IgnoredAny>()?;
                     }
@@ -3604,7 +3715,7 @@ impl From<GetAddedNodeInfoResponse> for Vec<GetAddedNodeInfoElement> {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetAddressesByLabelResponse {
     /// json object with information about address
-    pub address: serde_json::Value,
+    pub address: GetAddressesByLabelAddress,
 }
 
 /// Response for the `GetAddressInfo` RPC method
@@ -3655,7 +3766,7 @@ pub struct GetAddressInfoResponse {
     /// The hex value of the raw public key for single-key addresses (possibly embedded in P2SH or P2WSH).
     pub pubkey: Option<String>,
     /// Information about the address embedded in P2SH or P2WSH, if relevant and known.
-    pub embedded: Option<serde_json::Value>,
+    pub embedded: Option<GetAddressInfoEmbedded>,
     /// If the pubkey is compressed.
     #[serde(rename = "iscompressed")]
     pub is_compressed: Option<bool>,
@@ -3683,7 +3794,7 @@ pub struct GetAddressInfoResponse {
 pub struct GetAddrManInfoResponse {
     /// the network (ipv4, ipv6, onion, i2p, cjdns, all_networks)
     #[serde(default)]
-    pub network: Option<serde_json::Value>,
+    pub network: Option<GetAddrManInfoNetwork>,
 }
 
 /// Response for the `GetBalance` RPC method
@@ -3805,10 +3916,10 @@ impl From<GetBalanceResponse> for bitcoin::Amount {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetBalancesResponse {
     /// balances from outputs that the wallet can sign
-    pub mine: serde_json::Value,
+    pub mine: GetBalancesMine,
     /// hash and height of the block this information was generated on
     #[serde(rename = "lastprocessedblock")]
-    pub last_processed_block: serde_json::Value,
+    pub last_processed_block: GetBalancesLastProcessedBlock,
 }
 
 /// Response for the `GetBestBlockHash` RPC method
@@ -3935,7 +4046,7 @@ pub struct GetBlockResponse {
     /// The block weight as defined in BIP 141
     pub weight: u64,
     /// Coinbase transaction metadata
-    pub coinbase_tx: serde_json::Value,
+    pub coinbase_tx: GetBlockCoinbaseTx,
     /// The block height or index
     pub height: u64,
     /// The block version
@@ -4317,7 +4428,7 @@ pub struct GetBlockStatsResponse {
     #[serde(rename = "blockhash")]
     pub block_hash: Option<bitcoin::BlockHash>,
     /// Feerates at the 10th, 25th, 50th, 75th, and 90th percentile weight unit (in satoshis per virtual byte)
-    pub feerate_percentiles: Option<serde_json::Value>,
+    pub feerate_percentiles: Option<GetBlockStatsFeeratePercentiles>,
     /// The height of the block
     pub height: Option<u64>,
     /// The number of inputs (excluding coinbase)
@@ -4452,7 +4563,7 @@ pub struct GetChainStatesResponse {
     /// the number of headers seen so far
     pub headers: u64,
     /// list of the chainstates ordered by work, with the most-work (active) chainstate last
-    pub chainstates: serde_json::Value,
+    pub chainstates: Vec<GetChainStatesChainstates>,
 }
 
 /// Response for the `GetChainTips` RPC method
@@ -4605,7 +4716,7 @@ pub struct GetDeploymentInfoResponse {
     pub height: u64,
     /// script verify flags for the block
     pub script_flags: Vec<String>,
-    pub deployments: serde_json::Value,
+    pub deployments: GetDeploymentInfoDeployments,
 }
 
 /// Response for the `GetDescriptorActivity` RPC method
@@ -4759,7 +4870,7 @@ pub struct GetHdKeysResponse {
 pub struct GetIndexInfoResponse {
     /// The name of the index
     #[serde(default)]
-    pub name: Option<serde_json::Value>,
+    pub name: Option<GetIndexInfoName>,
 }
 
 /// Response for the `GetMemoryInfo` RPC method
@@ -4767,7 +4878,7 @@ pub struct GetIndexInfoResponse {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMemoryInfoResponse {
     /// Information about locked memory manager
-    pub locked: serde_json::Value,
+    pub locked: GetMemoryInfoLocked,
 }
 
 /// Response for the `GetMempoolAncestors` RPC method
@@ -4819,7 +4930,7 @@ pub struct GetMempoolEntryResponse {
     /// hash of serialized transaction, including witness data
     #[serde(rename = "wtxid")]
     pub w_txid: String,
-    pub fees: serde_json::Value,
+    pub fees: GetMempoolEntryFees,
     /// unconfirmed transactions used as inputs for this transaction
     pub depends: Vec<String>,
     /// unconfirmed transactions spending outputs from this transaction
@@ -4912,7 +5023,7 @@ pub struct GetMiningInfoResponse {
     /// The block challenge (aka. block script), in hexadecimal (only present if the current network is a signet)
     pub signet_challenge: Option<String>,
     /// The next block
-    pub next: serde_json::Value,
+    pub next: GetMiningInfoNext,
     /// any network and blockchain warnings (run with `-deprecatedrpc=warnings` to return the latest warning as a single string)
     pub warnings: Vec<String>,
 }
@@ -4931,7 +5042,7 @@ pub struct GetNetTotalsResponse {
     #[serde(rename = "timemillis")]
     pub time_millis: u64,
     #[serde(rename = "uploadtarget")]
-    pub upload_target: serde_json::Value,
+    pub upload_target: GetNetTotalsUploadTarget,
 }
 
 /// Response for the `GetNetworkHashPs` RPC method
@@ -5076,7 +5187,7 @@ pub struct GetNetworkInfoResponse {
     #[serde(rename = "networkactive")]
     pub network_active: bool,
     /// information per network
-    pub networks: serde_json::Value,
+    pub networks: Vec<GetNetworkInfoNetworks>,
     /// minimum relay fee rate for transactions in BTC/kvB
     #[serde(rename = "relayfee")]
     pub relay_fee: f64,
@@ -5085,7 +5196,7 @@ pub struct GetNetworkInfoResponse {
     pub incremental_fee: f64,
     /// list of local addresses
     #[serde(rename = "localaddresses")]
-    pub local_addresses: serde_json::Value,
+    pub local_addresses: Vec<GetNetworkInfoLocalAddresses>,
     /// any network and blockchain warnings (run with `-deprecatedrpc=warnings` to return the latest warning as a single string)
     pub warnings: Vec<String>,
 }
@@ -5286,7 +5397,7 @@ impl From<GetPeerInfoResponse> for Vec<GetPeerInfoElement> {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetPrioritisedTransactionsResponse {
     #[serde(rename = "<transactionid>")]
-    pub transactionid: serde_json::Value,
+    pub transactionid: GetPrioritisedTransactionsTransactionId,
 }
 
 /// Response for the `GetRawAddrMan` RPC method
@@ -5295,7 +5406,7 @@ pub struct GetPrioritisedTransactionsResponse {
 pub struct GetRawAddrManResponse {
     /// buckets with addresses in the address manager table ( new, tried )
     #[serde(default)]
-    pub table: Option<serde_json::Value>,
+    pub table: Option<GetRawAddrManTable>,
 }
 
 /// Response for the `GetRawChangeAddress` RPC method
@@ -5472,7 +5583,7 @@ pub struct GetRawTransactionResponse {
     pub vout: Option<Vec<DecodedVout>>,
     /// transaction fee in BTC, omitted if block undo data is not available
     pub fee: Option<f64>,
-    pub vin_1: Option<serde_json::Value>,
+    pub vin_1: Option<Vec<DecodedVin>>,
 }
 impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -5649,7 +5760,7 @@ impl<'de> serde::Deserialize<'de> for GetRawTransactionResponse {
                         if vin_1.is_some() {
                             return Err(de::Error::duplicate_field("vin_1"));
                         }
-                        vin_1 = Some(map.next_value::<serde_json::Value>()?);
+                        vin_1 = Some(map.next_value::<Vec<DecodedVin>>()?);
                     } else {
                         let _ = map.next_value::<de::IgnoredAny>()?;
                     }
@@ -5914,7 +6025,7 @@ impl From<GetReceivedByLabelResponse> for bitcoin::Amount {
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetRpcInfoResponse {
     /// All active commands
-    pub active_commands: serde_json::Value,
+    pub active_commands: Vec<GetRpcInfoActiveCommands>,
     /// The complete file path to the debug log
     pub logpath: String,
 }
@@ -5980,14 +6091,14 @@ pub struct GetTransactionResponse {
     pub bip125_replaceable: String,
     /// Only if 'category' is 'received'. List of parent descriptors for the output script of this coin.
     pub parent_descs: Option<Vec<String>>,
-    pub details: serde_json::Value,
+    pub details: Vec<GetTransactionDetails>,
     /// Raw data for transaction
     pub hex: String,
     /// The decoded transaction (only present when `verbose` is passed)
-    pub decoded: Option<serde_json::Value>,
+    pub decoded: Option<GetTransactionDecoded>,
     /// hash and height of the block this information was generated on
     #[serde(rename = "lastprocessedblock")]
-    pub last_processed_block: serde_json::Value,
+    pub last_processed_block: GetTransactionLastProcessedBlock,
 }
 
 /// Response for the `GetTxOut` RPC method
@@ -6004,7 +6115,7 @@ pub struct GetTxOutResponse {
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub value: bitcoin::Amount,
     #[serde(rename = "scriptPubKey")]
-    pub script_pubkey: serde_json::Value,
+    pub script_pubkey: DecodedScriptPubKey,
     /// Coinbase or not
     pub coinbase: bool,
 }
@@ -6147,7 +6258,7 @@ pub struct GetTxOutSetInfoResponse {
     #[serde(deserialize_with = "option_amount_from_btc_float")]
     pub total_unspendable_amount: Option<bitcoin::Amount>,
     /// Info on amounts in the block at this block height (only available if coinstatsindex is used)
-    pub block_info: Option<serde_json::Value>,
+    pub block_info: Option<GetTxOutSetInfoBlockInfo>,
 }
 
 /// Response for the `GetTxSpendingPrevOut` RPC method
@@ -6184,7 +6295,7 @@ pub struct GetWalletInfoResponse {
     /// whether this wallet tracks clean/dirty coins in terms of reuse
     pub avoid_reuse: bool,
     /// current scanning details, or false if no scan is in progress
-    pub scanning: serde_json::Value,
+    pub scanning: GetWalletInfoScanning,
     /// whether this wallet uses descriptors for output script management
     pub descriptors: bool,
     /// whether this wallet is configured to use an external signer such as a hardware wallet
@@ -6198,7 +6309,7 @@ pub struct GetWalletInfoResponse {
     pub flags: Vec<String>,
     /// hash and height of the block this information was generated on
     #[serde(rename = "lastprocessedblock")]
-    pub last_processed_block: serde_json::Value,
+    pub last_processed_block: GetWalletInfoLastProcessedBlock,
 }
 
 /// Response for the `Help` RPC method
@@ -6859,7 +6970,7 @@ pub struct ListDescriptorsResponse {
     /// Name of wallet this operation was performed on
     pub wallet_name: String,
     /// Array of descriptor objects (sorted by descriptor string representation)
-    pub descriptors: serde_json::Value,
+    pub descriptors: Vec<ListDescriptorsDescriptors>,
 }
 
 /// Response for the `ListLabels` RPC method
@@ -6974,7 +7085,7 @@ impl From<ListReceivedByLabelResponse> for Vec<ListReceivedByLabelElement> {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ListSinceBlockResponse {
-    pub transactions: serde_json::Value,
+    pub transactions: Vec<ListSinceBlockTransactions>,
     /// &lt;structure is the same as "transactions" above, only present if include_removed=true&gt;
     /// Note: transactions that were re-added in the active chain will appear as-is in this array, and may thus have a positive confirmation count.
     pub removed: Option<Vec<String>>,
@@ -7041,7 +7152,7 @@ impl From<ListUnspentResponse> for Vec<ListUnspentElement> {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct ListWalletDirResponse {
-    pub wallets: serde_json::Value,
+    pub wallets: Vec<ListWalletDirWallets>,
 }
 
 /// Response for the `ListWallets` RPC method
@@ -8136,7 +8247,7 @@ pub struct ScanTxOutSetResponse {
     /// The hash of the block at the tip of the chain
     #[serde(rename = "bestblock")]
     pub best_block: String,
-    pub unspents: serde_json::Value,
+    pub unspents: Vec<ScanTxOutSetUnspents>,
     /// The total amount of all found unspent outputs in BTC
     #[serde(deserialize_with = "amount_from_btc_float")]
     pub total_amount: bitcoin::Amount,
@@ -9132,7 +9243,7 @@ pub struct SignRawTransactionWithKeyResponse {
     /// If the transaction has a complete set of signatures
     pub complete: bool,
     /// Script verification errors (if there are any)
-    pub errors: Option<serde_json::Value>,
+    pub errors: Option<Vec<SignRawTransactionWithKeyErrors>>,
 }
 
 /// Response for the `SignRawTransactionWithWallet` RPC method
@@ -9144,7 +9255,7 @@ pub struct SignRawTransactionWithWalletResponse {
     /// If the transaction has a complete set of signatures
     pub complete: bool,
     /// Script verification errors (if there are any)
-    pub errors: Option<serde_json::Value>,
+    pub errors: Option<Vec<SignRawTransactionWithWalletErrors>>,
 }
 
 /// Response for the `SimulateRawTransaction` RPC method
@@ -9403,7 +9514,7 @@ pub struct SubmitPackageResponse {
     pub package_msg: String,
     /// The transaction results keyed by wtxid. An entry is returned for every submitted wtxid.
     #[serde(rename = "tx-results")]
-    pub tx_results: serde_json::Value,
+    pub tx_results: SubmitPackageTxResults,
     /// List of txids of replaced transactions
     #[serde(rename = "replaced-transactions")]
     pub replaced_transactions: Option<Vec<String>>,
