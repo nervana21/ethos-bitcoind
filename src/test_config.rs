@@ -152,8 +152,12 @@ impl TestConfig {
     /// Create a TestConfig from a full Config instance
     pub fn from_config(config: &Config) -> Self {
         // Extract port from URL, defaulting to 0 if parsing fails
-        let rpc_port =
-            config.rpc_url.split(':').next_back().and_then(|s| s.parse().ok()).unwrap_or(0);
+        let rpc_port = config
+            .rpc_url
+            .split(':')
+            .next_back()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0);
 
         Self {
             network: Network::Regtest, // Default to regtest for test environments

@@ -24,7 +24,9 @@ pub async fn abandon_transaction(
     txid: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(txid)];
-    let raw = transport.send_request("abandontransaction", &params).await?;
+    let raw = transport
+        .send_request("abandontransaction", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -41,6 +43,24 @@ pub async fn abandon_transaction(
 pub async fn abort_rescan(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
     let raw = transport.send_request("abortrescan", &params).await?;
+    Ok(raw)
+}
+
+/// Add a BIP 32 HD key to the wallet that can be used with 'createwalletdescriptor'
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.addhdkey(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::addhdkey(&transport, ...).await`
+///
+/// Calls the `addhdkey` RPC method.
+pub async fn add_hd_key(
+    transport: &dyn TransportTrait,
+    hdkey: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(hdkey)];
+    let raw = transport.send_request("addhdkey", &params).await?;
     Ok(raw)
 }
 
@@ -143,7 +163,30 @@ pub async fn create_wallet_descriptor(
     options: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(r#type), json!(options)];
-    let raw = transport.send_request("createwalletdescriptor", &params).await?;
+    let raw = transport
+        .send_request("createwalletdescriptor", &params)
+        .await?;
+    Ok(raw)
+}
+
+/// Derive extended public or private key from HD key in the wallet at a given path.
+/// Derivation uses wallet private key material.
+/// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.derivehdkey(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::derivehdkey(&transport, ...).await`
+///
+/// Calls the `derivehdkey` RPC method.
+pub async fn derive_hd_key(
+    transport: &dyn TransportTrait,
+    path: serde_json::Value,
+    options: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(path), json!(options)];
+    let raw = transport.send_request("derivehdkey", &params).await?;
     Ok(raw)
 }
 
@@ -173,6 +216,26 @@ pub async fn encrypt_wallet(
     Ok(raw)
 }
 
+/// Creates a wallet file at the specified destination containing a watchonly version of the current wallet. This watchonly wallet contains the wallet's public descriptors, its transactions, and address book data. Descriptors that use hardened derivation will only have a limited number of derived keys included in the export due to hardened derivation requiring private keys. Descriptors with unhardened derivation do not have this limitation. The watchonly wallet can be imported into another node using 'restorewallet'.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.exportwatchonlywallet(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::exportwatchonlywallet(&transport, ...).await`
+///
+/// Calls the `exportwatchonlywallet` RPC method.
+pub async fn export_watch_only_wallet(
+    transport: &dyn TransportTrait,
+    destination: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(destination)];
+    let raw = transport
+        .send_request("exportwatchonlywallet", &params)
+        .await?;
+    Ok(raw)
+}
+
 /// Returns the list of addresses assigned the specified label.
 ///
 /// # Usage
@@ -187,7 +250,9 @@ pub async fn get_addresses_by_label(
     label: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(label)];
-    let raw = transport.send_request("getaddressesbylabel", &params).await?;
+    let raw = transport
+        .send_request("getaddressesbylabel", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -228,7 +293,12 @@ pub async fn get_balance(
     include_watchonly: serde_json::Value,
     avoid_reuse: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(dummy), json!(min_conf), json!(include_watchonly), json!(avoid_reuse)];
+    let params = vec![
+        json!(dummy),
+        json!(min_conf),
+        json!(include_watchonly),
+        json!(avoid_reuse),
+    ];
     let raw = transport.send_request("getbalance", &params).await?;
     Ok(raw)
 }
@@ -302,7 +372,9 @@ pub async fn get_raw_change_address(
     address_type: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(address_type)];
-    let raw = transport.send_request("getrawchangeaddress", &params).await?;
+    let raw = transport
+        .send_request("getrawchangeaddress", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -321,8 +393,14 @@ pub async fn get_received_by_address(
     min_conf: serde_json::Value,
     include_immature_coinbase: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(address), json!(min_conf), json!(include_immature_coinbase)];
-    let raw = transport.send_request("getreceivedbyaddress", &params).await?;
+    let params = vec![
+        json!(address),
+        json!(min_conf),
+        json!(include_immature_coinbase),
+    ];
+    let raw = transport
+        .send_request("getreceivedbyaddress", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -341,8 +419,14 @@ pub async fn get_received_by_label(
     min_conf: serde_json::Value,
     include_immature_coinbase: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(label), json!(min_conf), json!(include_immature_coinbase)];
-    let raw = transport.send_request("getreceivedbylabel", &params).await?;
+    let params = vec![
+        json!(label),
+        json!(min_conf),
+        json!(include_immature_coinbase),
+    ];
+    let raw = transport
+        .send_request("getreceivedbylabel", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -435,9 +519,9 @@ pub async fn import_pruned_funds(
 /// Calls the `keypoolrefill` RPC method.
 pub async fn keypool_refill(
     transport: &dyn TransportTrait,
-    newsize: serde_json::Value,
+    new_size: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(newsize)];
+    let params = vec![json!(new_size)];
     let raw = transport.send_request("keypoolrefill", &params).await?;
     Ok(raw)
 }
@@ -457,7 +541,9 @@ pub async fn list_address_groupings(
     transport: &dyn TransportTrait,
 ) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
-    let raw = transport.send_request("listaddressgroupings", &params).await?;
+    let raw = transport
+        .send_request("listaddressgroupings", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -537,7 +623,9 @@ pub async fn list_received_by_address(
         json!(address_filter),
         json!(include_immature_coinbase),
     ];
-    let raw = transport.send_request("listreceivedbyaddress", &params).await?;
+    let raw = transport
+        .send_request("listreceivedbyaddress", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -563,7 +651,9 @@ pub async fn list_received_by_label(
         json!(include_watchonly),
         json!(include_immature_coinbase),
     ];
-    let raw = transport.send_request("listreceivedbylabel", &params).await?;
+    let raw = transport
+        .send_request("listreceivedbylabel", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -620,7 +710,12 @@ pub async fn list_transactions(
     skip: serde_json::Value,
     include_watchonly: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(label), json!(count), json!(skip), json!(include_watchonly)];
+    let params = vec![
+        json!(label),
+        json!(count),
+        json!(skip),
+        json!(include_watchonly),
+    ];
     let raw = transport.send_request("listtransactions", &params).await?;
     Ok(raw)
 }
@@ -754,8 +849,9 @@ pub async fn migrate_wallet(
     transport: &dyn TransportTrait,
     wallet_name: serde_json::Value,
     passphrase: serde_json::Value,
+    load_wallet: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(wallet_name), json!(passphrase)];
+    let params = vec![json!(wallet_name), json!(passphrase), json!(load_wallet)];
     let raw = transport.send_request("migratewallet", &params).await?;
     Ok(raw)
 }
@@ -791,6 +887,7 @@ pub async fn psbt_bump_fee(
     Ok(raw)
 }
 
+/// (DEPRECATED) This feature will be removed in the next major release. Start bitcoind with the `-deprecatedrpc=removeprunedfunds` option in order to use this.
 /// Deletes the specified transaction from the wallet. Meant for use with pruned wallets and as a companion to importprunedfunds. This will affect wallet balances.
 ///
 /// # Usage
@@ -848,12 +945,15 @@ pub async fn restore_wallet(
     backup_file: serde_json::Value,
     load_on_startup: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(wallet_name), json!(backup_file), json!(load_on_startup)];
+    let params = vec![
+        json!(wallet_name),
+        json!(backup_file),
+        json!(load_on_startup),
+    ];
     let raw = transport.send_request("restorewallet", &params).await?;
     Ok(raw)
 }
 
-/// EXPERIMENTAL warning: this call may be changed in future releases.
 /// Send a transaction.
 ///
 /// # Usage
@@ -884,7 +984,6 @@ pub async fn send(
     Ok(raw)
 }
 
-/// EXPERIMENTAL warning: this call may be changed in future releases.
 /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
 /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
 /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
@@ -932,7 +1031,7 @@ pub async fn send_many(
     amounts: serde_json::Value,
     min_conf: serde_json::Value,
     comment: serde_json::Value,
-    subtractfeefrom: serde_json::Value,
+    subtract_fee_from: serde_json::Value,
     replaceable: serde_json::Value,
     conf_target: serde_json::Value,
     estimate_mode: serde_json::Value,
@@ -944,7 +1043,7 @@ pub async fn send_many(
         json!(amounts),
         json!(min_conf),
         json!(comment),
-        json!(subtractfeefrom),
+        json!(subtract_fee_from),
         json!(replaceable),
         json!(conf_target),
         json!(estimate_mode),
@@ -1074,7 +1173,9 @@ pub async fn sign_raw_transaction_with_wallet(
     sighash_type: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(hex_string), json!(prev_txs), json!(sighash_type)];
-    let raw = transport.send_request("signrawtransactionwithwallet", &params).await?;
+    let raw = transport
+        .send_request("signrawtransactionwithwallet", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -1089,11 +1190,13 @@ pub async fn sign_raw_transaction_with_wallet(
 /// Calls the `simulaterawtransaction` RPC method.
 pub async fn simulate_raw_transaction(
     transport: &dyn TransportTrait,
-    rawtxs: serde_json::Value,
+    raw_txs: serde_json::Value,
     options: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(rawtxs), json!(options)];
-    let raw = transport.send_request("simulaterawtransaction", &params).await?;
+    let params = vec![json!(raw_txs), json!(options)];
+    let raw = transport
+        .send_request("simulaterawtransaction", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -1137,6 +1240,7 @@ pub async fn wallet_create_funded_psbt(
     options: serde_json::Value,
     bip32_derivs: serde_json::Value,
     version: serde_json::Value,
+    psbt_version: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![
         json!(inputs),
@@ -1145,8 +1249,11 @@ pub async fn wallet_create_funded_psbt(
         json!(options),
         json!(bip32_derivs),
         json!(version),
+        json!(psbt_version),
     ];
-    let raw = transport.send_request("walletcreatefundedpsbt", &params).await?;
+    let raw = transport
+        .send_request("walletcreatefundedpsbt", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -1164,7 +1271,9 @@ pub async fn wallet_display_address(
     address: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(address)];
-    let raw = transport.send_request("walletdisplayaddress", &params).await?;
+    let raw = transport
+        .send_request("walletdisplayaddress", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -1223,7 +1332,9 @@ pub async fn wallet_passphrase_change(
     new_passphrase: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(old_passphrase), json!(new_passphrase)];
-    let raw = transport.send_request("walletpassphrasechange", &params).await?;
+    let raw = transport
+        .send_request("walletpassphrasechange", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -1246,8 +1357,13 @@ pub async fn wallet_process_psbt(
     bip32_derivs: serde_json::Value,
     finalize: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params =
-        vec![json!(psbt), json!(sign), json!(sighash_type), json!(bip32_derivs), json!(finalize)];
+    let params = vec![
+        json!(psbt),
+        json!(sign),
+        json!(sighash_type),
+        json!(bip32_derivs),
+        json!(finalize),
+    ];
     let raw = transport.send_request("walletprocesspsbt", &params).await?;
     Ok(raw)
 }

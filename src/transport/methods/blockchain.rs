@@ -7,8 +7,8 @@ use serde_json::{json, Value};
 use crate::transport::core::{TransportError, TransportTrait};
 
 /// Write the serialized UTXO set to a file. This can be used in loadtxoutset afterwards if this snapshot height is supported in the chainparams as well.
-/// Unless the "latest" type is requested, the node will roll back to the requested height and network activity will be suspended during this process. Because of this it is discouraged to interact with the node in any other way during the execution of this call to avoid inconsistent results and race conditions, particularly RPCs that interact with blockstorage.
-/// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+/// This creates a temporary UTXO database when rolling back, keeping the main chain intact. Should the node experience an unclean shutdown the temporary database may need to be removed from the datadir manually.
+/// For deep rollbacks, make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0) as it may take several minutes.
 ///
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -249,6 +249,7 @@ pub async fn get_chain_tx_stats(
 }
 
 /// Returns an object containing various state info regarding deployments of consensus changes.
+/// Consensus changes for which the new rules are enforced from genesis are not listed in "deployments".
 ///
 /// # Usage
 /// This method can be called using the high-level client interface:
@@ -282,8 +283,14 @@ pub async fn get_descriptor_activity(
     scanobjects: serde_json::Value,
     include_mempool: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(blockhashes), json!(scanobjects), json!(include_mempool)];
-    let raw = transport.send_request("getdescriptoractivity", &params).await?;
+    let params = vec![
+        json!(blockhashes),
+        json!(scanobjects),
+        json!(include_mempool),
+    ];
+    let raw = transport
+        .send_request("getdescriptoractivity", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -317,7 +324,27 @@ pub async fn get_mempool_ancestors(
     verbose: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(txid), json!(verbose)];
-    let raw = transport.send_request("getmempoolancestors", &params).await?;
+    let raw = transport
+        .send_request("getmempoolancestors", &params)
+        .await?;
+    Ok(raw)
+}
+
+/// Returns mempool data for given cluster
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.getmempoolcluster(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::getmempoolcluster(&transport, ...).await`
+///
+/// Calls the `getmempoolcluster` RPC method.
+pub async fn get_mempool_cluster(
+    transport: &dyn TransportTrait,
+    txid: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(txid)];
+    let raw = transport.send_request("getmempoolcluster", &params).await?;
     Ok(raw)
 }
 
@@ -336,7 +363,9 @@ pub async fn get_mempool_descendants(
     verbose: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(txid), json!(verbose)];
-    let raw = transport.send_request("getmempooldescendants", &params).await?;
+    let raw = transport
+        .send_request("getmempooldescendants", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -472,7 +501,9 @@ pub async fn get_tx_spending_prevout(
     options: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(outputs), json!(options)];
-    let raw = transport.send_request("gettxspendingprevout", &params).await?;
+    let raw = transport
+        .send_request("gettxspendingprevout", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -713,7 +744,9 @@ pub async fn wait_for_block_height(
     timeout: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(height), json!(timeout)];
-    let raw = transport.send_request("waitforblockheight", &params).await?;
+    let raw = transport
+        .send_request("waitforblockheight", &params)
+        .await?;
     Ok(raw)
 }
 

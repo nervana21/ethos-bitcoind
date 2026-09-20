@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use crate::transport::core::{TransportError, TransportTrait};
 
-/// Returns a list of external signers from -signer.
+/// Returns a list of external signers from -signer. Signers with duplicate master key fingerprints are skipped.
 ///
 /// # Usage
 /// This method can be called using the high-level client interface:

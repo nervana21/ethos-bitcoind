@@ -6,6 +6,28 @@ use serde_json::{json, Value};
 
 use crate::transport::core::{TransportError, TransportTrait};
 
+/// Abort private broadcast attempts for a transaction currently being privately broadcast.
+/// The transaction will be removed from the private broadcast queue.
+/// This method is only available when running with -privatebroadcast enabled.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.abortprivatebroadcast(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::abortprivatebroadcast(&transport, ...).await`
+///
+/// Calls the `abortprivatebroadcast` RPC method.
+pub async fn abort_privatebroadcast(
+    transport: &dyn TransportTrait,
+    id: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(id)];
+    let raw = transport
+        .send_request("abortprivatebroadcast", &params)
+        .await?;
+    Ok(raw)
+}
+
 /// Analyzes and provides information about the current status of a PSBT and its inputs
 ///
 /// # Usage
@@ -59,7 +81,9 @@ pub async fn combine_raw_transaction(
     txs: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(txs)];
-    let raw = transport.send_request("combinerawtransaction", &params).await?;
+    let raw = transport
+        .send_request("combinerawtransaction", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -78,8 +102,14 @@ pub async fn convert_to_psbt(
     hex_string: serde_json::Value,
     permit_sig_data: serde_json::Value,
     is_witness: serde_json::Value,
+    psbt_version: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hex_string), json!(permit_sig_data), json!(is_witness)];
+    let params = vec![
+        json!(hex_string),
+        json!(permit_sig_data),
+        json!(is_witness),
+        json!(psbt_version),
+    ];
     let raw = transport.send_request("converttopsbt", &params).await?;
     Ok(raw)
 }
@@ -103,9 +133,16 @@ pub async fn create_psbt(
     lock_time: serde_json::Value,
     replaceable: serde_json::Value,
     version: serde_json::Value,
+    psbt_version: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params =
-        vec![json!(inputs), json!(outputs), json!(lock_time), json!(replaceable), json!(version)];
+    let params = vec![
+        json!(inputs),
+        json!(outputs),
+        json!(lock_time),
+        json!(replaceable),
+        json!(version),
+        json!(psbt_version),
+    ];
     let raw = transport.send_request("createpsbt", &params).await?;
     Ok(raw)
 }
@@ -131,9 +168,16 @@ pub async fn create_raw_transaction(
     replaceable: serde_json::Value,
     version: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params =
-        vec![json!(inputs), json!(outputs), json!(lock_time), json!(replaceable), json!(version)];
-    let raw = transport.send_request("createrawtransaction", &params).await?;
+    let params = vec![
+        json!(inputs),
+        json!(outputs),
+        json!(lock_time),
+        json!(replaceable),
+        json!(version),
+    ];
+    let raw = transport
+        .send_request("createrawtransaction", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -170,7 +214,9 @@ pub async fn decode_raw_transaction(
     is_witness: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(hex_string), json!(is_witness)];
-    let raw = transport.send_request("decoderawtransaction", &params).await?;
+    let raw = transport
+        .send_request("decoderawtransaction", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -217,7 +263,9 @@ pub async fn descriptor_process_psbt(
         json!(bip32_derivs),
         json!(finalize),
     ];
-    let raw = transport.send_request("descriptorprocesspsbt", &params).await?;
+    let raw = transport
+        .send_request("descriptorprocesspsbt", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -272,7 +320,30 @@ pub async fn fund_raw_transaction(
     is_witness: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(hex_string), json!(options), json!(is_witness)];
-    let raw = transport.send_request("fundrawtransaction", &params).await?;
+    let raw = transport
+        .send_request("fundrawtransaction", &params)
+        .await?;
+    Ok(raw)
+}
+
+/// Returns information about transactions tracked for private broadcast.
+/// Transactions that have reached the send-attempt limit remain in the result with attempts_remaining=0.
+/// This method is only available when running with -privatebroadcast enabled.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.getprivatebroadcastinfo(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::getprivatebroadcastinfo(&transport, ...).await`
+///
+/// Calls the `getprivatebroadcastinfo` RPC method.
+pub async fn get_privatebroadcast_info(
+    transport: &dyn TransportTrait,
+) -> Result<Value, TransportError> {
+    let params = Vec::<Value>::new();
+    let raw = transport
+        .send_request("getprivatebroadcastinfo", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -303,7 +374,7 @@ pub async fn get_raw_transaction(
     Ok(raw)
 }
 
-/// Joins multiple distinct PSBTs with different inputs and outputs into one PSBT with inputs and outputs from all of the PSBTs
+/// Joins multiple distinct version 0 PSBTs with different inputs and outputs into one version 0 PSBT with inputs and outputs from all of the PSBTs
 /// No input in any of the PSBTs can be in more than one of the PSBTs.
 ///
 /// # Usage
@@ -332,6 +403,9 @@ pub async fn join_psbts(
 /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
 /// via the Tor network. This conceals the transaction's origin. The transaction
 /// will only enter the local mempool when it is received back from the network.
+/// The private broadcast queue is bounded: when it is full, this RPC fails and
+/// the transaction is not scheduled, until an existing one completes or is
+/// aborted. Use getprivatebroadcastinfo to inspect the queue and abortprivatebroadcast to abort.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
 ///
@@ -348,8 +422,14 @@ pub async fn send_raw_transaction(
     max_fee_rate: serde_json::Value,
     max_burn_amount: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hex_string), json!(max_fee_rate), json!(max_burn_amount)];
-    let raw = transport.send_request("sendrawtransaction", &params).await?;
+    let params = vec![
+        json!(hex_string),
+        json!(max_fee_rate),
+        json!(max_burn_amount),
+    ];
+    let raw = transport
+        .send_request("sendrawtransaction", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -373,8 +453,15 @@ pub async fn sign_raw_transaction_with_key(
     prev_txs: serde_json::Value,
     sighash_type: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(hex_string), json!(priv_keys), json!(prev_txs), json!(sighash_type)];
-    let raw = transport.send_request("signrawtransactionwithkey", &params).await?;
+    let params = vec![
+        json!(hex_string),
+        json!(priv_keys),
+        json!(prev_txs),
+        json!(sighash_type),
+    ];
+    let raw = transport
+        .send_request("signrawtransactionwithkey", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -417,10 +504,10 @@ pub async fn submit_package(
 /// Calls the `testmempoolaccept` RPC method.
 pub async fn test_mempool_accept(
     transport: &dyn TransportTrait,
-    rawtxs: serde_json::Value,
+    raw_txs: serde_json::Value,
     max_fee_rate: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(rawtxs), json!(max_fee_rate)];
+    let params = vec![json!(raw_txs), json!(max_fee_rate)];
     let raw = transport.send_request("testmempoolaccept", &params).await?;
     Ok(raw)
 }

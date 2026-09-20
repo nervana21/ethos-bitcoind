@@ -1,18 +1,16 @@
-// Generated client trait for Bitcoin Core v30.2
+// Generated client trait for Bitcoin Core v32.0
 
 use std::future::Future;
 
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 
-use crate::bitcoin_core_client::params::{
-    GetBlockTemplateRequest, SendallRecipient, SendmanyAmountsRef,
-};
+use crate::bitcoin_core_client::params::{GetBlockTemplateRequest, SendallRecipient};
 use crate::transport::core::TransportExt;
 use crate::transport::{TransportError, TransportTrait};
-use crate::types::{FeeRate, *};
+use crate::types::{FeeRate, HashOrHeight, *};
 
-#[doc = r#"A versioned client trait for Bitcoin Core v30.2"#]
+#[doc = r#"A versioned client trait for Bitcoin Core v32.0"#]
 #[async_trait]
 pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispatchExt {
     type Error;
@@ -27,6 +25,14 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         txid: bitcoin::Txid,
     ) -> Result<AbandonTransactionResponse, Self::Error>;
 
+    /// Abort private broadcast attempts for a transaction currently being privately broadcast.
+    /// The transaction will be removed from the private broadcast queue.
+    /// This method is only available when running with -privatebroadcast enabled.
+    async fn abort_privatebroadcast(
+        &self,
+        id: String,
+    ) -> Result<AbortPrivateBroadcastResponse, Self::Error>;
+
     /// Stops current wallet rescan triggered by an RPC call, e.g. by a rescanblockchain call.
     /// Note: Use "getwalletinfo" to query the scanning progress.
     async fn abort_rescan(&self) -> Result<AbortRescanResponse, Self::Error>;
@@ -39,10 +45,14 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         v2transport: bool,
     ) -> Result<AddConnectionResponse, Self::Error>;
 
+    /// Add a BIP 32 HD key to the wallet that can be used with 'createwalletdescriptor'
+    async fn add_hd_key(&self, hdkey: Option<String>) -> Result<AddHdKeyResponse, Self::Error>;
+
     /// Attempts to add or remove a node from the addnode list.
     /// Or try a connection to a node once.
-    /// Nodes added using addnode (or -connect) are protected from DoS disconnection and are not required to be
-    /// full nodes/support SegWit as other outbound peers are (though such peers will not be synced from).
+    /// Nodes added using addnode (or -connect) are protected from DoS disconnection and IBD block stalling
+    /// disconnection, and are not required to be full nodes or support SegWit as other outbound peers are (though
+    /// such peers will not be synced from).
     /// Addnode connections are limited to 8 at a time and are counted separately from the -maxconnections limit.
     async fn add_node(
         &self,
@@ -109,6 +119,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         hex_string: String,
         permit_sig_data: Option<bool>,
         is_witness: Option<bool>,
+        psbt_version: Option<i64>,
     ) -> Result<ConvertToPsbtResponse, Self::Error>;
 
     /// Creates a multi-signature address with n signatures of m keys required.
@@ -127,10 +138,11 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn create_psbt(
         &self,
         inputs: Vec<serde_json::Value>,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         lock_time: Option<i64>,
         replaceable: Option<bool>,
         version: Option<i64>,
+        psbt_version: Option<i64>,
     ) -> Result<CreatePsbtResponse, Self::Error>;
 
     /// Create a transaction spending the given inputs and creating new outputs.
@@ -141,7 +153,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn create_raw_transaction(
         &self,
         inputs: Vec<serde_json::Value>,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         lock_time: Option<i64>,
         replaceable: Option<bool>,
         version: Option<i64>,
@@ -197,6 +209,15 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         range: Option<serde_json::Value>,
     ) -> Result<DeriveAddressesResponse, Self::Error>;
 
+    /// Derive extended public or private key from HD key in the wallet at a given path.
+    /// Derivation uses wallet private key material.
+    /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+    async fn derive_hd_key(
+        &self,
+        path: String,
+        options: Option<serde_json::Value>,
+    ) -> Result<DeriveHdKeyResponse, Self::Error>;
+
     /// Update all segwit inputs in a PSBT with information from output descriptors, the UTXO set or the mempool.
     /// Then, sign the inputs we are able to with information from the output descriptors.
     async fn descriptor_process_psbt(
@@ -218,8 +239,8 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<DisconnectNodeResponse, Self::Error>;
 
     /// Write the serialized UTXO set to a file. This can be used in loadtxoutset afterwards if this snapshot height is supported in the chainparams as well.
-    /// Unless the "latest" type is requested, the node will roll back to the requested height and network activity will be suspended during this process. Because of this it is discouraged to interact with the node in any other way during the execution of this call to avoid inconsistent results and race conditions, particularly RPCs that interact with blockstorage.
-    /// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+    /// This creates a temporary UTXO database when rolling back, keeping the main chain intact. Should the node experience an unclean shutdown the temporary database may need to be removed from the datadir manually.
+    /// For deep rollbacks, make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0) as it may take several minutes.
     async fn dump_txout_set(
         &self,
         path: String,
@@ -232,16 +253,16 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echo(
         &self,
-        arg0: Option<String>,
-        arg1: Option<String>,
-        arg2: Option<String>,
-        arg3: Option<String>,
-        arg4: Option<String>,
-        arg5: Option<String>,
-        arg6: Option<String>,
-        arg7: Option<String>,
-        arg8: Option<String>,
-        arg9: Option<String>,
+        arg0: Option<serde_json::Value>,
+        arg1: Option<serde_json::Value>,
+        arg2: Option<serde_json::Value>,
+        arg3: Option<serde_json::Value>,
+        arg4: Option<serde_json::Value>,
+        arg5: Option<serde_json::Value>,
+        arg6: Option<serde_json::Value>,
+        arg7: Option<serde_json::Value>,
+        arg8: Option<serde_json::Value>,
+        arg9: Option<serde_json::Value>,
     ) -> Result<EchoResponse, Self::Error>;
 
     /// Echo back the input argument, passing it through a spawned process in a multiprocess build.
@@ -253,16 +274,16 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echojson(
         &self,
-        arg0: Option<String>,
-        arg1: Option<String>,
-        arg2: Option<String>,
-        arg3: Option<String>,
-        arg4: Option<String>,
-        arg5: Option<String>,
-        arg6: Option<String>,
-        arg7: Option<String>,
-        arg8: Option<String>,
-        arg9: Option<String>,
+        arg0: Option<serde_json::Value>,
+        arg1: Option<serde_json::Value>,
+        arg2: Option<serde_json::Value>,
+        arg3: Option<serde_json::Value>,
+        arg4: Option<serde_json::Value>,
+        arg5: Option<serde_json::Value>,
+        arg6: Option<serde_json::Value>,
+        arg7: Option<serde_json::Value>,
+        arg8: Option<serde_json::Value>,
+        arg9: Option<serde_json::Value>,
     ) -> Result<EchojsonResponse, Self::Error>;
 
     /// Encrypts the wallet with 'passphrase'. This is for first time encryption.
@@ -281,7 +302,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         passphrase: String,
     ) -> Result<EncryptWalletResponse, Self::Error>;
 
-    /// Returns a list of external signers from -signer.
+    /// Returns a list of external signers from -signer. Signers with duplicate master key fingerprints are skipped.
     async fn enumerate_signers(&self) -> Result<EnumerateSignersResponse, Self::Error>;
 
     /// WARNING: This interface is unstable and may disappear or change!
@@ -305,7 +326,17 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         &self,
         conf_target: i64,
         estimate_mode: Option<String>,
+        options: Option<serde_json::Value>,
     ) -> Result<EstimateSmartFeeResponse, Self::Error>;
+
+    /// Export the embedded ASMap data to a file. Any existing file at the path will be overwritten.
+    async fn export_as_map(&self, path: String) -> Result<ExportAsMapResponse, Self::Error>;
+
+    /// Creates a wallet file at the specified destination containing a watchonly version of the current wallet. This watchonly wallet contains the wallet's public descriptors, its transactions, and address book data. Descriptors that use hardened derivation will only have a limited number of derived keys included in the export due to hardened derivation requiring private keys. Descriptors with unhardened derivation do not have this limitation. The watchonly wallet can be imported into another node using 'restorewallet'.
+    async fn export_watch_only_wallet(
+        &self,
+        destination: String,
+    ) -> Result<ExportWatchOnlyWalletResponse, Self::Error>;
 
     /// Finalize the inputs of a PSBT. If the transaction is fully signed, it will produce a
     /// network serialized transaction which can be broadcast with sendrawtransaction. Otherwise a PSBT will be
@@ -339,9 +370,10 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     ) -> Result<FundRawTransactionResponse, Self::Error>;
 
     /// has been replaced by the -generate cli option. Refer to -help for more information.
-    async fn generate(&self) -> Result<(), Self::Error>;
+    async fn generate(&self) -> Result<GenerateResponse, Self::Error>;
 
     /// Mine a set of ordered transactions to a specified address or descriptor and return the block hash.
+    /// Transaction fees are not collected in the block reward.
     async fn generate_block(
         &self,
         output: String,
@@ -458,7 +490,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// It won't work for some heights with pruning.
     async fn get_block_stats(
         &self,
-        hash_or_height: i64,
+        hash_or_height: HashOrHeight,
         stats: Option<Vec<serde_json::Value>>,
     ) -> Result<GetBlockStatsResponse, Self::Error>;
 
@@ -491,6 +523,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn get_connection_count(&self) -> Result<GetConnectionCountResponse, Self::Error>;
 
     /// Returns an object containing various state info regarding deployments of consensus changes.
+    /// Consensus changes for which the new rules are enforced from genesis are not listed in "deployments".
     async fn get_deployment_info(
         &self,
         block_hash: Option<bitcoin::BlockHash>,
@@ -539,6 +572,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         verbose: Option<bool>,
     ) -> Result<GetMempoolAncestorsResponse, Self::Error>;
 
+    /// Returns mempool data for given cluster
+    async fn get_mempool_cluster(
+        &self,
+        txid: bitcoin::Txid,
+    ) -> Result<GetMempoolClusterResponse, Self::Error>;
+
     /// If txid is in the mempool, returns all in-mempool descendants.
     async fn get_mempool_descendants(
         &self,
@@ -551,6 +590,11 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         &self,
         txid: bitcoin::Txid,
     ) -> Result<GetMempoolEntryResponse, Self::Error>;
+
+    /// Returns the feerate diagram for the whole mempool.
+    async fn get_mempool_fee_rate_diagram(
+        &self,
+    ) -> Result<GetMempoolFeeRateDiagramResponse, Self::Error>;
 
     /// Returns details on the active state of the TX memory pool.
     async fn get_mempool_info(&self) -> Result<GetMempoolInfoResponse, Self::Error>;
@@ -592,6 +636,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         network: Option<String>,
     ) -> Result<GetNodeAddressesResponse, Self::Error>;
 
+    /// Returns an OpenRPC document for currently available RPC commands.
+    async fn get_open_rpc_info(
+        &self,
+        show_hidden: Option<bool>,
+    ) -> Result<GetOpenRpcInfoResponse, Self::Error>;
+
     /// Shows transactions in the tx orphanage.
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     async fn get_orphan_txs(
@@ -606,6 +656,13 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn get_prioritised_transactions(
         &self,
     ) -> Result<GetPrioritisedTransactionsResponse, Self::Error>;
+
+    /// Returns information about transactions tracked for private broadcast.
+    /// Transactions that have reached the send-attempt limit remain in the result with attempts_remaining=0.
+    /// This method is only available when running with -privatebroadcast enabled.
+    async fn get_privatebroadcast_info(
+        &self,
+    ) -> Result<GetPrivateBroadcastInfoResponse, Self::Error>;
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Returns information on all address manager entries for the new and tried tables.
@@ -674,7 +731,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         txid: bitcoin::Txid,
         n: i64,
         include_mempool: Option<bool>,
-    ) -> Result<GetTxOutResponse, Self::Error>;
+    ) -> Result<Option<GetTxOutResponse>, Self::Error>;
 
     /// Returns a hex-encoded proof that "txid" was included in a block.
     /// NOTE: By default this function only works sometimes. This is when there is an
@@ -692,7 +749,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn get_txout_set_info(
         &self,
         hash_type: Option<String>,
-        hash_or_height: Option<i64>,
+        hash_or_height: Option<HashOrHeight>,
         use_index: Option<bool>,
     ) -> Result<GetTxOutSetInfoResponse, Self::Error>;
 
@@ -705,6 +762,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
 
     /// Returns an object containing various wallet state info.
     async fn get_wallet_info(&self) -> Result<GetWalletInfoResponse, Self::Error>;
+
+    /// Returns information about the active ZeroMQ notifications.
+    async fn get_zmq_notifications(&self) -> Result<GetZmqNotificationsResponse, Self::Error>;
 
     /// List all commands, or get help for a specified command.
     async fn help(&self, command: Option<String>) -> Result<HelpResponse, Self::Error>;
@@ -740,7 +800,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         block_hash: bitcoin::BlockHash,
     ) -> Result<InvalidateBlockResponse, Self::Error>;
 
-    /// Joins multiple distinct PSBTs with different inputs and outputs into one PSBT with inputs and outputs from all of the PSBTs
+    /// Joins multiple distinct version 0 PSBTs with different inputs and outputs into one version 0 PSBT with inputs and outputs from all of the PSBTs
     /// No input in any of the PSBTs can be in more than one of the PSBTs.
     async fn join_psbts(
         &self,
@@ -752,7 +812,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
     async fn keypool_refill(
         &self,
-        newsize: Option<i64>,
+        new_size: Option<i64>,
     ) -> Result<KeypoolRefillResponse, Self::Error>;
 
     /// Lists groups of addresses which have had their common ownership
@@ -878,7 +938,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// When called with arguments, adds or removes categories from debug logging and return the lists above.
     /// The arguments are evaluated in order "include", "exclude".
     /// If an item is both included and excluded, it will thus end up being excluded.
-    /// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, libevent, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
+    /// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
     /// In addition, the following are available as category names with special meanings:
     /// - "all",  "1" : represent all logging categories.
     async fn logging(
@@ -898,6 +958,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         &self,
         wallet_name: Option<String>,
         passphrase: Option<String>,
+        load_wallet: Option<bool>,
     ) -> Result<MigrateWalletResponse, Self::Error>;
 
     /// Bump the scheduler into the future (-regtest only)
@@ -954,6 +1015,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         block_hash: bitcoin::BlockHash,
     ) -> Result<ReconsiderBlockResponse, Self::Error>;
 
+    /// (DEPRECATED) This feature will be removed in the next major release. Start bitcoind with the `-deprecatedrpc=removeprunedfunds` option in order to use this.
     /// Deletes the specified transaction from the wallet. Meant for use with pruned wallets and as a companion to importprunedfunds. This will affect wallet balances.
     async fn remove_pruned_funds(
         &self,
@@ -979,6 +1041,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         backup_file: String,
         load_on_startup: Option<bool>,
     ) -> Result<RestoreWalletResponse, Self::Error>;
+
+    /// Returns an OpenRPC schema as a description of this service.
+    async fn rpc_discover(&self) -> Result<RpcDiscoverResponse, Self::Error>;
 
     /// Dumps the mempool to disk. It will fail until the previous dump is fully loaded.
     async fn save_mempool(&self) -> Result<SaveMempoolResponse, Self::Error>;
@@ -1017,11 +1082,10 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         scanobjects: Option<Vec<serde_json::Value>>,
     ) -> Result<ScanTxOutSetResponse, Self::Error>;
 
-    /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Send a transaction.
     async fn send(
         &self,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
         fee_rate: Option<FeeRate>,
@@ -1029,7 +1093,6 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
         version: Option<i64>,
     ) -> Result<SendResponse, Self::Error>;
 
-    /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
     /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
     /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
@@ -1047,13 +1110,10 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn send_many(
         &self,
         dummy: Option<String>,
-        amounts: std::collections::HashMap<
-            bitcoin::Address<bitcoin::address::NetworkUnchecked>,
-            bitcoin::Amount,
-        >,
+        amounts: serde_json::Value,
         min_conf: Option<i64>,
         comment: Option<String>,
-        subtractfeefrom: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
+        subtract_fee_from: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
         replaceable: Option<bool>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
@@ -1081,6 +1141,9 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
     /// via the Tor network. This conceals the transaction's origin. The transaction
     /// will only enter the local mempool when it is received back from the network.
+    /// The private broadcast queue is bounded: when it is full, this RPC fails and
+    /// the transaction is not scheduled, until an existing one completes or is
+    /// aborted. Use getprivatebroadcastinfo to inspect the queue and abortprivatebroadcast to abort.
     /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
     /// Related RPCs: createrawtransaction, signrawtransactionwithkey
     async fn send_raw_transaction(
@@ -1152,7 +1215,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Sign a message with the private key of an address
     async fn sign_message_with_priv_key(
         &self,
-        privkey: String,
+        priv_key: String,
         message: String,
     ) -> Result<SignMessageWithPrivKeyResponse, Self::Error>;
 
@@ -1185,7 +1248,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// Calculate the balance change resulting in the signing and broadcasting of the given transaction(s).
     async fn simulate_raw_transaction(
         &self,
-        rawtxs: Option<Vec<serde_json::Value>>,
+        raw_txs: Vec<serde_json::Value>,
         options: Option<serde_json::Value>,
     ) -> Result<SimulateRawTransactionResponse, Self::Error>;
 
@@ -1228,7 +1291,7 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     /// See sendrawtransaction call.
     async fn test_mempool_accept(
         &self,
-        rawtxs: Vec<serde_json::Value>,
+        raw_txs: Vec<serde_json::Value>,
         max_fee_rate: Option<FeeRate>,
     ) -> Result<TestMempoolAcceptResponse, Self::Error>;
 
@@ -1313,11 +1376,12 @@ pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispat
     async fn wallet_create_funded_psbt(
         &self,
         inputs: Option<Vec<serde_json::Value>>,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         lock_time: Option<i64>,
         options: Option<serde_json::Value>,
         bip32_derivs: Option<bool>,
         version: Option<i64>,
+        psbt_version: Option<i64>,
     ) -> Result<WalletCreateFundedPsbtResponse, Self::Error>;
 
     /// Display address on an external signer for verification.
@@ -1391,8 +1455,10 @@ pub trait WalletTransportExt: TransportTrait + TransportExt {
     ) -> impl std::future::Future<Output = Result<R, crate::transport::TransportError>> + Send {
         async {
             // Convert params to Value before passing to call
-            let value_params: Vec<serde_json::Value> =
-                params.iter().map(|p| serde_json::to_value(p).unwrap()).collect();
+            let value_params: Vec<serde_json::Value> = params
+                .iter()
+                .map(|p| serde_json::to_value(p).unwrap())
+                .collect();
             self.call(method, &value_params).await
         }
     }
@@ -1416,7 +1482,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<AbandonTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        self.call::<AbandonTransactionResponse>("abandontransaction", &rpc_params).await
+        self.call::<AbandonTransactionResponse>("abandontransaction", &rpc_params)
+            .await
+    }
+
+    /// Abort private broadcast attempts for a transaction currently being privately broadcast.
+    /// The transaction will be removed from the private broadcast queue.
+    /// This method is only available when running with -privatebroadcast enabled.
+    async fn abort_privatebroadcast(
+        &self,
+        id: String,
+    ) -> Result<AbortPrivateBroadcastResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        rpc_params.push(serde_json::json!(id));
+        self.call::<AbortPrivateBroadcastResponse>("abortprivatebroadcast", &rpc_params)
+            .await
     }
 
     /// Stops current wallet rescan triggered by an RPC call, e.g. by a rescanblockchain call.
@@ -1436,13 +1516,28 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         rpc_params.push(serde_json::json!(address));
         rpc_params.push(serde_json::json!(connection_type));
         rpc_params.push(serde_json::json!(v2transport));
-        self.call::<AddConnectionResponse>("addconnection", &rpc_params).await
+        self.call::<AddConnectionResponse>("addconnection", &rpc_params)
+            .await
+    }
+
+    /// Add a BIP 32 HD key to the wallet that can be used with 'createwalletdescriptor'
+    async fn add_hd_key(&self, hdkey: Option<String>) -> Result<AddHdKeyResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [hdkey.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
+        }
+        self.call::<AddHdKeyResponse>("addhdkey", &rpc_params).await
     }
 
     /// Attempts to add or remove a node from the addnode list.
     /// Or try a connection to a node once.
-    /// Nodes added using addnode (or -connect) are protected from DoS disconnection and are not required to be
-    /// full nodes/support SegWit as other outbound peers are (though such peers will not be synced from).
+    /// Nodes added using addnode (or -connect) are protected from DoS disconnection and IBD block stalling
+    /// disconnection, and are not required to be full nodes or support SegWit as other outbound peers are (though
+    /// such peers will not be synced from).
     /// Addnode connections are limited to 8 at a time and are counted separately from the -maxconnections limit.
     async fn add_node(
         &self,
@@ -1453,8 +1548,12 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(node));
         rpc_params.push(serde_json::json!(command));
-        if let Some(val) = v2transport {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [v2transport.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<AddNodeResponse>("addnode", &rpc_params).await
     }
@@ -1469,17 +1568,23 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
         rpc_params.push(serde_json::json!(port));
-        if let Some(val) = tried {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [tried.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<AddPeerAddressResponse>("addpeeraddress", &rpc_params).await
+        self.call::<AddPeerAddressResponse>("addpeeraddress", &rpc_params)
+            .await
     }
 
     /// Analyzes and provides information about the current status of a PSBT and its inputs
     async fn analyze_psbt(&self, psbt: String) -> Result<AnalyzePsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(psbt));
-        self.call::<AnalyzePsbtResponse>("analyzepsbt", &rpc_params).await
+        self.call::<AnalyzePsbtResponse>("analyzepsbt", &rpc_params)
+            .await
     }
 
     /// Safely copies the current wallet file to the specified destination, which can either be a directory or a path with a filename.
@@ -1489,7 +1594,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<BackupWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(destination));
-        self.call::<BackupWalletResponse>("backupwallet", &rpc_params).await
+        self.call::<BackupWalletResponse>("backupwallet", &rpc_params)
+            .await
     }
 
     /// Bumps the fee of a transaction T, replacing it with a new transaction B.
@@ -1511,8 +1617,12 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<BumpFeeResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<BumpFeeResponse>("bumpfee", &rpc_params).await
     }
@@ -1530,7 +1640,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<CombinePsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txs));
-        self.call::<CombinePsbtResponse>("combinepsbt", &rpc_params).await
+        self.call::<CombinePsbtResponse>("combinepsbt", &rpc_params)
+            .await
     }
 
     /// Combine multiple partially signed transactions into one transaction.
@@ -1542,7 +1653,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<CombineRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txs));
-        self.call::<CombineRawTransactionResponse>("combinerawtransaction", &rpc_params).await
+        self.call::<CombineRawTransactionResponse>("combinerawtransaction", &rpc_params)
+            .await
     }
 
     /// Converts a network serialized transaction to a PSBT. This should be used only with createrawtransaction and fundrawtransaction
@@ -1552,16 +1664,22 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         hex_string: String,
         permit_sig_data: Option<bool>,
         is_witness: Option<bool>,
+        psbt_version: Option<i64>,
     ) -> Result<ConvertToPsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hex_string));
-        if let Some(val) = permit_sig_data {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 3] = [
+            permit_sig_data.as_ref().map(|val| serde_json::json!(val)),
+            is_witness.as_ref().map(|val| serde_json::json!(val)),
+            psbt_version.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = is_witness {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<ConvertToPsbtResponse>("converttopsbt", &rpc_params).await
+        self.call::<ConvertToPsbtResponse>("converttopsbt", &rpc_params)
+            .await
     }
 
     /// Creates a multi-signature address with n signatures of m keys required.
@@ -1575,10 +1693,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(nrequired));
         rpc_params.push(serde_json::json!(keys));
-        if let Some(val) = address_type {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [address_type.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<CreateMultisigResponse>("createmultisig", &rpc_params).await
+        self.call::<CreateMultisigResponse>("createmultisig", &rpc_params)
+            .await
     }
 
     /// Creates a transaction in the Partially Signed Transaction format.
@@ -1588,24 +1711,28 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn create_psbt(
         &self,
         inputs: Vec<serde_json::Value>,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         lock_time: Option<i64>,
         replaceable: Option<bool>,
         version: Option<i64>,
+        psbt_version: Option<i64>,
     ) -> Result<CreatePsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(inputs));
         rpc_params.push(serde_json::json!(outputs));
-        if let Some(val) = lock_time {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 4] = [
+            lock_time.as_ref().map(|val| serde_json::json!(val)),
+            replaceable.as_ref().map(|val| serde_json::json!(val)),
+            version.as_ref().map(|val| serde_json::json!(val)),
+            psbt_version.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = replaceable {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = version {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<CreatePsbtResponse>("createpsbt", &rpc_params).await
+        self.call::<CreatePsbtResponse>("createpsbt", &rpc_params)
+            .await
     }
 
     /// Create a transaction spending the given inputs and creating new outputs.
@@ -1616,7 +1743,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn create_raw_transaction(
         &self,
         inputs: Vec<serde_json::Value>,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         lock_time: Option<i64>,
         replaceable: Option<bool>,
         version: Option<i64>,
@@ -1624,16 +1751,18 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(inputs));
         rpc_params.push(serde_json::json!(outputs));
-        if let Some(val) = lock_time {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 3] = [
+            lock_time.as_ref().map(|val| serde_json::json!(val)),
+            replaceable.as_ref().map(|val| serde_json::json!(val)),
+            version.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = replaceable {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = version {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<CreateRawTransactionResponse>("createrawtransaction", &rpc_params).await
+        self.call::<CreateRawTransactionResponse>("createrawtransaction", &rpc_params)
+            .await
     }
 
     /// Creates and loads a new wallet.
@@ -1650,28 +1779,24 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<CreateWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(wallet_name));
-        if let Some(val) = disable_private_keys {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 7] = [
+            disable_private_keys
+                .as_ref()
+                .map(|val| serde_json::json!(val)),
+            blank.as_ref().map(|val| serde_json::json!(val)),
+            passphrase.as_ref().map(|val| serde_json::json!(val)),
+            avoid_reuse.as_ref().map(|val| serde_json::json!(val)),
+            descriptors.as_ref().map(|val| serde_json::json!(val)),
+            load_on_startup.as_ref().map(|val| serde_json::json!(val)),
+            external_signer.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = blank {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = passphrase {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = avoid_reuse {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = descriptors {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = load_on_startup {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = external_signer {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<CreateWalletResponse>("createwallet", &rpc_params).await
+        self.call::<CreateWalletResponse>("createwallet", &rpc_params)
+            .await
     }
 
     /// Creates the wallet's descriptor for the given address type. The address type must be one that the wallet does not already have a descriptor for.
@@ -1683,17 +1808,23 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<CreateWalletDescriptorResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(r#type));
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<CreateWalletDescriptorResponse>("createwalletdescriptor", &rpc_params).await
+        self.call::<CreateWalletDescriptorResponse>("createwalletdescriptor", &rpc_params)
+            .await
     }
 
     /// Return a JSON object representing the serialized, base64-encoded partially signed Bitcoin transaction.
     async fn decode_psbt(&self, psbt: String) -> Result<DecodePsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(psbt));
-        self.call::<DecodePsbtResponse>("decodepsbt", &rpc_params).await
+        self.call::<DecodePsbtResponse>("decodepsbt", &rpc_params)
+            .await
     }
 
     /// Return a JSON object representing the serialized, hex-encoded transaction.
@@ -1704,17 +1835,23 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<DecodeRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hex_string));
-        if let Some(val) = is_witness {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [is_witness.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<DecodeRawTransactionResponse>("decoderawtransaction", &rpc_params).await
+        self.call::<DecodeRawTransactionResponse>("decoderawtransaction", &rpc_params)
+            .await
     }
 
     /// Decode a hex-encoded script.
     async fn decode_script(&self, hex_string: String) -> Result<DecodeScriptResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hex_string));
-        self.call::<DecodeScriptResponse>("decodescript", &rpc_params).await
+        self.call::<DecodeScriptResponse>("decodescript", &rpc_params)
+            .await
     }
 
     /// Derives one or more addresses corresponding to an output descriptor.
@@ -1734,10 +1871,36 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<DeriveAddressesResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(descriptor));
-        if let Some(val) = range {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [range.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<DeriveAddressesResponse>("deriveaddresses", &rpc_params).await
+        self.call::<DeriveAddressesResponse>("deriveaddresses", &rpc_params)
+            .await
+    }
+
+    /// Derive extended public or private key from HD key in the wallet at a given path.
+    /// Derivation uses wallet private key material.
+    /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+    async fn derive_hd_key(
+        &self,
+        path: String,
+        options: Option<serde_json::Value>,
+    ) -> Result<DeriveHdKeyResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        rpc_params.push(serde_json::json!(path));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
+        }
+        self.call::<DeriveHdKeyResponse>("derivehdkey", &rpc_params)
+            .await
     }
 
     /// Update all segwit inputs in a PSBT with information from output descriptors, the UTXO set or the mempool.
@@ -1753,16 +1916,18 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(psbt));
         rpc_params.push(serde_json::json!(descriptors));
-        if let Some(val) = sighash_type {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 3] = [
+            sighash_type.as_ref().map(|val| serde_json::json!(val)),
+            bip32_derivs.as_ref().map(|val| serde_json::json!(val)),
+            finalize.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = bip32_derivs {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = finalize {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<DescriptorProcessPsbtResponse>("descriptorprocesspsbt", &rpc_params).await
+        self.call::<DescriptorProcessPsbtResponse>("descriptorprocesspsbt", &rpc_params)
+            .await
     }
 
     /// Immediately disconnects from the specified peer node.
@@ -1774,18 +1939,22 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         nodeid: Option<i64>,
     ) -> Result<DisconnectNodeResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = address {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            address.as_ref().map(|val| serde_json::json!(val)),
+            nodeid.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = nodeid {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<DisconnectNodeResponse>("disconnectnode", &rpc_params).await
+        self.call::<DisconnectNodeResponse>("disconnectnode", &rpc_params)
+            .await
     }
 
     /// Write the serialized UTXO set to a file. This can be used in loadtxoutset afterwards if this snapshot height is supported in the chainparams as well.
-    /// Unless the "latest" type is requested, the node will roll back to the requested height and network activity will be suspended during this process. Because of this it is discouraged to interact with the node in any other way during the execution of this call to avoid inconsistent results and race conditions, particularly RPCs that interact with blockstorage.
-    /// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+    /// This creates a temporary UTXO database when rolling back, keeping the main chain intact. Should the node experience an unclean shutdown the temporary database may need to be removed from the datadir manually.
+    /// For deep rollbacks, make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0) as it may take several minutes.
     async fn dump_txout_set(
         &self,
         path: String,
@@ -1794,13 +1963,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<DumpTxOutSetResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(path));
-        if let Some(val) = r#type {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            r#type.as_ref().map(|val| serde_json::json!(val)),
+            options.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<DumpTxOutSetResponse>("dumptxoutset", &rpc_params).await
+        self.call::<DumpTxOutSetResponse>("dumptxoutset", &rpc_params)
+            .await
     }
 
     /// Simply echo back the input arguments. This command is for testing.
@@ -1808,47 +1981,34 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echo(
         &self,
-        arg0: Option<String>,
-        arg1: Option<String>,
-        arg2: Option<String>,
-        arg3: Option<String>,
-        arg4: Option<String>,
-        arg5: Option<String>,
-        arg6: Option<String>,
-        arg7: Option<String>,
-        arg8: Option<String>,
-        arg9: Option<String>,
+        arg0: Option<serde_json::Value>,
+        arg1: Option<serde_json::Value>,
+        arg2: Option<serde_json::Value>,
+        arg3: Option<serde_json::Value>,
+        arg4: Option<serde_json::Value>,
+        arg5: Option<serde_json::Value>,
+        arg6: Option<serde_json::Value>,
+        arg7: Option<serde_json::Value>,
+        arg8: Option<serde_json::Value>,
+        arg9: Option<serde_json::Value>,
     ) -> Result<EchoResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = arg0 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg1 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg2 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg3 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg4 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg5 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg6 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg7 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg8 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg9 {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 10] = [
+            arg0.as_ref().map(|val| serde_json::json!(val)),
+            arg1.as_ref().map(|val| serde_json::json!(val)),
+            arg2.as_ref().map(|val| serde_json::json!(val)),
+            arg3.as_ref().map(|val| serde_json::json!(val)),
+            arg4.as_ref().map(|val| serde_json::json!(val)),
+            arg5.as_ref().map(|val| serde_json::json!(val)),
+            arg6.as_ref().map(|val| serde_json::json!(val)),
+            arg7.as_ref().map(|val| serde_json::json!(val)),
+            arg8.as_ref().map(|val| serde_json::json!(val)),
+            arg9.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<EchoResponse>("echo", &rpc_params).await
     }
@@ -1866,47 +2026,34 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
     async fn echojson(
         &self,
-        arg0: Option<String>,
-        arg1: Option<String>,
-        arg2: Option<String>,
-        arg3: Option<String>,
-        arg4: Option<String>,
-        arg5: Option<String>,
-        arg6: Option<String>,
-        arg7: Option<String>,
-        arg8: Option<String>,
-        arg9: Option<String>,
+        arg0: Option<serde_json::Value>,
+        arg1: Option<serde_json::Value>,
+        arg2: Option<serde_json::Value>,
+        arg3: Option<serde_json::Value>,
+        arg4: Option<serde_json::Value>,
+        arg5: Option<serde_json::Value>,
+        arg6: Option<serde_json::Value>,
+        arg7: Option<serde_json::Value>,
+        arg8: Option<serde_json::Value>,
+        arg9: Option<serde_json::Value>,
     ) -> Result<EchojsonResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = arg0 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg1 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg2 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg3 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg4 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg5 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg6 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg7 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg8 {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = arg9 {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 10] = [
+            arg0.as_ref().map(|val| serde_json::json!(val)),
+            arg1.as_ref().map(|val| serde_json::json!(val)),
+            arg2.as_ref().map(|val| serde_json::json!(val)),
+            arg3.as_ref().map(|val| serde_json::json!(val)),
+            arg4.as_ref().map(|val| serde_json::json!(val)),
+            arg5.as_ref().map(|val| serde_json::json!(val)),
+            arg6.as_ref().map(|val| serde_json::json!(val)),
+            arg7.as_ref().map(|val| serde_json::json!(val)),
+            arg8.as_ref().map(|val| serde_json::json!(val)),
+            arg9.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<EchojsonResponse>("echojson", &rpc_params).await
     }
@@ -1928,12 +2075,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<EncryptWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(passphrase));
-        self.call::<EncryptWalletResponse>("encryptwallet", &rpc_params).await
+        self.call::<EncryptWalletResponse>("encryptwallet", &rpc_params)
+            .await
     }
 
-    /// Returns a list of external signers from -signer.
+    /// Returns a list of external signers from -signer. Signers with duplicate master key fingerprints are skipped.
     async fn enumerate_signers(&self) -> Result<EnumerateSignersResponse, Self::Error> {
-        self.call::<EnumerateSignersResponse>("enumeratesigners", &[]).await
+        self.call::<EnumerateSignersResponse>("enumeratesigners", &[])
+            .await
     }
 
     /// WARNING: This interface is unstable and may disappear or change!
@@ -1950,10 +2099,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<EstimateRawFeeResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(conf_target));
-        if let Some(val) = threshold {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [threshold.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<EstimateRawFeeResponse>("estimaterawfee", &rpc_params).await
+        self.call::<EstimateRawFeeResponse>("estimaterawfee", &rpc_params)
+            .await
     }
 
     /// Estimates the approximate fee per kilobyte needed for a transaction to begin
@@ -1964,13 +2118,40 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         &self,
         conf_target: i64,
         estimate_mode: Option<String>,
+        options: Option<serde_json::Value>,
     ) -> Result<EstimateSmartFeeResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(conf_target));
-        if let Some(val) = estimate_mode {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            estimate_mode.as_ref().map(|val| serde_json::json!(val)),
+            options.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<EstimateSmartFeeResponse>("estimatesmartfee", &rpc_params).await
+        self.call::<EstimateSmartFeeResponse>("estimatesmartfee", &rpc_params)
+            .await
+    }
+
+    /// Export the embedded ASMap data to a file. Any existing file at the path will be overwritten.
+    async fn export_as_map(&self, path: String) -> Result<ExportAsMapResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        rpc_params.push(serde_json::json!(path));
+        self.call::<ExportAsMapResponse>("exportasmap", &rpc_params)
+            .await
+    }
+
+    /// Creates a wallet file at the specified destination containing a watchonly version of the current wallet. This watchonly wallet contains the wallet's public descriptors, its transactions, and address book data. Descriptors that use hardened derivation will only have a limited number of derived keys included in the export due to hardened derivation requiring private keys. Descriptors with unhardened derivation do not have this limitation. The watchonly wallet can be imported into another node using 'restorewallet'.
+    async fn export_watch_only_wallet(
+        &self,
+        destination: String,
+    ) -> Result<ExportWatchOnlyWalletResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        rpc_params.push(serde_json::json!(destination));
+        self.call::<ExportWatchOnlyWalletResponse>("exportwatchonlywallet", &rpc_params)
+            .await
     }
 
     /// Finalize the inputs of a PSBT. If the transaction is fully signed, it will produce a
@@ -1984,10 +2165,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<FinalizePsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(psbt));
-        if let Some(val) = extract {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [extract.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<FinalizePsbtResponse>("finalizepsbt", &rpc_params).await
+        self.call::<FinalizePsbtResponse>("finalizepsbt", &rpc_params)
+            .await
     }
 
     /// If the transaction has no inputs, they will be automatically selected to meet its out value.
@@ -2012,19 +2198,26 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<FundRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hex_string));
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            options.as_ref().map(|val| serde_json::json!(val)),
+            is_witness.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = is_witness {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<FundRawTransactionResponse>("fundrawtransaction", &rpc_params).await
+        self.call::<FundRawTransactionResponse>("fundrawtransaction", &rpc_params)
+            .await
     }
 
     /// has been replaced by the -generate cli option. Refer to -help for more information.
-    async fn generate(&self) -> Result<(), Self::Error> { self.call::<()>("generate", &[]).await }
+    async fn generate(&self) -> Result<GenerateResponse, Self::Error> {
+        self.call::<GenerateResponse>("generate", &[]).await
+    }
 
     /// Mine a set of ordered transactions to a specified address or descriptor and return the block hash.
+    /// Transaction fees are not collected in the block reward.
     async fn generate_block(
         &self,
         output: String,
@@ -2034,10 +2227,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(output));
         rpc_params.push(serde_json::json!(transactions));
-        if let Some(val) = submit {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [submit.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GenerateBlockResponse>("generateblock", &rpc_params).await
+        self.call::<GenerateBlockResponse>("generateblock", &rpc_params)
+            .await
     }
 
     /// Mine to a specified address and return the block hashes.
@@ -2050,10 +2248,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(nblocks));
         rpc_params.push(serde_json::json!(address));
-        if let Some(val) = maxtries {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [maxtries.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GenerateToAddressResponse>("generatetoaddress", &rpc_params).await
+        self.call::<GenerateToAddressResponse>("generatetoaddress", &rpc_params)
+            .await
     }
 
     /// Mine to a specified descriptor and return the block hashes.
@@ -2066,10 +2269,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(num_blocks));
         rpc_params.push(serde_json::json!(descriptor));
-        if let Some(val) = maxtries {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [maxtries.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GenerateToDescriptorResponse>("generatetodescriptor", &rpc_params).await
+        self.call::<GenerateToDescriptorResponse>("generatetodescriptor", &rpc_params)
+            .await
     }
 
     /// Returns information about the given added node, or all added nodes
@@ -2079,10 +2287,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         node: Option<String>,
     ) -> Result<GetAddedNodeInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = node {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [node.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetAddedNodeInfoResponse>("getaddednodeinfo", &rpc_params).await
+        self.call::<GetAddedNodeInfoResponse>("getaddednodeinfo", &rpc_params)
+            .await
     }
 
     /// Returns the list of addresses assigned the specified label.
@@ -2092,7 +2305,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetAddressesByLabelResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(label));
-        self.call::<GetAddressesByLabelResponse>("getaddressesbylabel", &rpc_params).await
+        self.call::<GetAddressesByLabelResponse>("getaddressesbylabel", &rpc_params)
+            .await
     }
 
     /// Return information about the given bitcoin address.
@@ -2103,12 +2317,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetAddressInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
-        self.call::<GetAddressInfoResponse>("getaddressinfo", &rpc_params).await
+        self.call::<GetAddressInfoResponse>("getaddressinfo", &rpc_params)
+            .await
     }
 
     /// Provides information about the node's address manager by returning the number of addresses in the `new` and `tried` tables and their sum for all networks.
     async fn get_addrman_info(&self) -> Result<GetAddrManInfoResponse, Self::Error> {
-        self.call::<GetAddrManInfoResponse>("getaddrmaninfo", &[]).await
+        self.call::<GetAddrManInfoResponse>("getaddrmaninfo", &[])
+            .await
     }
 
     /// Returns the total available balance.
@@ -2122,19 +2338,19 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         avoid_reuse: Option<bool>,
     ) -> Result<GetBalanceResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = dummy {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 4] = [
+            dummy.as_ref().map(|val| serde_json::json!(val)),
+            min_conf.as_ref().map(|val| serde_json::json!(val)),
+            include_watchonly.as_ref().map(|val| serde_json::json!(val)),
+            avoid_reuse.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = min_conf {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_watchonly {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = avoid_reuse {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetBalanceResponse>("getbalance", &rpc_params).await
+        self.call::<GetBalanceResponse>("getbalance", &rpc_params)
+            .await
     }
 
     /// Returns an object with all balances in BTC.
@@ -2144,7 +2360,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
 
     /// Returns the hash of the best (tip) block in the most-work fully-validated chain.
     async fn get_best_block_hash(&self) -> Result<GetBestBlockHashResponse, Self::Error> {
-        self.call::<GetBestBlockHashResponse>("getbestblockhash", &[]).await
+        self.call::<GetBestBlockHashResponse>("getbestblockhash", &[])
+            .await
     }
 
     /// If verbosity is 0, returns a string that is serialized, hex-encoded data for block 'hash'.
@@ -2158,21 +2375,27 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
-        if let Some(val) = verbosity {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [verbosity.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<GetBlockResponse>("getblock", &rpc_params).await
     }
 
     /// Returns an object containing various state info regarding blockchain processing.
     async fn get_blockchain_info(&self) -> Result<GetBlockchainInfoResponse, Self::Error> {
-        self.call::<GetBlockchainInfoResponse>("getblockchaininfo", &[]).await
+        self.call::<GetBlockchainInfoResponse>("getblockchaininfo", &[])
+            .await
     }
 
     /// Returns the height of the most-work fully-validated chain.
     /// The genesis block has height 0.
     async fn get_block_count(&self) -> Result<GetBlockCountResponse, Self::Error> {
-        self.call::<GetBlockCountResponse>("getblockcount", &[]).await
+        self.call::<GetBlockCountResponse>("getblockcount", &[])
+            .await
     }
 
     /// Retrieve a BIP 157 content filter for a particular block.
@@ -2183,10 +2406,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetBlockFilterResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
-        if let Some(val) = filtertype {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [filtertype.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetBlockFilterResponse>("getblockfilter", &rpc_params).await
+        self.call::<GetBlockFilterResponse>("getblockfilter", &rpc_params)
+            .await
     }
 
     /// Attempt to fetch block from a given peer.
@@ -2205,14 +2433,16 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
         rpc_params.push(serde_json::json!(peer_id));
-        self.call::<GetBlockFromPeerResponse>("getblockfrompeer", &rpc_params).await
+        self.call::<GetBlockFromPeerResponse>("getblockfrompeer", &rpc_params)
+            .await
     }
 
     /// Returns hash of block in best-block-chain at height provided.
     async fn get_block_hash(&self, height: i64) -> Result<GetBlockHashResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(height));
-        self.call::<GetBlockHashResponse>("getblockhash", &rpc_params).await
+        self.call::<GetBlockHashResponse>("getblockhash", &rpc_params)
+            .await
     }
 
     /// If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.
@@ -2224,25 +2454,35 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetBlockHeaderResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
-        if let Some(val) = verbose {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [verbose.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetBlockHeaderResponse>("getblockheader", &rpc_params).await
+        self.call::<GetBlockHeaderResponse>("getblockheader", &rpc_params)
+            .await
     }
 
     /// Compute per block statistics for a given window. All amounts are in satoshis.
     /// It won't work for some heights with pruning.
     async fn get_block_stats(
         &self,
-        hash_or_height: i64,
+        hash_or_height: HashOrHeight,
         stats: Option<Vec<serde_json::Value>>,
     ) -> Result<GetBlockStatsResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hash_or_height));
-        if let Some(val) = stats {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [stats.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetBlockStatsResponse>("getblockstats", &rpc_params).await
+        self.call::<GetBlockStatsResponse>("getblockstats", &rpc_params)
+            .await
     }
 
     /// If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.
@@ -2258,12 +2498,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetBlockTemplateResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(template_request));
-        self.call::<GetBlockTemplateResponse>("getblocktemplate", &rpc_params).await
+        self.call::<GetBlockTemplateResponse>("getblocktemplate", &rpc_params)
+            .await
     }
 
     /// Return information about chainstates.
     async fn get_chain_states(&self) -> Result<GetChainStatesResponse, Self::Error> {
-        self.call::<GetChainStatesResponse>("getchainstates", &[]).await
+        self.call::<GetChainStatesResponse>("getchainstates", &[])
+            .await
     }
 
     /// Return information about all known tips in the block tree, including the main chain as well as orphaned branches.
@@ -2278,30 +2520,41 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         block_hash: Option<bitcoin::BlockHash>,
     ) -> Result<GetChainTxStatsResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = nblocks {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            nblocks.as_ref().map(|val| serde_json::json!(val)),
+            block_hash.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = block_hash {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetChainTxStatsResponse>("getchaintxstats", &rpc_params).await
+        self.call::<GetChainTxStatsResponse>("getchaintxstats", &rpc_params)
+            .await
     }
 
     /// Returns the number of connections to other nodes.
     async fn get_connection_count(&self) -> Result<GetConnectionCountResponse, Self::Error> {
-        self.call::<GetConnectionCountResponse>("getconnectioncount", &[]).await
+        self.call::<GetConnectionCountResponse>("getconnectioncount", &[])
+            .await
     }
 
     /// Returns an object containing various state info regarding deployments of consensus changes.
+    /// Consensus changes for which the new rules are enforced from genesis are not listed in "deployments".
     async fn get_deployment_info(
         &self,
         block_hash: Option<bitcoin::BlockHash>,
     ) -> Result<GetDeploymentInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = block_hash {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [block_hash.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetDeploymentInfoResponse>("getdeploymentinfo", &rpc_params).await
+        self.call::<GetDeploymentInfoResponse>("getdeploymentinfo", &rpc_params)
+            .await
     }
 
     /// Get spend and receive activity associated with a set of descriptors for a set of blocks. This command pairs well with the `relevant_blocks` output of `scanblocks()`.
@@ -2315,10 +2568,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(blockhashes));
         rpc_params.push(serde_json::json!(scanobjects));
-        if let Some(val) = include_mempool {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [include_mempool.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetDescriptorActivityResponse>("getdescriptoractivity", &rpc_params).await
+        self.call::<GetDescriptorActivityResponse>("getdescriptoractivity", &rpc_params)
+            .await
     }
 
     /// Analyses a descriptor.
@@ -2328,12 +2586,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetDescriptorInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(descriptor));
-        self.call::<GetDescriptorInfoResponse>("getdescriptorinfo", &rpc_params).await
+        self.call::<GetDescriptorInfoResponse>("getdescriptorinfo", &rpc_params)
+            .await
     }
 
     /// Returns the proof-of-work difficulty as a multiple of the minimum difficulty.
     async fn get_difficulty(&self) -> Result<GetDifficultyResponse, Self::Error> {
-        self.call::<GetDifficultyResponse>("getdifficulty", &[]).await
+        self.call::<GetDifficultyResponse>("getdifficulty", &[])
+            .await
     }
 
     /// List all BIP 32 HD keys in the wallet and which descriptors use them.
@@ -2342,10 +2602,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         options: Option<serde_json::Value>,
     ) -> Result<GetHdKeysResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetHdKeysResponse>("gethdkeys", &rpc_params).await
+        self.call::<GetHdKeysResponse>("gethdkeys", &rpc_params)
+            .await
     }
 
     /// Returns the status of one or all available indices currently running in the node.
@@ -2354,10 +2619,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         index_name: Option<String>,
     ) -> Result<GetIndexInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = index_name {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [index_name.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetIndexInfoResponse>("getindexinfo", &rpc_params).await
+        self.call::<GetIndexInfoResponse>("getindexinfo", &rpc_params)
+            .await
     }
 
     /// Returns an object containing information about memory usage.
@@ -2366,10 +2636,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         mode: Option<String>,
     ) -> Result<GetMemoryInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = mode {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [mode.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetMemoryInfoResponse>("getmemoryinfo", &rpc_params).await
+        self.call::<GetMemoryInfoResponse>("getmemoryinfo", &rpc_params)
+            .await
     }
 
     /// If txid is in the mempool, returns all in-mempool ancestors.
@@ -2380,10 +2655,26 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetMempoolAncestorsResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        if let Some(val) = verbose {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [verbose.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetMempoolAncestorsResponse>("getmempoolancestors", &rpc_params).await
+        self.call::<GetMempoolAncestorsResponse>("getmempoolancestors", &rpc_params)
+            .await
+    }
+
+    /// Returns mempool data for given cluster
+    async fn get_mempool_cluster(
+        &self,
+        txid: bitcoin::Txid,
+    ) -> Result<GetMempoolClusterResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        rpc_params.push(serde_json::json!(txid));
+        self.call::<GetMempoolClusterResponse>("getmempoolcluster", &rpc_params)
+            .await
     }
 
     /// If txid is in the mempool, returns all in-mempool descendants.
@@ -2394,10 +2685,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetMempoolDescendantsResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        if let Some(val) = verbose {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [verbose.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetMempoolDescendantsResponse>("getmempooldescendants", &rpc_params).await
+        self.call::<GetMempoolDescendantsResponse>("getmempooldescendants", &rpc_params)
+            .await
     }
 
     /// Returns mempool data for given transaction
@@ -2407,17 +2703,28 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetMempoolEntryResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        self.call::<GetMempoolEntryResponse>("getmempoolentry", &rpc_params).await
+        self.call::<GetMempoolEntryResponse>("getmempoolentry", &rpc_params)
+            .await
+    }
+
+    /// Returns the feerate diagram for the whole mempool.
+    async fn get_mempool_fee_rate_diagram(
+        &self,
+    ) -> Result<GetMempoolFeeRateDiagramResponse, Self::Error> {
+        self.call::<GetMempoolFeeRateDiagramResponse>("getmempoolfeeratediagram", &[])
+            .await
     }
 
     /// Returns details on the active state of the TX memory pool.
     async fn get_mempool_info(&self) -> Result<GetMempoolInfoResponse, Self::Error> {
-        self.call::<GetMempoolInfoResponse>("getmempoolinfo", &[]).await
+        self.call::<GetMempoolInfoResponse>("getmempoolinfo", &[])
+            .await
     }
 
     /// Returns a json object containing mining-related information.
     async fn get_mining_info(&self) -> Result<GetMiningInfoResponse, Self::Error> {
-        self.call::<GetMiningInfoResponse>("getmininginfo", &[]).await
+        self.call::<GetMiningInfoResponse>("getmininginfo", &[])
+            .await
     }
 
     /// Returns information about network traffic, including bytes in, bytes out,
@@ -2435,18 +2742,23 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         height: Option<i64>,
     ) -> Result<GetNetworkHashPsResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = nblocks {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            nblocks.as_ref().map(|val| serde_json::json!(val)),
+            height.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = height {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetNetworkHashPsResponse>("getnetworkhashps", &rpc_params).await
+        self.call::<GetNetworkHashPsResponse>("getnetworkhashps", &rpc_params)
+            .await
     }
 
     /// Returns an object containing various state info regarding P2P networking.
     async fn get_network_info(&self) -> Result<GetNetworkInfoResponse, Self::Error> {
-        self.call::<GetNetworkInfoResponse>("getnetworkinfo", &[]).await
+        self.call::<GetNetworkInfoResponse>("getnetworkinfo", &[])
+            .await
     }
 
     /// Returns a new Bitcoin address for receiving payments.
@@ -2458,13 +2770,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         address_type: Option<String>,
     ) -> Result<GetNewAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = label {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            label.as_ref().map(|val| serde_json::json!(val)),
+            address_type.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = address_type {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetNewAddressResponse>("getnewaddress", &rpc_params).await
+        self.call::<GetNewAddressResponse>("getnewaddress", &rpc_params)
+            .await
     }
 
     /// Return known addresses, after filtering for quality and recency.
@@ -2476,13 +2792,34 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         network: Option<String>,
     ) -> Result<GetNodeAddressesResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = count {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            count.as_ref().map(|val| serde_json::json!(val)),
+            network.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = network {
-            rpc_params.push(serde_json::json!(val));
+        self.call::<GetNodeAddressesResponse>("getnodeaddresses", &rpc_params)
+            .await
+    }
+
+    /// Returns an OpenRPC document for currently available RPC commands.
+    async fn get_open_rpc_info(
+        &self,
+        show_hidden: Option<bool>,
+    ) -> Result<GetOpenRpcInfoResponse, Self::Error> {
+        let mut rpc_params = vec![];
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [show_hidden.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetNodeAddressesResponse>("getnodeaddresses", &rpc_params).await
+        self.call::<GetOpenRpcInfoResponse>("getopenrpcinfo", &rpc_params)
+            .await
     }
 
     /// Shows transactions in the tx orphanage.
@@ -2492,10 +2829,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         verbosity: Option<i64>,
     ) -> Result<GetOrphanTxsResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = verbosity {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [verbosity.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetOrphanTxsResponse>("getorphantxs", &rpc_params).await
+        self.call::<GetOrphanTxsResponse>("getorphantxs", &rpc_params)
+            .await
     }
 
     /// Returns data about each connected network peer as a json array of objects.
@@ -2507,13 +2849,25 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn get_prioritised_transactions(
         &self,
     ) -> Result<GetPrioritisedTransactionsResponse, Self::Error> {
-        self.call::<GetPrioritisedTransactionsResponse>("getprioritisedtransactions", &[]).await
+        self.call::<GetPrioritisedTransactionsResponse>("getprioritisedtransactions", &[])
+            .await
+    }
+
+    /// Returns information about transactions tracked for private broadcast.
+    /// Transactions that have reached the send-attempt limit remain in the result with attempts_remaining=0.
+    /// This method is only available when running with -privatebroadcast enabled.
+    async fn get_privatebroadcast_info(
+        &self,
+    ) -> Result<GetPrivateBroadcastInfoResponse, Self::Error> {
+        self.call::<GetPrivateBroadcastInfoResponse>("getprivatebroadcastinfo", &[])
+            .await
     }
 
     /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Returns information on all address manager entries for the new and tried tables.
     async fn get_raw_addrman(&self) -> Result<GetRawAddrManResponse, Self::Error> {
-        self.call::<GetRawAddrManResponse>("getrawaddrman", &[]).await
+        self.call::<GetRawAddrManResponse>("getrawaddrman", &[])
+            .await
     }
 
     /// Returns a new Bitcoin address, for receiving change.
@@ -2523,10 +2877,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         address_type: Option<String>,
     ) -> Result<GetRawChangeAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = address_type {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [address_type.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetRawChangeAddressResponse>("getrawchangeaddress", &rpc_params).await
+        self.call::<GetRawChangeAddressResponse>("getrawchangeaddress", &rpc_params)
+            .await
     }
 
     /// Returns all transaction ids in memory pool as a json array of string transaction ids.
@@ -2537,13 +2896,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         mempool_sequence: Option<bool>,
     ) -> Result<GetRawMempoolResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = verbose {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            verbose.as_ref().map(|val| serde_json::json!(val)),
+            mempool_sequence.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = mempool_sequence {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetRawMempoolResponse>("getrawmempool", &rpc_params).await
+        self.call::<GetRawMempoolResponse>("getrawmempool", &rpc_params)
+            .await
     }
 
     /// By default, this call only returns a transaction if it is in the mempool. If -txindex is enabled
@@ -2562,13 +2925,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        if let Some(val) = verbosity {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            verbosity.as_ref().map(|val| serde_json::json!(val)),
+            block_hash.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = block_hash {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetRawTransactionResponse>("getrawtransaction", &rpc_params).await
+        self.call::<GetRawTransactionResponse>("getrawtransaction", &rpc_params)
+            .await
     }
 
     /// Returns the total amount received by the given address in transactions with at least minconf confirmations.
@@ -2580,13 +2947,19 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetReceivedByAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
-        if let Some(val) = min_conf {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            min_conf.as_ref().map(|val| serde_json::json!(val)),
+            include_immature_coinbase
+                .as_ref()
+                .map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = include_immature_coinbase {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetReceivedByAddressResponse>("getreceivedbyaddress", &rpc_params).await
+        self.call::<GetReceivedByAddressResponse>("getreceivedbyaddress", &rpc_params)
+            .await
     }
 
     /// Returns the total amount received by addresses with &lt;label&gt; in transactions with at least \[minconf\] confirmations.
@@ -2598,13 +2971,19 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetReceivedByLabelResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(label));
-        if let Some(val) = min_conf {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            min_conf.as_ref().map(|val| serde_json::json!(val)),
+            include_immature_coinbase
+                .as_ref()
+                .map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = include_immature_coinbase {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetReceivedByLabelResponse>("getreceivedbylabel", &rpc_params).await
+        self.call::<GetReceivedByLabelResponse>("getreceivedbylabel", &rpc_params)
+            .await
     }
 
     /// Returns details of the RPC server.
@@ -2621,13 +3000,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        if let Some(val) = include_watchonly {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            include_watchonly.as_ref().map(|val| serde_json::json!(val)),
+            verbose.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = verbose {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetTransactionResponse>("gettransaction", &rpc_params).await
+        self.call::<GetTransactionResponse>("gettransaction", &rpc_params)
+            .await
     }
 
     /// Returns details about an unspent transaction output.
@@ -2636,14 +3019,19 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         txid: bitcoin::Txid,
         n: i64,
         include_mempool: Option<bool>,
-    ) -> Result<GetTxOutResponse, Self::Error> {
+    ) -> Result<Option<GetTxOutResponse>, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
         rpc_params.push(serde_json::json!(n));
-        if let Some(val) = include_mempool {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [include_mempool.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetTxOutResponse>("gettxout", &rpc_params).await
+        self.call::<Option<GetTxOutResponse>>("gettxout", &rpc_params)
+            .await
     }
 
     /// Returns a hex-encoded proof that "txid" was included in a block.
@@ -2658,10 +3046,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetTxOutProofResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txids));
-        if let Some(val) = block_hash {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [block_hash.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetTxOutProofResponse>("gettxoutproof", &rpc_params).await
+        self.call::<GetTxOutProofResponse>("gettxoutproof", &rpc_params)
+            .await
     }
 
     /// Returns statistics about the unspent transaction output set.
@@ -2669,20 +3062,22 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn get_txout_set_info(
         &self,
         hash_type: Option<String>,
-        hash_or_height: Option<i64>,
+        hash_or_height: Option<HashOrHeight>,
         use_index: Option<bool>,
     ) -> Result<GetTxOutSetInfoResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = hash_type {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 3] = [
+            hash_type.as_ref().map(|val| serde_json::json!(val)),
+            hash_or_height.as_ref().map(|val| serde_json::json!(val)),
+            use_index.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = hash_or_height {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = use_index {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<GetTxOutSetInfoResponse>("gettxoutsetinfo", &rpc_params).await
+        self.call::<GetTxOutSetInfoResponse>("gettxoutsetinfo", &rpc_params)
+            .await
     }
 
     /// Scans the mempool (and the txospenderindex, if available) to find transactions spending any of the given outputs
@@ -2693,22 +3088,38 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<GetTxSpendingPrevOutResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(outputs));
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<GetTxSpendingPrevOutResponse>("gettxspendingprevout", &rpc_params).await
+        self.call::<GetTxSpendingPrevOutResponse>("gettxspendingprevout", &rpc_params)
+            .await
     }
 
     /// Returns an object containing various wallet state info.
     async fn get_wallet_info(&self) -> Result<GetWalletInfoResponse, Self::Error> {
-        self.call::<GetWalletInfoResponse>("getwalletinfo", &[]).await
+        self.call::<GetWalletInfoResponse>("getwalletinfo", &[])
+            .await
+    }
+
+    /// Returns information about the active ZeroMQ notifications.
+    async fn get_zmq_notifications(&self) -> Result<GetZmqNotificationsResponse, Self::Error> {
+        self.call::<GetZmqNotificationsResponse>("getzmqnotifications", &[])
+            .await
     }
 
     /// List all commands, or get help for a specified command.
     async fn help(&self, command: Option<String>) -> Result<HelpResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = command {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [command.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<HelpResponse>("help", &rpc_params).await
     }
@@ -2724,7 +3135,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<ImportDescriptorsResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(requests));
-        self.call::<ImportDescriptorsResponse>("importdescriptors", &rpc_params).await
+        self.call::<ImportDescriptorsResponse>("importdescriptors", &rpc_params)
+            .await
     }
 
     /// Import a mempool.dat file and attempt to add its contents to the mempool.
@@ -2736,10 +3148,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<ImportMempoolResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(file_path));
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<ImportMempoolResponse>("importmempool", &rpc_params).await
+        self.call::<ImportMempoolResponse>("importmempool", &rpc_params)
+            .await
     }
 
     /// Imports funds without rescan. Corresponding address or script must previously be included in wallet. Aimed towards pruned wallets. The end-user is responsible to import additional transactions that subsequently spend the imported outputs or rescan after the point in the blockchain the transaction is included.
@@ -2751,7 +3168,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(rawtransaction));
         rpc_params.push(serde_json::json!(txoutproof));
-        self.call::<ImportPrunedFundsResponse>("importprunedfunds", &rpc_params).await
+        self.call::<ImportPrunedFundsResponse>("importprunedfunds", &rpc_params)
+            .await
     }
 
     /// Permanently marks a block as invalid, as if it violated a consensus rule.
@@ -2761,10 +3179,11 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<InvalidateBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
-        self.call::<InvalidateBlockResponse>("invalidateblock", &rpc_params).await
+        self.call::<InvalidateBlockResponse>("invalidateblock", &rpc_params)
+            .await
     }
 
-    /// Joins multiple distinct PSBTs with different inputs and outputs into one PSBT with inputs and outputs from all of the PSBTs
+    /// Joins multiple distinct version 0 PSBTs with different inputs and outputs into one version 0 PSBT with inputs and outputs from all of the PSBTs
     /// No input in any of the PSBTs can be in more than one of the PSBTs.
     async fn join_psbts(
         &self,
@@ -2772,7 +3191,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<JoinPsbtsResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txs));
-        self.call::<JoinPsbtsResponse>("joinpsbts", &rpc_params).await
+        self.call::<JoinPsbtsResponse>("joinpsbts", &rpc_params)
+            .await
     }
 
     /// Refills each descriptor keypool in the wallet up to the specified number of new keys.
@@ -2780,20 +3200,26 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
     async fn keypool_refill(
         &self,
-        newsize: Option<i64>,
+        new_size: Option<i64>,
     ) -> Result<KeypoolRefillResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = newsize {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [new_size.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<KeypoolRefillResponse>("keypoolrefill", &rpc_params).await
+        self.call::<KeypoolRefillResponse>("keypoolrefill", &rpc_params)
+            .await
     }
 
     /// Lists groups of addresses which have had their common ownership
     /// made public by common use as inputs or as the resulting change
     /// in past transactions
     async fn list_address_groupings(&self) -> Result<ListAddressGroupingsResponse, Self::Error> {
-        self.call::<ListAddressGroupingsResponse>("listaddressgroupings", &[]).await
+        self.call::<ListAddressGroupingsResponse>("listaddressgroupings", &[])
+            .await
     }
 
     /// List all manually banned IPs/Subnets.
@@ -2807,10 +3233,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         private: Option<bool>,
     ) -> Result<ListDescriptorsResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = private {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [private.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<ListDescriptorsResponse>("listdescriptors", &rpc_params).await
+        self.call::<ListDescriptorsResponse>("listdescriptors", &rpc_params)
+            .await
     }
 
     /// Returns the list of all labels, or labels that are assigned to addresses with a specific purpose.
@@ -2819,16 +3250,22 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         purpose: Option<String>,
     ) -> Result<ListLabelsResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = purpose {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [purpose.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<ListLabelsResponse>("listlabels", &rpc_params).await
+        self.call::<ListLabelsResponse>("listlabels", &rpc_params)
+            .await
     }
 
     /// Returns list of temporarily unspendable outputs.
     /// See the lockunspent call to lock and unlock transactions for spending.
     async fn list_lock_unspent(&self) -> Result<ListLockUnspentResponse, Self::Error> {
-        self.call::<ListLockUnspentResponse>("listlockunspent", &[]).await
+        self.call::<ListLockUnspentResponse>("listlockunspent", &[])
+            .await
     }
 
     /// List balances by receiving address.
@@ -2841,22 +3278,22 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         include_immature_coinbase: Option<bool>,
     ) -> Result<ListReceivedByAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = min_conf {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 5] = [
+            min_conf.as_ref().map(|val| serde_json::json!(val)),
+            include_empty.as_ref().map(|val| serde_json::json!(val)),
+            include_watchonly.as_ref().map(|val| serde_json::json!(val)),
+            address_filter.as_ref().map(|val| serde_json::json!(val)),
+            include_immature_coinbase
+                .as_ref()
+                .map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = include_empty {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_watchonly {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = address_filter {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_immature_coinbase {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<ListReceivedByAddressResponse>("listreceivedbyaddress", &rpc_params).await
+        self.call::<ListReceivedByAddressResponse>("listreceivedbyaddress", &rpc_params)
+            .await
     }
 
     /// List received transactions by label.
@@ -2868,19 +3305,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         include_immature_coinbase: Option<bool>,
     ) -> Result<ListReceivedByLabelResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = min_conf {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 4] = [
+            min_conf.as_ref().map(|val| serde_json::json!(val)),
+            include_empty.as_ref().map(|val| serde_json::json!(val)),
+            include_watchonly.as_ref().map(|val| serde_json::json!(val)),
+            include_immature_coinbase
+                .as_ref()
+                .map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = include_empty {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_watchonly {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_immature_coinbase {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<ListReceivedByLabelResponse>("listreceivedbylabel", &rpc_params).await
+        self.call::<ListReceivedByLabelResponse>("listreceivedbylabel", &rpc_params)
+            .await
     }
 
     /// Get all transactions in blocks since block \[blockhash\], or all transactions if omitted.
@@ -2896,25 +3335,23 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         label: Option<String>,
     ) -> Result<ListSinceBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = block_hash {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 6] = [
+            block_hash.as_ref().map(|val| serde_json::json!(val)),
+            target_confirmations
+                .as_ref()
+                .map(|val| serde_json::json!(val)),
+            include_watchonly.as_ref().map(|val| serde_json::json!(val)),
+            include_removed.as_ref().map(|val| serde_json::json!(val)),
+            include_change.as_ref().map(|val| serde_json::json!(val)),
+            label.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = target_confirmations {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_watchonly {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_removed {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_change {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = label {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<ListSinceBlockResponse>("listsinceblock", &rpc_params).await
+        self.call::<ListSinceBlockResponse>("listsinceblock", &rpc_params)
+            .await
     }
 
     /// If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
@@ -2931,19 +3368,19 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         include_watchonly: Option<bool>,
     ) -> Result<ListTransactionsResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = label {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 4] = [
+            label.as_ref().map(|val| serde_json::json!(val)),
+            count.as_ref().map(|val| serde_json::json!(val)),
+            skip.as_ref().map(|val| serde_json::json!(val)),
+            include_watchonly.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = count {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = skip {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_watchonly {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<ListTransactionsResponse>("listtransactions", &rpc_params).await
+        self.call::<ListTransactionsResponse>("listtransactions", &rpc_params)
+            .await
     }
 
     /// Returns array of unspent transaction outputs
@@ -2958,27 +3395,26 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         query_options: Option<serde_json::Value>,
     ) -> Result<ListUnspentResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = min_conf {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 5] = [
+            min_conf.as_ref().map(|val| serde_json::json!(val)),
+            max_conf.as_ref().map(|val| serde_json::json!(val)),
+            addresses.as_ref().map(|val| serde_json::json!(val)),
+            include_unsafe.as_ref().map(|val| serde_json::json!(val)),
+            query_options.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = max_conf {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = addresses {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = include_unsafe {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = query_options {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<ListUnspentResponse>("listunspent", &rpc_params).await
+        self.call::<ListUnspentResponse>("listunspent", &rpc_params)
+            .await
     }
 
     /// Returns a list of wallets in the wallet directory.
     async fn list_wallet_dir(&self) -> Result<ListWalletDirResponse, Self::Error> {
-        self.call::<ListWalletDirResponse>("listwalletdir", &[]).await
+        self.call::<ListWalletDirResponse>("listwalletdir", &[])
+            .await
     }
 
     /// Returns a list of currently loaded wallets.
@@ -2994,7 +3430,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn load_txout_set(&self, path: String) -> Result<LoadTxOutSetResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(path));
-        self.call::<LoadTxOutSetResponse>("loadtxoutset", &rpc_params).await
+        self.call::<LoadTxOutSetResponse>("loadtxoutset", &rpc_params)
+            .await
     }
 
     /// Loads a wallet from a wallet file or directory.
@@ -3007,10 +3444,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<LoadWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(filename));
-        if let Some(val) = load_on_startup {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [load_on_startup.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<LoadWalletResponse>("loadwallet", &rpc_params).await
+        self.call::<LoadWalletResponse>("loadwallet", &rpc_params)
+            .await
     }
 
     /// Updates list of temporarily unspendable outputs.
@@ -3030,13 +3472,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<LockUnspentResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(unlock));
-        if let Some(val) = transactions {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            transactions.as_ref().map(|val| serde_json::json!(val)),
+            persistent.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = persistent {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<LockUnspentResponse>("lockunspent", &rpc_params).await
+        self.call::<LockUnspentResponse>("lockunspent", &rpc_params)
+            .await
     }
 
     /// Gets and sets the logging configuration.
@@ -3044,7 +3490,7 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// When called with arguments, adds or removes categories from debug logging and return the lists above.
     /// The arguments are evaluated in order "include", "exclude".
     /// If an item is both included and excluded, it will thus end up being excluded.
-    /// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, libevent, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
+    /// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
     /// In addition, the following are available as category names with special meanings:
     /// - "all",  "1" : represent all logging categories.
     async fn logging(
@@ -3053,11 +3499,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         exclude: Option<Vec<serde_json::Value>>,
     ) -> Result<LoggingResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = include {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = exclude {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            include.as_ref().map(|val| serde_json::json!(val)),
+            exclude.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<LoggingResponse>("logging", &rpc_params).await
     }
@@ -3073,22 +3522,29 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         &self,
         wallet_name: Option<String>,
         passphrase: Option<String>,
+        load_wallet: Option<bool>,
     ) -> Result<MigrateWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = wallet_name {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 3] = [
+            wallet_name.as_ref().map(|val| serde_json::json!(val)),
+            passphrase.as_ref().map(|val| serde_json::json!(val)),
+            load_wallet.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = passphrase {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<MigrateWalletResponse>("migratewallet", &rpc_params).await
+        self.call::<MigrateWalletResponse>("migratewallet", &rpc_params)
+            .await
     }
 
     /// Bump the scheduler into the future (-regtest only)
     async fn mock_scheduler(&self, delta_time: i64) -> Result<MockSchedulerResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(delta_time));
-        self.call::<MockSchedulerResponse>("mockscheduler", &rpc_params).await
+        self.call::<MockSchedulerResponse>("mockscheduler", &rpc_params)
+            .await
     }
 
     /// Requests that a ping be sent to all other nodes, to measure ping time.
@@ -3107,7 +3563,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<PreciousBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
-        self.call::<PreciousBlockResponse>("preciousblock", &rpc_params).await
+        self.call::<PreciousBlockResponse>("preciousblock", &rpc_params)
+            .await
     }
 
     /// Accepts the transaction into mined blocks at a higher (or lower) priority
@@ -3119,11 +3576,16 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<PrioritiseTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        if let Some(val) = dummy {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [dummy.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         rpc_params.push(serde_json::json!(fee_delta));
-        self.call::<PrioritiseTransactionResponse>("prioritisetransaction", &rpc_params).await
+        self.call::<PrioritiseTransactionResponse>("prioritisetransaction", &rpc_params)
+            .await
     }
 
     /// Attempts to delete block and undo data up to a specified height or timestamp, if eligible for pruning.
@@ -3131,7 +3593,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn prune_blockchain(&self, height: i64) -> Result<PruneBlockchainResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(height));
-        self.call::<PruneBlockchainResponse>("pruneblockchain", &rpc_params).await
+        self.call::<PruneBlockchainResponse>("pruneblockchain", &rpc_params)
+            .await
     }
 
     /// Bumps the fee of a transaction T, replacing it with a new transaction B.
@@ -3154,10 +3617,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<PsbtBumpFeeResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<PsbtBumpFeeResponse>("psbtbumpfee", &rpc_params).await
+        self.call::<PsbtBumpFeeResponse>("psbtbumpfee", &rpc_params)
+            .await
     }
 
     /// Removes invalidity status of a block, its ancestors and its descendants, reconsider them for activation.
@@ -3168,9 +3636,11 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<ReconsiderBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
-        self.call::<ReconsiderBlockResponse>("reconsiderblock", &rpc_params).await
+        self.call::<ReconsiderBlockResponse>("reconsiderblock", &rpc_params)
+            .await
     }
 
+    /// (DEPRECATED) This feature will be removed in the next major release. Start bitcoind with the `-deprecatedrpc=removeprunedfunds` option in order to use this.
     /// Deletes the specified transaction from the wallet. Meant for use with pruned wallets and as a companion to importprunedfunds. This will affect wallet balances.
     async fn remove_pruned_funds(
         &self,
@@ -3178,7 +3648,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<RemovePrunedFundsResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(txid));
-        self.call::<RemovePrunedFundsResponse>("removeprunedfunds", &rpc_params).await
+        self.call::<RemovePrunedFundsResponse>("removeprunedfunds", &rpc_params)
+            .await
     }
 
     /// Rescan the local blockchain for wallet related transactions.
@@ -3191,13 +3662,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         stop_height: Option<i64>,
     ) -> Result<RescanBlockchainResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = start_height {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            start_height.as_ref().map(|val| serde_json::json!(val)),
+            stop_height.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = stop_height {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<RescanBlockchainResponse>("rescanblockchain", &rpc_params).await
+        self.call::<RescanBlockchainResponse>("rescanblockchain", &rpc_params)
+            .await
     }
 
     /// Restores and loads a wallet from backup.
@@ -3212,10 +3687,20 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(wallet_name));
         rpc_params.push(serde_json::json!(backup_file));
-        if let Some(val) = load_on_startup {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [load_on_startup.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<RestoreWalletResponse>("restorewallet", &rpc_params).await
+        self.call::<RestoreWalletResponse>("restorewallet", &rpc_params)
+            .await
+    }
+
+    /// Returns an OpenRPC schema as a description of this service.
+    async fn rpc_discover(&self) -> Result<RpcDiscoverResponse, Self::Error> {
+        self.call::<RpcDiscoverResponse>("rpc.discover", &[]).await
     }
 
     /// Dumps the mempool to disk. It will fail until the previous dump is fully loaded.
@@ -3236,22 +3721,20 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<ScanBlocksResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(action));
-        if let Some(val) = scanobjects {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 5] = [
+            scanobjects.as_ref().map(|val| serde_json::json!(val)),
+            start_height.as_ref().map(|val| serde_json::json!(val)),
+            stop_height.as_ref().map(|val| serde_json::json!(val)),
+            filtertype.as_ref().map(|val| serde_json::json!(val)),
+            options.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = start_height {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = stop_height {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = filtertype {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<ScanBlocksResponse>("scanblocks", &rpc_params).await
+        self.call::<ScanBlocksResponse>("scanblocks", &rpc_params)
+            .await
     }
 
     /// Scans the unspent transaction output set for entries that match certain output descriptors.
@@ -3277,17 +3760,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<ScanTxOutSetResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(action));
-        if let Some(val) = scanobjects {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [scanobjects.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<ScanTxOutSetResponse>("scantxoutset", &rpc_params).await
+        self.call::<ScanTxOutSetResponse>("scantxoutset", &rpc_params)
+            .await
     }
 
-    /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Send a transaction.
     async fn send(
         &self,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
         fee_rate: Option<FeeRate>,
@@ -3296,25 +3783,23 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SendResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(outputs));
-        if let Some(val) = conf_target {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = estimate_mode {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
-        }
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = version {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 5] = [
+            conf_target.as_ref().map(|val| serde_json::json!(val)),
+            estimate_mode.as_ref().map(|val| serde_json::json!(val)),
+            fee_rate
+                .as_ref()
+                .map(|val| serde_json::json!(val.to_sat_per_vb_floor())),
+            options.as_ref().map(|val| serde_json::json!(val)),
+            version.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<SendResponse>("send", &rpc_params).await
     }
 
-    /// EXPERIMENTAL warning: this call may be changed in future releases.
     /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
     /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
     /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
@@ -3328,17 +3813,18 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SendAllResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(recipients));
-        if let Some(val) = conf_target {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = estimate_mode {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
-        }
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 4] = [
+            conf_target.as_ref().map(|val| serde_json::json!(val)),
+            estimate_mode.as_ref().map(|val| serde_json::json!(val)),
+            fee_rate
+                .as_ref()
+                .map(|val| serde_json::json!(val.to_sat_per_vb_floor())),
+            options.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<SendAllResponse>("sendall", &rpc_params).await
     }
@@ -3348,13 +3834,10 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn send_many(
         &self,
         dummy: Option<String>,
-        amounts: std::collections::HashMap<
-            bitcoin::Address<bitcoin::address::NetworkUnchecked>,
-            bitcoin::Amount,
-        >,
+        amounts: serde_json::Value,
         min_conf: Option<i64>,
         comment: Option<String>,
-        subtractfeefrom: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
+        subtract_fee_from: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
         replaceable: Option<bool>,
         conf_target: Option<i64>,
         estimate_mode: Option<String>,
@@ -3362,36 +3845,30 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         verbose: Option<bool>,
     ) -> Result<SendManyResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = dummy {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [dummy.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        rpc_params.push(
-            serde_json::to_value(SendmanyAmountsRef(&amounts))
-                .map_err(|e| TransportError::Json(e.to_string()))?,
-        );
-        if let Some(val) = min_conf {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = comment {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = subtractfeefrom {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = replaceable {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = conf_target {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = estimate_mode {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
-        }
-        if let Some(val) = verbose {
-            rpc_params.push(serde_json::json!(val));
+        rpc_params.push(serde_json::json!(amounts));
+        let optional_params: [Option<serde_json::Value>; 8] = [
+            min_conf.as_ref().map(|val| serde_json::json!(val)),
+            comment.as_ref().map(|val| serde_json::json!(val)),
+            subtract_fee_from.as_ref().map(|val| serde_json::json!(val)),
+            replaceable.as_ref().map(|val| serde_json::json!(val)),
+            conf_target.as_ref().map(|val| serde_json::json!(val)),
+            estimate_mode.as_ref().map(|val| serde_json::json!(val)),
+            fee_rate
+                .as_ref()
+                .map(|val| serde_json::json!(val.to_sat_per_vb_floor())),
+            verbose.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<SendManyResponse>("sendmany", &rpc_params).await
     }
@@ -3409,7 +3886,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         rpc_params.push(serde_json::json!(peer_id));
         rpc_params.push(serde_json::json!(msg_type));
         rpc_params.push(serde_json::json!(msg));
-        self.call::<SendMsgToPeerResponse>("sendmsgtopeer", &rpc_params).await
+        self.call::<SendMsgToPeerResponse>("sendmsgtopeer", &rpc_params)
+            .await
     }
 
     /// Submit a raw transaction (serialized, hex-encoded) to the network.
@@ -3422,6 +3900,9 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
     /// via the Tor network. This conceals the transaction's origin. The transaction
     /// will only enter the local mempool when it is received back from the network.
+    /// The private broadcast queue is bounded: when it is full, this RPC fails and
+    /// the transaction is not scheduled, until an existing one completes or is
+    /// aborted. Use getprivatebroadcastinfo to inspect the queue and abortprivatebroadcast to abort.
     /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
     /// Related RPCs: createrawtransaction, signrawtransactionwithkey
     async fn send_raw_transaction(
@@ -3432,13 +3913,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SendRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hex_string));
-        if let Some(val) = max_fee_rate {
-            rpc_params.push(serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            max_fee_rate
+                .as_ref()
+                .map(|val| serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0)),
+            max_burn_amount
+                .as_ref()
+                .map(|val| serde_json::json!(val.to_btc())),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = max_burn_amount {
-            rpc_params.push(serde_json::json!(val.to_btc()));
-        }
-        self.call::<SendRawTransactionResponse>("sendrawtransaction", &rpc_params).await
+        self.call::<SendRawTransactionResponse>("sendrawtransaction", &rpc_params)
+            .await
     }
 
     /// Send an amount to a given address.
@@ -3460,34 +3949,28 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
         rpc_params.push(serde_json::json!(amount.to_btc()));
-        if let Some(val) = comment {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 9] = [
+            comment.as_ref().map(|val| serde_json::json!(val)),
+            comment_to.as_ref().map(|val| serde_json::json!(val)),
+            subtract_fee_from_amount
+                .as_ref()
+                .map(|val| serde_json::json!(val)),
+            replaceable.as_ref().map(|val| serde_json::json!(val)),
+            conf_target.as_ref().map(|val| serde_json::json!(val)),
+            estimate_mode.as_ref().map(|val| serde_json::json!(val)),
+            avoid_reuse.as_ref().map(|val| serde_json::json!(val)),
+            fee_rate
+                .as_ref()
+                .map(|val| serde_json::json!(val.to_sat_per_vb_floor())),
+            verbose.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = comment_to {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = subtract_fee_from_amount {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = replaceable {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = conf_target {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = estimate_mode {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = avoid_reuse {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = fee_rate {
-            rpc_params.push(serde_json::json!(val.to_sat_per_vb_floor()));
-        }
-        if let Some(val) = verbose {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<SendToAddressResponse>("sendtoaddress", &rpc_params).await
+        self.call::<SendToAddressResponse>("sendtoaddress", &rpc_params)
+            .await
     }
 
     /// Attempts to add or remove an IP/Subnet from the banned list.
@@ -3501,11 +3984,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(subnet));
         rpc_params.push(serde_json::json!(command));
-        if let Some(val) = ban_time {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = absolute {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            ban_time.as_ref().map(|val| serde_json::json!(val)),
+            absolute.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<SetBanResponse>("setban", &rpc_params).await
     }
@@ -3526,7 +4012,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn set_mock_time(&self, timestamp: i64) -> Result<SetMockTimeResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(timestamp));
-        self.call::<SetMockTimeResponse>("setmocktime", &rpc_params).await
+        self.call::<SetMockTimeResponse>("setmocktime", &rpc_params)
+            .await
     }
 
     /// Disable/enable all p2p network activity.
@@ -3536,7 +4023,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SetNetworkActiveResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(state));
-        self.call::<SetNetworkActiveResponse>("setnetworkactive", &rpc_params).await
+        self.call::<SetNetworkActiveResponse>("setnetworkactive", &rpc_params)
+            .await
     }
 
     /// Change the state of the given wallet flag for a wallet.
@@ -3547,10 +4035,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SetWalletFlagResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(flag));
-        if let Some(val) = value {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [value.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<SetWalletFlagResponse>("setwalletflag", &rpc_params).await
+        self.call::<SetWalletFlagResponse>("setwalletflag", &rpc_params)
+            .await
     }
 
     /// Sign a message with the private key of an address
@@ -3565,19 +4058,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
         rpc_params.push(serde_json::json!(message));
-        self.call::<SignMessageResponse>("signmessage", &rpc_params).await
+        self.call::<SignMessageResponse>("signmessage", &rpc_params)
+            .await
     }
 
     /// Sign a message with the private key of an address
     async fn sign_message_with_priv_key(
         &self,
-        privkey: String,
+        priv_key: String,
         message: String,
     ) -> Result<SignMessageWithPrivKeyResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(privkey));
+        rpc_params.push(serde_json::json!(priv_key));
         rpc_params.push(serde_json::json!(message));
-        self.call::<SignMessageWithPrivKeyResponse>("signmessagewithprivkey", &rpc_params).await
+        self.call::<SignMessageWithPrivKeyResponse>("signmessagewithprivkey", &rpc_params)
+            .await
     }
 
     /// Sign inputs for raw transaction (serialized, hex-encoded).
@@ -3595,11 +4090,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hex_string));
         rpc_params.push(serde_json::json!(priv_keys));
-        if let Some(val) = prev_txs {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = sighash_type {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            prev_txs.as_ref().map(|val| serde_json::json!(val)),
+            sighash_type.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<SignRawTransactionWithKeyResponse>("signrawtransactionwithkey", &rpc_params)
             .await
@@ -3619,11 +4117,14 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SignRawTransactionWithWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hex_string));
-        if let Some(val) = prev_txs {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = sighash_type {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            prev_txs.as_ref().map(|val| serde_json::json!(val)),
+            sighash_type.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<SignRawTransactionWithWalletResponse>(
             "signrawtransactionwithwallet",
@@ -3635,24 +4136,31 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// Calculate the balance change resulting in the signing and broadcasting of the given transaction(s).
     async fn simulate_raw_transaction(
         &self,
-        rawtxs: Option<Vec<serde_json::Value>>,
+        raw_txs: Vec<serde_json::Value>,
         options: Option<serde_json::Value>,
     ) -> Result<SimulateRawTransactionResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = rawtxs {
-            rpc_params.push(serde_json::json!(val));
+        rpc_params.push(serde_json::json!(raw_txs));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [options.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<SimulateRawTransactionResponse>("simulaterawtransaction", &rpc_params).await
+        self.call::<SimulateRawTransactionResponse>("simulaterawtransaction", &rpc_params)
+            .await
     }
 
     /// Request a graceful shutdown of Bitcoin Core.
     async fn stop(&self, wait: Option<i64>) -> Result<StopResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = wait {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [wait.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         self.call::<StopResponse>("stop", &rpc_params).await
     }
@@ -3666,10 +4174,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SubmitBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hexdata));
-        if let Some(val) = dummy {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [dummy.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<SubmitBlockResponse>("submitblock", &rpc_params).await
+        self.call::<SubmitBlockResponse>("submitblock", &rpc_params)
+            .await
     }
 
     /// Decode the given hexdata as a header and submit it as a candidate chain tip if valid.
@@ -3677,7 +4190,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn submit_header(&self, hexdata: String) -> Result<SubmitHeaderResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(hexdata));
-        self.call::<SubmitHeaderResponse>("submitheader", &rpc_params).await
+        self.call::<SubmitHeaderResponse>("submitheader", &rpc_params)
+            .await
     }
 
     /// Submit a package of raw transactions (serialized, hex-encoded) to local node.
@@ -3692,13 +4206,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<SubmitPackageResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(package));
-        if let Some(val) = max_fee_rate {
-            rpc_params.push(serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            max_fee_rate
+                .as_ref()
+                .map(|val| serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0)),
+            max_burn_amount
+                .as_ref()
+                .map(|val| serde_json::json!(val.to_btc())),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = max_burn_amount {
-            rpc_params.push(serde_json::json!(val.to_btc()));
-        }
-        self.call::<SubmitPackageResponse>("submitpackage", &rpc_params).await
+        self.call::<SubmitPackageResponse>("submitpackage", &rpc_params)
+            .await
     }
 
     /// Waits for the validation interface queue to catch up on everything that was there when we entered this function.
@@ -3720,15 +4242,21 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     /// See sendrawtransaction call.
     async fn test_mempool_accept(
         &self,
-        rawtxs: Vec<serde_json::Value>,
+        raw_txs: Vec<serde_json::Value>,
         max_fee_rate: Option<FeeRate>,
     ) -> Result<TestMempoolAcceptResponse, Self::Error> {
         let mut rpc_params = vec![];
-        rpc_params.push(serde_json::json!(rawtxs));
-        if let Some(val) = max_fee_rate {
-            rpc_params.push(serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0));
+        rpc_params.push(serde_json::json!(raw_txs));
+        let optional_params: [Option<serde_json::Value>; 1] = [max_fee_rate
+            .as_ref()
+            .map(|val| serde_json::json!((val.to_sat_per_kvb_floor() as f64) / 100_000_000.0))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<TestMempoolAcceptResponse>("testmempoolaccept", &rpc_params).await
+        self.call::<TestMempoolAcceptResponse>("testmempoolaccept", &rpc_params)
+            .await
     }
 
     /// Unloads the wallet referenced by the request endpoint or the wallet_name argument.
@@ -3739,13 +4267,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         load_on_startup: Option<bool>,
     ) -> Result<UnloadWalletResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = wallet_name {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            wallet_name.as_ref().map(|val| serde_json::json!(val)),
+            load_on_startup.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = load_on_startup {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<UnloadWalletResponse>("unloadwallet", &rpc_params).await
+        self.call::<UnloadWalletResponse>("unloadwallet", &rpc_params)
+            .await
     }
 
     /// Returns the total uptime of the server.
@@ -3761,10 +4293,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<UtxoUpdatePsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(psbt));
-        if let Some(val) = descriptors {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [descriptors.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<UtxoUpdatePsbtResponse>("utxoupdatepsbt", &rpc_params).await
+        self.call::<UtxoUpdatePsbtResponse>("utxoupdatepsbt", &rpc_params)
+            .await
     }
 
     /// Return information about the given bitcoin address.
@@ -3774,7 +4311,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<ValidateAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
-        self.call::<ValidateAddressResponse>("validateaddress", &rpc_params).await
+        self.call::<ValidateAddressResponse>("validateaddress", &rpc_params)
+            .await
     }
 
     /// Verifies blockchain database.
@@ -3784,13 +4322,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         nblocks: Option<i64>,
     ) -> Result<VerifyChainResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = checklevel {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            checklevel.as_ref().map(|val| serde_json::json!(val)),
+            nblocks.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = nblocks {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<VerifyChainResponse>("verifychain", &rpc_params).await
+        self.call::<VerifyChainResponse>("verifychain", &rpc_params)
+            .await
     }
 
     /// Verify a signed message.
@@ -3804,7 +4346,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         rpc_params.push(serde_json::json!(address));
         rpc_params.push(serde_json::json!(signature));
         rpc_params.push(serde_json::json!(message));
-        self.call::<VerifyMessageResponse>("verifymessage", &rpc_params).await
+        self.call::<VerifyMessageResponse>("verifymessage", &rpc_params)
+            .await
     }
 
     /// Verifies that a proof points to a transaction in a block, returning the transaction it commits to
@@ -3815,7 +4358,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<VerifyTxOutProofResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(proof));
-        self.call::<VerifyTxOutProofResponse>("verifytxoutproof", &rpc_params).await
+        self.call::<VerifyTxOutProofResponse>("verifytxoutproof", &rpc_params)
+            .await
     }
 
     /// Waits for a specific new block and returns useful info about it.
@@ -3828,10 +4372,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<WaitForBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(block_hash));
-        if let Some(val) = timeout {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [timeout.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<WaitForBlockResponse>("waitforblock", &rpc_params).await
+        self.call::<WaitForBlockResponse>("waitforblock", &rpc_params)
+            .await
     }
 
     /// Waits for (at least) block height and returns the height and hash
@@ -3845,10 +4394,15 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<WaitForBlockHeightResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(height));
-        if let Some(val) = timeout {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [timeout.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        self.call::<WaitForBlockHeightResponse>("waitforblockheight", &rpc_params).await
+        self.call::<WaitForBlockHeightResponse>("waitforblockheight", &rpc_params)
+            .await
     }
 
     /// Waits for any new block and returns useful info about it.
@@ -3860,13 +4414,17 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         current_tip: Option<String>,
     ) -> Result<WaitForNewBlockResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = timeout {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 2] = [
+            timeout.as_ref().map(|val| serde_json::json!(val)),
+            current_tip.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = current_tip {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<WaitForNewBlockResponse>("waitfornewblock", &rpc_params).await
+        self.call::<WaitForNewBlockResponse>("waitfornewblock", &rpc_params)
+            .await
     }
 
     /// Creates and funds a transaction in the Partially Signed Transaction format.
@@ -3876,30 +4434,36 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     async fn wallet_create_funded_psbt(
         &self,
         inputs: Option<Vec<serde_json::Value>>,
-        outputs: Vec<serde_json::Value>,
+        outputs: serde_json::Value,
         lock_time: Option<i64>,
         options: Option<serde_json::Value>,
         bip32_derivs: Option<bool>,
         version: Option<i64>,
+        psbt_version: Option<i64>,
     ) -> Result<WalletCreateFundedPsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
-        if let Some(val) = inputs {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 1] =
+            [inputs.as_ref().map(|val| serde_json::json!(val))];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
         rpc_params.push(serde_json::json!(outputs));
-        if let Some(val) = lock_time {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 5] = [
+            lock_time.as_ref().map(|val| serde_json::json!(val)),
+            options.as_ref().map(|val| serde_json::json!(val)),
+            bip32_derivs.as_ref().map(|val| serde_json::json!(val)),
+            version.as_ref().map(|val| serde_json::json!(val)),
+            psbt_version.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = options {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = bip32_derivs {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = version {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<WalletCreateFundedPsbtResponse>("walletcreatefundedpsbt", &rpc_params).await
+        self.call::<WalletCreateFundedPsbtResponse>("walletcreatefundedpsbt", &rpc_params)
+            .await
     }
 
     /// Display address on an external signer for verification.
@@ -3909,7 +4473,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<WalletDisplayAddressResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(address));
-        self.call::<WalletDisplayAddressResponse>("walletdisplayaddress", &rpc_params).await
+        self.call::<WalletDisplayAddressResponse>("walletdisplayaddress", &rpc_params)
+            .await
     }
 
     /// Removes the wallet encryption key from memory, locking the wallet.
@@ -3936,7 +4501,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(passphrase));
         rpc_params.push(serde_json::json!(timeout));
-        self.call::<WalletPassphraseResponse>("walletpassphrase", &rpc_params).await
+        self.call::<WalletPassphraseResponse>("walletpassphrase", &rpc_params)
+            .await
     }
 
     /// Changes the wallet passphrase from 'oldpassphrase' to 'newpassphrase'.
@@ -3950,7 +4516,8 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(old_passphrase));
         rpc_params.push(serde_json::json!(new_passphrase));
-        self.call::<WalletPassphraseChangeResponse>("walletpassphrasechange", &rpc_params).await
+        self.call::<WalletPassphraseChangeResponse>("walletpassphrasechange", &rpc_params)
+            .await
     }
 
     /// Update a PSBT with input information from our wallet and then sign inputs
@@ -3966,18 +4533,18 @@ impl<T: TransportTrait + TransportExt + Send + Sync> BitcoinClient for T {
     ) -> Result<WalletProcessPsbtResponse, Self::Error> {
         let mut rpc_params = vec![];
         rpc_params.push(serde_json::json!(psbt));
-        if let Some(val) = sign {
-            rpc_params.push(serde_json::json!(val));
+        let optional_params: [Option<serde_json::Value>; 4] = [
+            sign.as_ref().map(|val| serde_json::json!(val)),
+            sighash_type.as_ref().map(|val| serde_json::json!(val)),
+            bip32_derivs.as_ref().map(|val| serde_json::json!(val)),
+            finalize.as_ref().map(|val| serde_json::json!(val)),
+        ];
+        if let Some(last) = optional_params.iter().rposition(|o| o.is_some()) {
+            for opt in &optional_params[..=last] {
+                rpc_params.push(opt.clone().unwrap_or(serde_json::Value::Null));
+            }
         }
-        if let Some(val) = sighash_type {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = bip32_derivs {
-            rpc_params.push(serde_json::json!(val));
-        }
-        if let Some(val) = finalize {
-            rpc_params.push(serde_json::json!(val));
-        }
-        self.call::<WalletProcessPsbtResponse>("walletprocesspsbt", &rpc_params).await
+        self.call::<WalletProcessPsbtResponse>("walletprocesspsbt", &rpc_params)
+            .await
     }
 }

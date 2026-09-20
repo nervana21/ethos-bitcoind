@@ -1,7 +1,7 @@
 //! Parameter structs for RPC method calls
 use serde::Serialize;
 
-use crate::types::FeeRate;
+use crate::types::{FeeRate, HashOrHeight};
 
 mod serde_fee_rate {
     pub mod maxfeerate_opt {
@@ -28,62 +28,6 @@ mod serde_fee_rate {
                 FeeRate::from_sat_per_kvb(sat_per_kvb)
             }))
         }
-    }
-}
-
-/// (De)serializes HashMap<Address, Amount> with values as BTC floats (for sendmany "amounts" param).
-pub mod serde_amounts_map {
-    use std::collections::HashMap;
-
-    use bitcoin::address::NetworkUnchecked;
-    use bitcoin::Address;
-    use serde::{Deserialize, Deserializer, Serializer};
-
-    pub fn serialize<S>(
-        map: &HashMap<Address<NetworkUnchecked>, bitcoin::Amount>,
-        s: S,
-    ) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        use serde::ser::SerializeMap;
-        let mut m = s.serialize_map(Some(map.len()))?;
-        for (k, v) in map {
-            m.serialize_entry(k, &v.to_btc())?;
-        }
-        m.end()
-    }
-
-    pub fn deserialize<'de, D>(
-        d: D,
-    ) -> Result<HashMap<Address<NetworkUnchecked>, bitcoin::Amount>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let map = HashMap::<Address<NetworkUnchecked>, f64>::deserialize(d)?;
-        map.into_iter()
-            .map(|(k, v)| {
-                bitcoin::Amount::from_btc(v).map(|a| (k, a)).map_err(serde::de::Error::custom)
-            })
-            .collect()
-    }
-}
-
-/// Reference wrapper for the sendmany "amounts" map; serializes to JSON with amounts as BTC.
-#[derive(Debug)]
-pub struct SendmanyAmountsRef<'a>(
-    pub  &'a std::collections::HashMap<
-        bitcoin::Address<bitcoin::address::NetworkUnchecked>,
-        bitcoin::Amount,
-    >,
-);
-
-impl serde::Serialize for SendmanyAmountsRef<'_> {
-    fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serde_amounts_map::serialize(self.0, s)
     }
 }
 
@@ -119,21 +63,39 @@ pub struct AbandontransactionParams {
     pub txid: bitcoin::Txid,
 }
 
+/// Abort private broadcast attempts for a transaction currently being privately broadcast.
+/// The transaction will be removed from the private broadcast queue.
+/// This method is only available when running with -privatebroadcast enabled.
+#[derive(Debug, Serialize)]
+pub struct AbortprivatebroadcastParams {
+    /// A transaction identifier to abort. It will be matched against both txid and wtxid for all transactions in the private broadcast queue.
+    /// If the provided id matches a txid that corresponds to multiple transactions with different wtxids, multiple transactions will be removed and returned.
+    pub id: String,
+}
+
 /// Open an outbound connection to a specified node. This RPC is for testing only.
 #[derive(Debug, Serialize)]
 pub struct AddconnectionParams {
     /// The IP address and port to attempt connecting to.
     pub address: bitcoin::Address,
-    /// Type of connection to open ("outbound-full-relay", "block-relay-only", "addr-fetch" or "feeler").
+    /// Type of connection to open ("outbound-full-relay", "block-relay-only", "addr-fetch", "feeler" or "manual").
     pub connection_type: String,
     /// Attempt to connect using BIP324 v2 transport protocol
     pub v2transport: bool,
 }
 
+/// Add a BIP 32 HD key to the wallet that can be used with 'createwalletdescriptor'
+#[derive(Debug, Serialize)]
+pub struct AddhdkeyParams {
+    /// The BIP 32 extended private key to add. If none is provided, a randomly generated one will be added.
+    pub hdkey: Option<String>,
+}
+
 /// Attempts to add or remove a node from the addnode list.
 /// Or try a connection to a node once.
-/// Nodes added using addnode (or -connect) are protected from DoS disconnection and are not required to be
-/// full nodes/support SegWit as other outbound peers are (though such peers will not be synced from).
+/// Nodes added using addnode (or -connect) are protected from DoS disconnection and IBD block stalling
+/// disconnection, and are not required to be full nodes or support SegWit as other outbound peers are (though
+/// such peers will not be synced from).
 /// Addnode connections are limited to 8 at a time and are counted separately from the -maxconnections limit.
 #[derive(Debug, Serialize)]
 pub struct AddnodeParams {
@@ -225,6 +187,8 @@ pub struct ConverttopsbtParams {
     /// (e.g. fully valid, or on-chain transactions), if known by the caller.
     #[serde(rename = "iswitness")]
     pub is_witness: Option<bool>,
+    /// The PSBT version number to use.
+    pub psbt_version: Option<i64>,
 }
 
 /// Creates a multi-signature address with n signatures of m keys required.
@@ -252,7 +216,7 @@ pub struct CreatepsbtParams {
     /// At least one output of either type must be specified.
     /// For compatibility reasons, a dictionary, which holds the key-value pairs directly, is also
     /// accepted as second parameter.
-    pub outputs: Vec<serde_json::Value>,
+    pub outputs: serde_json::Value,
     /// Raw locktime. Non-0 value also locktime-activates inputs
     #[serde(rename = "locktime")]
     pub lock_time: Option<i64>,
@@ -261,6 +225,8 @@ pub struct CreatepsbtParams {
     pub replaceable: Option<bool>,
     /// Transaction version
     pub version: Option<i64>,
+    /// The PSBT version number to use.
+    pub psbt_version: Option<i64>,
 }
 
 /// Create a transaction spending the given inputs and creating new outputs.
@@ -277,7 +243,7 @@ pub struct CreaterawtransactionParams {
     /// At least one output of either type must be specified.
     /// For compatibility reasons, a dictionary, which holds the key-value pairs directly, is also
     /// accepted as second parameter.
-    pub outputs: Vec<serde_json::Value>,
+    pub outputs: serde_json::Value,
     /// Raw locktime. Non-0 value also locktime-activates inputs
     #[serde(rename = "locktime")]
     pub lock_time: Option<i64>,
@@ -368,6 +334,16 @@ pub struct DeriveaddressesParams {
     pub range: Option<serde_json::Value>,
 }
 
+/// Derive extended public or private key from HD key in the wallet at a given path.
+/// Derivation uses wallet private key material.
+/// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+#[derive(Debug, Serialize)]
+pub struct DerivehdkeyParams {
+    /// BIP 32 derivation path with at least one hardened step.
+    pub path: String,
+    pub options: Option<serde_json::Value>,
+}
+
 /// Update all segwit inputs in a PSBT with information from output descriptors, the UTXO set or the mempool.
 /// Then, sign the inputs we are able to with information from the output descriptors.
 #[derive(Debug, Serialize)]
@@ -405,8 +381,8 @@ pub struct DisconnectnodeParams {
 }
 
 /// Write the serialized UTXO set to a file. This can be used in loadtxoutset afterwards if this snapshot height is supported in the chainparams as well.
-/// Unless the "latest" type is requested, the node will roll back to the requested height and network activity will be suspended during this process. Because of this it is discouraged to interact with the node in any other way during the execution of this call to avoid inconsistent results and race conditions, particularly RPCs that interact with blockstorage.
-/// This call may take several minutes. Make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0)
+/// This creates a temporary UTXO database when rolling back, keeping the main chain intact. Should the node experience an unclean shutdown the temporary database may need to be removed from the datadir manually.
+/// For deep rollbacks, make sure to use no RPC timeout (bitcoin-cli -rpcclienttimeout=0) as it may take several minutes.
 #[derive(Debug, Serialize)]
 pub struct DumptxoutsetParams {
     /// Path to the output file. If relative, will be prefixed by datadir.
@@ -422,16 +398,16 @@ pub struct DumptxoutsetParams {
 /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
 #[derive(Debug, Serialize)]
 pub struct EchoParams {
-    pub arg0: Option<String>,
-    pub arg1: Option<String>,
-    pub arg2: Option<String>,
-    pub arg3: Option<String>,
-    pub arg4: Option<String>,
-    pub arg5: Option<String>,
-    pub arg6: Option<String>,
-    pub arg7: Option<String>,
-    pub arg8: Option<String>,
-    pub arg9: Option<String>,
+    pub arg0: Option<serde_json::Value>,
+    pub arg1: Option<serde_json::Value>,
+    pub arg2: Option<serde_json::Value>,
+    pub arg3: Option<serde_json::Value>,
+    pub arg4: Option<serde_json::Value>,
+    pub arg5: Option<serde_json::Value>,
+    pub arg6: Option<serde_json::Value>,
+    pub arg7: Option<serde_json::Value>,
+    pub arg8: Option<serde_json::Value>,
+    pub arg9: Option<serde_json::Value>,
 }
 
 /// Echo back the input argument, passing it through a spawned process in a multiprocess build.
@@ -447,16 +423,16 @@ pub struct EchoipcParams {
 /// The difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in bitcoin-cli and the GUI. There is no server-side difference.
 #[derive(Debug, Serialize)]
 pub struct EchojsonParams {
-    pub arg0: Option<String>,
-    pub arg1: Option<String>,
-    pub arg2: Option<String>,
-    pub arg3: Option<String>,
-    pub arg4: Option<String>,
-    pub arg5: Option<String>,
-    pub arg6: Option<String>,
-    pub arg7: Option<String>,
-    pub arg8: Option<String>,
-    pub arg9: Option<String>,
+    pub arg0: Option<serde_json::Value>,
+    pub arg1: Option<serde_json::Value>,
+    pub arg2: Option<serde_json::Value>,
+    pub arg3: Option<serde_json::Value>,
+    pub arg4: Option<serde_json::Value>,
+    pub arg5: Option<serde_json::Value>,
+    pub arg6: Option<serde_json::Value>,
+    pub arg7: Option<serde_json::Value>,
+    pub arg8: Option<serde_json::Value>,
+    pub arg9: Option<serde_json::Value>,
 }
 
 /// Encrypts the wallet with 'passphrase'. This is for first time encryption.
@@ -502,13 +478,24 @@ pub struct EstimatesmartfeeParams {
     /// The fee estimate mode.
     /// unset, economical, conservative
     /// unset means no mode set (default mode will be used).
-    /// economical estimates use a shorter time horizon, making them more
-    /// responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a lower fee rate estimate.
-    /// conservative estimates use a longer time horizon, making them
-    /// less responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a higher fee rate estimate.
+    /// economical mode potentially returns a lower fee rate estimate.
+    /// conservative potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
+    pub options: Option<serde_json::Value>,
+}
+
+/// Export the embedded ASMap data to a file. Any existing file at the path will be overwritten.
+#[derive(Debug, Serialize)]
+pub struct ExportasmapParams {
+    /// Path to the output file. If relative, will be prefixed by datadir.
+    pub path: String,
+}
+
+/// Creates a wallet file at the specified destination containing a watchonly version of the current wallet. This watchonly wallet contains the wallet's public descriptors, its transactions, and address book data. Descriptors that use hardened derivation will only have a limited number of derived keys included in the export due to hardened derivation requiring private keys. Descriptors with unhardened derivation do not have this limitation. The watchonly wallet can be imported into another node using 'restorewallet'.
+#[derive(Debug, Serialize)]
+pub struct ExportwatchonlywalletParams {
+    /// The path to the filename the exported watchonly wallet will be saved to
+    pub destination: String,
 }
 
 /// Finalize the inputs of a PSBT. If the transaction is fully signed, it will produce a
@@ -555,6 +542,7 @@ pub struct FundrawtransactionParams {
 }
 
 /// Mine a set of ordered transactions to a specified address or descriptor and return the block hash.
+/// Transaction fees are not collected in the block reward.
 #[derive(Debug, Serialize)]
 pub struct GenerateblockParams {
     /// The address or descriptor to send the newly generated bitcoin to.
@@ -617,7 +605,7 @@ pub struct GetaddressinfoParams {
 /// thus affected by options which limit spendability such as -spendzeroconfchange.
 #[derive(Debug, Serialize)]
 pub struct GetbalanceParams {
-    /// Remains for backward compatibility. Must be excluded or set to "*".
+    /// Remains for backward compatibility. Must be excluded or set to "*". \[x-bitcoin-placeholder\]
     pub dummy: Option<String>,
     /// Only include transactions confirmed at least this many times.
     #[serde(rename = "minconf")]
@@ -637,7 +625,7 @@ pub struct GetblockParams {
     /// The block hash
     #[serde(rename = "blockhash")]
     pub block_hash: bitcoin::BlockHash,
-    /// 0 for hex-encoded data, 1 for a JSON object, 2 for JSON object with transaction data, and 3 for JSON object with transaction data including prevout information for inputs
+    /// 0 for hex-encoded data, 1 for a JSON object, 2 for JSON object with transaction data, and 3 for JSON object with transaction data including prevout information for inputs (aliases: verbose)
     pub verbosity: Option<i64>,
 }
 
@@ -691,7 +679,7 @@ pub struct GetblockheaderParams {
 #[derive(Debug, Serialize)]
 pub struct GetblockstatsParams {
     /// The block hash or height of the target block
-    pub hash_or_height: i64,
+    pub hash_or_height: HashOrHeight,
     /// Values to plot (see result below)
     pub stats: Option<Vec<serde_json::Value>>,
 }
@@ -720,6 +708,7 @@ pub struct GetchaintxstatsParams {
 }
 
 /// Returns an object containing various state info regarding deployments of consensus changes.
+/// Consensus changes for which the new rules are enforced from genesis are not listed in "deployments".
 #[derive(Debug, Serialize)]
 pub struct GetdeploymentinfoParams {
     /// The block hash at which to query deployment state
@@ -777,6 +766,13 @@ pub struct GetmempoolancestorsParams {
     pub verbose: Option<bool>,
 }
 
+/// Returns mempool data for given cluster
+#[derive(Debug, Serialize)]
+pub struct GetmempoolclusterParams {
+    /// The txid of a transaction in the cluster
+    pub txid: bitcoin::Txid,
+}
+
 /// If txid is in the mempool, returns all in-mempool descendants.
 #[derive(Debug, Serialize)]
 pub struct GetmempooldescendantsParams {
@@ -826,6 +822,13 @@ pub struct GetnodeaddressesParams {
     pub network: Option<String>,
 }
 
+/// Returns an OpenRPC document for currently available RPC commands.
+#[derive(Debug, Serialize)]
+pub struct GetopenrpcinfoParams {
+    /// Also include hidden RPC commands and arguments.
+    pub show_hidden: Option<bool>,
+}
+
 /// Shows transactions in the tx orphanage.
 /// EXPERIMENTAL warning: this call may be changed in future releases.
 #[derive(Debug, Serialize)]
@@ -864,7 +867,7 @@ pub struct GetrawmempoolParams {
 pub struct GetrawtransactionParams {
     /// The transaction id
     pub txid: bitcoin::Txid,
-    /// 0 for hex-encoded data, 1 for a JSON object, and 2 for JSON object with fee and prevout
+    /// 0 for hex-encoded data, 1 for a JSON object, and 2 for JSON object with fee and prevout (aliases: verbose)
     pub verbosity: Option<i64>,
     /// The block in which to look for the transaction
     #[serde(rename = "blockhash")]
@@ -938,7 +941,7 @@ pub struct GettxoutsetinfoParams {
     /// Which UTXO set hash should be calculated. Options: 'hash_serialized_3' (the legacy algorithm), 'muhash', 'none'.
     pub hash_type: Option<String>,
     /// The block hash or height of the target height (only available with coinstatsindex).
-    pub hash_or_height: Option<i64>,
+    pub hash_or_height: Option<HashOrHeight>,
     /// Use coinstatsindex, if available.
     pub use_index: Option<bool>,
 }
@@ -996,7 +999,7 @@ pub struct InvalidateblockParams {
     pub block_hash: bitcoin::BlockHash,
 }
 
-/// Joins multiple distinct PSBTs with different inputs and outputs into one PSBT with inputs and outputs from all of the PSBTs
+/// Joins multiple distinct version 0 PSBTs with different inputs and outputs into one version 0 PSBT with inputs and outputs from all of the PSBTs
 /// No input in any of the PSBTs can be in more than one of the PSBTs.
 #[derive(Debug, Serialize)]
 pub struct JoinpsbtsParams {
@@ -1010,7 +1013,8 @@ pub struct JoinpsbtsParams {
 #[derive(Debug, Serialize)]
 pub struct KeypoolrefillParams {
     /// The new keypool size
-    pub newsize: Option<i64>,
+    #[serde(rename = "newsize")]
+    pub new_size: Option<i64>,
 }
 
 /// List all descriptors present in a wallet.
@@ -1161,7 +1165,7 @@ pub struct LockunspentParams {
 /// When called with arguments, adds or removes categories from debug logging and return the lists above.
 /// The arguments are evaluated in order "include", "exclude".
 /// If an item is both included and excluded, it will thus end up being excluded.
-/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, libevent, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
+/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
 /// In addition, the following are available as category names with special meanings:
 /// - "all",  "1" : represent all logging categories.
 #[derive(Debug, Serialize)]
@@ -1185,6 +1189,8 @@ pub struct MigratewalletParams {
     pub wallet_name: Option<String>,
     /// The wallet passphrase
     pub passphrase: Option<String>,
+    /// Load the wallet after migration.
+    pub load_wallet: Option<bool>,
 }
 
 /// Bump the scheduler into the future (-regtest only)
@@ -1210,7 +1216,7 @@ pub struct PrioritisetransactionParams {
     /// The transaction id.
     pub txid: bitcoin::Txid,
     /// API-Compatibility for previous API. Must be zero or null.
-    /// DEPRECATED. For forward compatibility use named arguments and omit this parameter.
+    /// DEPRECATED. For forward compatibility use named arguments and omit this parameter. \[x-bitcoin-placeholder\]
     pub dummy: Option<i64>,
     /// The fee value (in satoshis) to add (or subtract, if negative).
     /// Note, that this value is not a fee rate. It is a value to modify absolute fee of the TX.
@@ -1257,6 +1263,7 @@ pub struct ReconsiderblockParams {
     pub block_hash: bitcoin::BlockHash,
 }
 
+/// (DEPRECATED) This feature will be removed in the next major release. Start bitcoind with the `-deprecatedrpc=removeprunedfunds` option in order to use this.
 /// Deletes the specified transaction from the wallet. Meant for use with pruned wallets and as a companion to importprunedfunds. This will affect wallet balances.
 #[derive(Debug, Serialize)]
 pub struct RemoveprunedfundsParams {
@@ -1338,7 +1345,6 @@ pub struct ScantxoutsetParams {
     pub scanobjects: Option<Vec<serde_json::Value>>,
 }
 
-/// EXPERIMENTAL warning: this call may be changed in future releases.
 /// Send a transaction.
 #[derive(Debug, Serialize)]
 pub struct SendParams {
@@ -1346,19 +1352,15 @@ pub struct SendParams {
     /// Each key may only appear once, i.e. there can only be one 'data' output, and no address may be duplicated.
     /// At least one output of either type must be specified.
     /// For convenience, a dictionary, which holds the key-value pairs directly, is also accepted.
-    pub outputs: Vec<serde_json::Value>,
+    pub outputs: serde_json::Value,
     /// Confirmation target in blocks
     pub conf_target: Option<i64>,
     /// The fee estimate mode, must be one of (case insensitive):
     /// unset, economical, conservative
     /// unset means no mode set (economical mode is used if the transaction is replaceable;
     /// otherwise, conservative mode is used).
-    /// economical estimates use a shorter time horizon, making them more
-    /// responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a lower fee rate estimate.
-    /// conservative estimates use a longer time horizon, making them
-    /// less responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a higher fee rate estimate.
+    /// economical mode potentially returns a lower fee rate estimate.
+    /// conservative potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
     /// Specify a fee rate in sat/vB.
     #[serde(with = "bitcoin_units::fee_rate::serde::as_sat_per_vb_floor::opt")]
@@ -1368,7 +1370,6 @@ pub struct SendParams {
     pub version: Option<i64>,
 }
 
-/// EXPERIMENTAL warning: this call may be changed in future releases.
 /// Spend the value of all (or specific) confirmed UTXOs and unconfirmed change in the wallet to one or more recipients.
 /// Unconfirmed inbound UTXOs and locked UTXOs will not be spent. Sendall will respect the avoid_reuse wallet flag.
 /// If your wallet contains many small inputs, either because it received tiny payments or as a result of accumulating change, consider using `send_max` to exclude inputs that are worth less than the fees needed to spend them.
@@ -1383,12 +1384,8 @@ pub struct SendallParams {
     /// unset, economical, conservative
     /// unset means no mode set (economical mode is used if the transaction is replaceable;
     /// otherwise, conservative mode is used).
-    /// economical estimates use a shorter time horizon, making them more
-    /// responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a lower fee rate estimate.
-    /// conservative estimates use a longer time horizon, making them
-    /// less responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a higher fee rate estimate.
+    /// economical mode potentially returns a lower fee rate estimate.
+    /// conservative potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
     /// Specify a fee rate in sat/vB.
     #[serde(with = "bitcoin_units::fee_rate::serde::as_sat_per_vb_floor::opt")]
@@ -1400,15 +1397,11 @@ pub struct SendallParams {
 /// Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
 #[derive(Debug, Serialize)]
 pub struct SendmanyParams {
-    /// Must be set to "" for backwards compatibility.
+    /// Must be set to "" for backwards compatibility. \[x-bitcoin-placeholder\]
     pub dummy: Option<String>,
     /// The addresses and amounts
-    #[serde(with = "crate::bitcoin_core_client::params::serde_amounts_map")]
-    pub amounts: std::collections::HashMap<
-        bitcoin::Address<bitcoin::address::NetworkUnchecked>,
-        bitcoin::Amount,
-    >,
-    /// Ignored dummy value
+    pub amounts: serde_json::Value,
+    /// Ignored dummy value \[x-bitcoin-placeholder\]
     #[serde(rename = "minconf")]
     pub min_conf: Option<i64>,
     /// A comment
@@ -1417,7 +1410,8 @@ pub struct SendmanyParams {
     /// The fee will be equally deducted from the amount of each selected address.
     /// Those recipients will receive less bitcoins than you enter in their corresponding amount field.
     /// If no addresses are specified here, the sender pays the fee.
-    pub subtractfeefrom: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
+    #[serde(rename = "subtractfeefrom")]
+    pub subtract_fee_from: Option<Vec<bitcoin::Address<bitcoin::address::NetworkUnchecked>>>,
     /// Signal that this transaction can be replaced by a transaction (BIP 125)
     pub replaceable: Option<bool>,
     /// Confirmation target in blocks
@@ -1426,12 +1420,8 @@ pub struct SendmanyParams {
     /// unset, economical, conservative
     /// unset means no mode set (economical mode is used if the transaction is replaceable;
     /// otherwise, conservative mode is used).
-    /// economical estimates use a shorter time horizon, making them more
-    /// responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a lower fee rate estimate.
-    /// conservative estimates use a longer time horizon, making them
-    /// less responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a higher fee rate estimate.
+    /// economical mode potentially returns a lower fee rate estimate.
+    /// conservative potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
     /// Specify a fee rate in sat/vB.
     #[serde(with = "bitcoin_units::fee_rate::serde::as_sat_per_vb_floor::opt")]
@@ -1463,6 +1453,9 @@ pub struct SendmsgtopeerParams {
 /// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
 /// via the Tor network. This conceals the transaction's origin. The transaction
 /// will only enter the local mempool when it is received back from the network.
+/// The private broadcast queue is bounded: when it is full, this RPC fails and
+/// the transaction is not scheduled, until an existing one completes or is
+/// aborted. Use getprivatebroadcastinfo to inspect the queue and abortprivatebroadcast to abort.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
 #[derive(Debug, Serialize)]
@@ -1510,12 +1503,8 @@ pub struct SendtoaddressParams {
     /// unset, economical, conservative
     /// unset means no mode set (economical mode is used if the transaction is replaceable;
     /// otherwise, conservative mode is used).
-    /// economical estimates use a shorter time horizon, making them more
-    /// responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a lower fee rate estimate.
-    /// conservative estimates use a longer time horizon, making them
-    /// less responsive to short-term drops in the prevailing fee market. This mode
-    /// potentially returns a higher fee rate estimate.
+    /// economical mode potentially returns a lower fee rate estimate.
+    /// conservative potentially returns a higher fee rate estimate.
     pub estimate_mode: Option<String>,
     /// (only available if avoid_reuse wallet flag is set) Avoid spending from dirty addresses; addresses are considered
     /// dirty if they have previously been used in a transaction. If true, this also activates avoidpartialspends, grouping outputs by their addresses.
@@ -1588,7 +1577,8 @@ pub struct SignmessageParams {
 #[derive(Debug, Serialize)]
 pub struct SignmessagewithprivkeyParams {
     /// The private key to sign the message with.
-    pub privkey: String,
+    #[serde(rename = "privkey")]
+    pub priv_key: String,
     /// The message to create a signature of.
     pub message: String,
 }
@@ -1649,7 +1639,8 @@ pub struct SignrawtransactionwithwalletParams {
 #[derive(Debug, Serialize)]
 pub struct SimulaterawtransactionParams {
     /// An array of hex strings of raw transactions.
-    pub rawtxs: Option<Vec<serde_json::Value>>,
+    #[serde(rename = "rawtxs")]
+    pub raw_txs: Vec<serde_json::Value>,
     pub options: Option<serde_json::Value>,
 }
 
@@ -1666,7 +1657,7 @@ pub struct StopParams {
 pub struct SubmitblockParams {
     /// the hex-encoded block data to submit
     pub hexdata: String,
-    /// dummy value, for compatibility with BIP22. This value is ignored.
+    /// dummy value, for compatibility with BIP22. This value is ignored. \[x-bitcoin-placeholder\]
     pub dummy: Option<String>,
 }
 
@@ -1711,7 +1702,8 @@ pub struct SubmitpackageParams {
 #[derive(Debug, Serialize)]
 pub struct TestmempoolacceptParams {
     /// An array of hex strings of raw transactions.
-    pub rawtxs: Vec<serde_json::Value>,
+    #[serde(rename = "rawtxs")]
+    pub raw_txs: Vec<serde_json::Value>,
     /// Reject transactions whose fee rate is higher than the specified value, expressed in BTC/kvB.
     /// Fee rates larger than 1BTC/kvB are rejected.
     /// Set to 0 to accept any fee rate.
@@ -1828,7 +1820,7 @@ pub struct WalletcreatefundedpsbtParams {
     /// At least one output of either type must be specified.
     /// For compatibility reasons, a dictionary, which holds the key-value pairs directly, is also
     /// accepted as second parameter.
-    pub outputs: Vec<serde_json::Value>,
+    pub outputs: serde_json::Value,
     /// Raw locktime. Non-0 value also locktime-activates inputs
     #[serde(rename = "locktime")]
     pub lock_time: Option<i64>,
@@ -1838,6 +1830,8 @@ pub struct WalletcreatefundedpsbtParams {
     pub bip32_derivs: Option<bool>,
     /// Transaction version
     pub version: Option<i64>,
+    /// The PSBT version number to use.
+    pub psbt_version: Option<i64>,
 }
 
 /// Display address on an external signer for verification.

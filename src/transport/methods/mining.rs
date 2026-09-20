@@ -79,7 +79,9 @@ pub async fn get_prioritised_transactions(
     transport: &dyn TransportTrait,
 ) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
-    let raw = transport.send_request("getprioritisedtransactions", &params).await?;
+    let raw = transport
+        .send_request("getprioritisedtransactions", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -99,7 +101,9 @@ pub async fn prioritise_transaction(
     fee_delta: serde_json::Value,
 ) -> Result<Value, TransportError> {
     let params = vec![json!(txid), json!(dummy), json!(fee_delta)];
-    let raw = transport.send_request("prioritisetransaction", &params).await?;
+    let raw = transport
+        .send_request("prioritisetransaction", &params)
+        .await?;
     Ok(raw)
 }
 

@@ -12,5 +12,7 @@ pub mod util;
 pub use util::*;
 pub mod wallet;
 pub use wallet::*;
+pub mod zmq;
+pub use zmq::*;
 pub mod signer;
 pub use signer::*;

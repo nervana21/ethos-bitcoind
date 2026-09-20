@@ -24,6 +24,24 @@ pub async fn get_memory_info(
     Ok(raw)
 }
 
+/// Returns an OpenRPC document for currently available RPC commands.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.getopenrpcinfo(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::getopenrpcinfo(&transport, ...).await`
+///
+/// Calls the `getopenrpcinfo` RPC method.
+pub async fn get_open_rpc_info(
+    transport: &dyn TransportTrait,
+    show_hidden: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(show_hidden)];
+    let raw = transport.send_request("getopenrpcinfo", &params).await?;
+    Ok(raw)
+}
+
 /// Returns details of the RPC server.
 ///
 /// # Usage
@@ -62,7 +80,7 @@ pub async fn help(
 /// When called with arguments, adds or removes categories from debug logging and return the lists above.
 /// The arguments are evaluated in order "include", "exclude".
 /// If an item is both included and excluded, it will thus end up being excluded.
-/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, libevent, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
+/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
 /// In addition, the following are available as category names with special meanings:
 /// - "all",  "1" : represent all logging categories.
 ///
@@ -80,6 +98,21 @@ pub async fn logging(
 ) -> Result<Value, TransportError> {
     let params = vec![json!(include), json!(exclude)];
     let raw = transport.send_request("logging", &params).await?;
+    Ok(raw)
+}
+
+/// Returns an OpenRPC schema as a description of this service.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.rpcdiscover(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::rpcdiscover(&transport, ...).await`
+///
+/// Calls the `rpc.discover` RPC method.
+pub async fn rpc_discover(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
+    let params = Vec::<Value>::new();
+    let raw = transport.send_request("rpc.discover", &params).await?;
     Ok(raw)
 }
 

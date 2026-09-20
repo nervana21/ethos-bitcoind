@@ -74,7 +74,9 @@ pub struct BitcoinNodeManager {
 
 impl BitcoinNodeManager {
     /// Create a new node manager with default configuration
-    pub fn new() -> Result<Self, TransportError> { Self::new_with_config(&TestConfig::default()) }
+    pub fn new() -> Result<Self, TransportError> {
+        Self::new_with_config(&TestConfig::default())
+    }
 
     /// Create a new node manager with custom configuration
     pub fn new_with_config(config: &TestConfig) -> Result<Self, TransportError> {
@@ -102,16 +104,24 @@ impl BitcoinNodeManager {
     }
 
     /// Get the RPC port for this node manager
-    pub fn rpc_port(&self) -> u16 { self.rpc_port }
+    pub fn rpc_port(&self) -> u16 {
+        self.rpc_port
+    }
 
     /// Gets the test configuration used by this node manager
-    pub fn config(&self) -> &TestConfig { &self.config }
+    pub fn config(&self) -> &TestConfig {
+        &self.config
+    }
 
     /// Get the RPC username from the configuration
-    pub fn rpc_username(&self) -> &str { &self.config.rpc_username }
+    pub fn rpc_username(&self) -> &str {
+        &self.config.rpc_username
+    }
 
     /// Get the RPC password from the configuration
-    pub fn rpc_password(&self) -> &str { &self.config.rpc_password }
+    pub fn rpc_password(&self) -> &str {
+        &self.config.rpc_password
+    }
 }
 
 #[async_trait]
@@ -123,7 +133,11 @@ impl NodeManager for BitcoinNodeManager {
             return Ok(());
         }
 
-        let datadir = self._datadir.as_ref().expect("datadir is set at construction").path();
+        let datadir = self
+            ._datadir
+            .as_ref()
+            .expect("datadir is set at construction")
+            .path();
         let exe = self
             .config
             .bitcoind_path
@@ -198,7 +212,10 @@ impl NodeManager for BitcoinNodeManager {
         // Create transport for RPC health check
         let transport = DefaultTransport::new(
             format!("http://127.0.0.1:{}/", self.rpc_port),
-            Some((self.config.rpc_username.clone(), self.config.rpc_password.clone())),
+            Some((
+                self.config.rpc_username.clone(),
+                self.config.rpc_password.clone(),
+            )),
         );
 
         // Wait for node to be ready
@@ -215,10 +232,16 @@ impl NodeManager for BitcoinNodeManager {
             }
 
             // Try to connect to RPC
-            match transport.call::<serde_json::Value>("getnetworkinfo", &[]).await {
+            match transport
+                .call::<serde_json::Value>("getnetworkinfo", &[])
+                .await
+            {
                 Ok(_) => {
                     state.is_running = true;
-                    info!("bitcoind node started successfully on port {}", self.rpc_port);
+                    info!(
+                        "bitcoind node started successfully on port {}",
+                        self.rpc_port
+                    );
                     return Ok(());
                 }
                 Err(e) => {
@@ -266,24 +289,36 @@ impl NodeManager for BitcoinNodeManager {
         Ok(self.state.read().await.clone())
     }
 
-    fn rpc_port(&self) -> u16 { self.rpc_port }
+    fn rpc_port(&self) -> u16 {
+        self.rpc_port
+    }
 
-    fn rpc_username(&self) -> &str { &self.config.rpc_username }
+    fn rpc_username(&self) -> &str {
+        &self.config.rpc_username
+    }
 
-    fn rpc_password(&self) -> &str { &self.config.rpc_password }
+    fn rpc_password(&self) -> &str {
+        &self.config.rpc_password
+    }
 
     async fn create_transport(
         &self,
     ) -> Result<std::sync::Arc<crate::transport::DefaultTransport>, TransportError> {
         // Create HTTP transport for Bitcoin Core
         let rpc_url = format!("http://127.0.0.1:{}", self.rpc_port());
-        let auth = Some((self.rpc_username().to_string(), self.rpc_password().to_string()));
+        let auth = Some((
+            self.rpc_username().to_string(),
+            self.rpc_password().to_string(),
+        ));
         let transport = Arc::new(DefaultTransport::new(rpc_url, auth));
 
         let mut retries = 0;
 
         loop {
-            match transport.call::<serde_json::Value>("getnetworkinfo", &[]).await {
+            match transport
+                .call::<serde_json::Value>("getnetworkinfo", &[])
+                .await
+            {
                 Ok(_) => break,
                 Err(TransportError::Rpc(e)) => {
                     let is_init_state = INIT_WAIT_RPC_CODES.iter().any(|state| e.contains(state));

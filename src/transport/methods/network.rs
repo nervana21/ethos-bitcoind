@@ -8,8 +8,9 @@ use crate::transport::core::{TransportError, TransportTrait};
 
 /// Attempts to add or remove a node from the addnode list.
 /// Or try a connection to a node once.
-/// Nodes added using addnode (or -connect) are protected from DoS disconnection and are not required to be
-/// full nodes/support SegWit as other outbound peers are (though such peers will not be synced from).
+/// Nodes added using addnode (or -connect) are protected from DoS disconnection and IBD block stalling
+/// disconnection, and are not required to be full nodes or support SegWit as other outbound peers are (though
+/// such peers will not be synced from).
 /// Addnode connections are limited to 8 at a time and are counted separately from the -maxconnections limit.
 ///
 /// # Usage
@@ -66,6 +67,24 @@ pub async fn disconnect_node(
     Ok(raw)
 }
 
+/// Export the embedded ASMap data to a file. Any existing file at the path will be overwritten.
+///
+/// # Usage
+/// This method can be called using the high-level client interface:
+/// - `client.exportasmap(...).await`
+/// Or directly via the transport layer for advanced use cases:
+/// - `transport::exportasmap(&transport, ...).await`
+///
+/// Calls the `exportasmap` RPC method.
+pub async fn export_as_map(
+    transport: &dyn TransportTrait,
+    path: serde_json::Value,
+) -> Result<Value, TransportError> {
+    let params = vec![json!(path)];
+    let raw = transport.send_request("exportasmap", &params).await?;
+    Ok(raw)
+}
+
 /// Returns information about the given added node, or all added nodes
 /// (note that onetry addnodes are not listed here)
 ///
@@ -111,7 +130,9 @@ pub async fn get_addrman_info(transport: &dyn TransportTrait) -> Result<Value, T
 /// Calls the `getconnectioncount` RPC method.
 pub async fn get_connection_count(transport: &dyn TransportTrait) -> Result<Value, TransportError> {
     let params = Vec::<Value>::new();
-    let raw = transport.send_request("getconnectioncount", &params).await?;
+    let raw = transport
+        .send_request("getconnectioncount", &params)
+        .await?;
     Ok(raw)
 }
 
@@ -230,7 +251,12 @@ pub async fn set_ban(
     ban_time: serde_json::Value,
     absolute: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(subnet), json!(command), json!(ban_time), json!(absolute)];
+    let params = vec![
+        json!(subnet),
+        json!(command),
+        json!(ban_time),
+        json!(absolute),
+    ];
     let raw = transport.send_request("setban", &params).await?;
     Ok(raw)
 }

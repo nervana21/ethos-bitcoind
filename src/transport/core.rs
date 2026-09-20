@@ -35,6 +35,9 @@ pub enum TransportError {
     /// Maximum retries exceeded
     #[error("Max retries {0} exceeded")]
     MaxRetriesExceeded(u8),
+    /// OpenRPC JSON Schema validation failure (feature `schema-validate`)
+    #[error("Schema validation: {0}")]
+    Schema(String),
 }
 
 impl From<BitreqError> for TransportError {
@@ -43,8 +46,9 @@ impl From<BitreqError> for TransportError {
             // Connection errors
             BitreqError::AddressNotFound
             | BitreqError::IoError(_)
-            | BitreqError::RustlsCreateConnection(_) =>
-                TransportError::ConnectionError(value.to_string()),
+            | BitreqError::RustlsCreateConnection(_) => {
+                TransportError::ConnectionError(value.to_string())
+            }
 
             // Redirect errors
             BitreqError::RedirectLocationMissing
@@ -59,8 +63,9 @@ impl From<BitreqError> for TransportError {
             | BitreqError::MalformedChunkEnd
             | BitreqError::MalformedContentLength
             | BitreqError::InvalidUtf8InResponse
-            | BitreqError::InvalidUtf8InBody(_) =>
-                TransportError::MalformedResponse(value.to_string()),
+            | BitreqError::InvalidUtf8InBody(_) => {
+                TransportError::MalformedResponse(value.to_string())
+            }
 
             // Other errors
             _ => TransportError::Http(value.to_string()),
@@ -69,11 +74,15 @@ impl From<BitreqError> for TransportError {
 }
 
 impl From<serde_json::Error> for TransportError {
-    fn from(err: serde_json::Error) -> Self { TransportError::Json(err.to_string()) }
+    fn from(err: serde_json::Error) -> Self {
+        TransportError::Json(err.to_string())
+    }
 }
 
 impl From<std::io::Error> for TransportError {
-    fn from(err: std::io::Error) -> Self { TransportError::Rpc(err.to_string()) }
+    fn from(err: std::io::Error) -> Self {
+        TransportError::Rpc(err.to_string())
+    }
 }
 
 /// Core trait for RPC transport operations
@@ -119,7 +128,13 @@ impl<T: TransportTrait> TransportExt for T {
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<T2, TransportError>> + Send + 'a>>
     {
         Box::pin(async move {
+            #[cfg(feature = "schema-validate")]
+            crate::transport::wire_schema::validate_params(method, params)
+                .map_err(TransportError::Schema)?;
             let result = self.send_request(method, params).await?;
+            #[cfg(feature = "schema-validate")]
+            crate::transport::wire_schema::validate_result(method, &result)
+                .map_err(TransportError::Schema)?;
             Ok(serde_json::from_value(result)?)
         })
     }
@@ -161,7 +176,10 @@ impl DefaultTransport {
     /// * `auth` - Optional (username, password) tuple for authentication
     pub fn new(url: impl Into<String>, auth: Option<(String, String)>) -> Self {
         let authorization = auth.as_ref().map(|(u, p)| {
-            format!("Basic {}", general_purpose::STANDARD.encode(format!("{}:{}", u, p)))
+            format!(
+                "Basic {}",
+                general_purpose::STANDARD.encode(format!("{}:{}", u, p))
+            )
         });
         Self {
             client: BitreqClient::new(DEFAULT_HTTP_CLIENT_CAPACITY),
@@ -281,8 +299,10 @@ impl TransportTrait for DefaultTransport {
             if let Some(ref h) = authorization {
                 req = req.with_header("Authorization", h);
             }
-            let response =
-                req.send_async_with_client(client).await.map_err(DoRequestError::Network)?;
+            let response = req
+                .send_async_with_client(client)
+                .await
+                .map_err(DoRequestError::Network)?;
             let status_code = response.status_code;
             if !(200..300).contains(&status_code) {
                 return Err(DoRequestError::Transport(TransportError::Http(format!(
@@ -297,7 +317,9 @@ impl TransportTrait for DefaultTransport {
                 .map_err(|e| DoRequestError::Transport(TransportError::Parse(e.to_string())))?;
             if let Some(error) = json.get("error") {
                 if !error.is_null() {
-                    return Err(DoRequestError::Transport(TransportError::Rpc(error.to_string())));
+                    return Err(DoRequestError::Transport(TransportError::Rpc(
+                        error.to_string(),
+                    )));
                 }
             }
             json.get("result").cloned().ok_or_else(|| {
@@ -321,13 +343,15 @@ impl TransportTrait for DefaultTransport {
                     Ok(v) => return Ok(v),
                     Err(DoRequestError::Transport(TransportError::Rpc(ref msg)))
                         if wallet_name.is_some() && msg.contains("\"code\":-32601") =>
+                    {
                         match do_request(&client, &url, &authorization, &request, timeout_secs)
                             .await
                         {
                             Ok(v) => return Ok(v),
                             Err(DoRequestError::Network(e)) => return Err(TransportError::from(e)),
                             Err(DoRequestError::Transport(e)) => return Err(e),
-                        },
+                        }
+                    }
                     Err(DoRequestError::Network(bitreq_err)) => {
                         if !Self::is_bitreq_error_recoverable(&bitreq_err) {
                             return Err(TransportError::from(bitreq_err));
@@ -376,13 +400,16 @@ impl TransportTrait for DefaultTransport {
             if !(200..300).contains(&status_code) {
                 return Err(TransportError::Http(format!("HTTP {}", status_code)));
             }
-            let raw =
-                response.as_str().map_err(|e: BitreqError| TransportError::Parse(e.to_string()))?;
+            let raw = response
+                .as_str()
+                .map_err(|e: BitreqError| TransportError::Parse(e.to_string()))?;
             let v: Vec<Value> =
                 serde_json::from_str(raw).map_err(|e| TransportError::Parse(e.to_string()))?;
             Ok(v)
         })
     }
 
-    fn url(&self) -> &str { &self.url }
+    fn url(&self) -> &str {
+        &self.url
+    }
 }

@@ -11,13 +11,17 @@ pub struct RpcClient {
 
 impl fmt::Debug for RpcClient {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("RpcClient").field("transport", &"<dyn TransportTrait>").finish()
+        f.debug_struct("RpcClient")
+            .field("transport", &"<dyn TransportTrait>")
+            .finish()
     }
 }
 
 impl RpcClient {
     /// Wrap an existing transport (no URL+auth dance)
-    pub fn from_transport(inner: Arc<dyn TransportTrait>) -> Self { Self { transport: inner } }
+    pub fn from_transport(inner: Arc<dyn TransportTrait>) -> Self {
+        Self { transport: inner }
+    }
 
     /// Create a new RPC client with the given RPC endpoint URL.
     ///
@@ -25,7 +29,9 @@ impl RpcClient {
     /// not a filesystem path. This constructor is for HTTP/URL-based transport.
     pub fn new(url: &str) -> Self {
         let transport = DefaultTransport::new(url, None);
-        Self { transport: Arc::new(transport) }
+        Self {
+            transport: Arc::new(transport),
+        }
     }
 
     /// Call a JSON-RPC method

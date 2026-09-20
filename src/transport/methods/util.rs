@@ -71,8 +71,9 @@ pub async fn estimate_smart_fee(
     transport: &dyn TransportTrait,
     conf_target: serde_json::Value,
     estimate_mode: serde_json::Value,
+    options: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(conf_target), json!(estimate_mode)];
+    let params = vec![json!(conf_target), json!(estimate_mode), json!(options)];
     let raw = transport.send_request("estimatesmartfee", &params).await?;
     Ok(raw)
 }
@@ -124,11 +125,13 @@ pub async fn get_index_info(
 /// Calls the `signmessagewithprivkey` RPC method.
 pub async fn sign_message_with_priv_key(
     transport: &dyn TransportTrait,
-    privkey: serde_json::Value,
+    priv_key: serde_json::Value,
     message: serde_json::Value,
 ) -> Result<Value, TransportError> {
-    let params = vec![json!(privkey), json!(message)];
-    let raw = transport.send_request("signmessagewithprivkey", &params).await?;
+    let params = vec![json!(priv_key), json!(message)];
+    let raw = transport
+        .send_request("signmessagewithprivkey", &params)
+        .await?;
     Ok(raw)
 }
 
