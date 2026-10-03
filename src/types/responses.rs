@@ -1008,7 +1008,7 @@ pub struct EstimateSmartFeeResult {
     /// Errors encountered during processing (if there are any)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<String>>,
-    /// the fee estimator used to produce the result (only present for successful estimates when fee_rate_estimator is "none")
+    /// the fee estimator used to produce the result (only present for successful estimates when fee_rate_estimator is "auto")
     #[serde(skip_serializing_if = "Option::is_none")]
     pub estimator: Option<String>,
     /// estimate fee rate in BTC/kvB (only present if no errors were encountered)
@@ -6845,7 +6845,7 @@ pub struct EstimateSmartFeeResponse {
     /// Errors encountered during processing (if there are any)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<String>>,
-    /// the fee estimator used to produce the result (only present for successful estimates when fee_rate_estimator is "none")
+    /// the fee estimator used to produce the result (only present for successful estimates when fee_rate_estimator is "auto")
     #[serde(skip_serializing_if = "Option::is_none")]
     pub estimator: Option<String>,
     /// estimate fee rate in BTC/kvB (only present if no errors were encountered)
