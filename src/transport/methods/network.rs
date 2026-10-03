@@ -8,9 +8,8 @@ use crate::transport::core::{TransportError, TransportTrait};
 
 /// Attempts to add or remove a node from the addnode list.
 /// Or try a connection to a node once.
-/// Nodes added using addnode (or -connect) are protected from DoS disconnection and IBD block stalling
-/// disconnection, and are not required to be full nodes or support SegWit as other outbound peers are (though
-/// such peers will not be synced from).
+/// Nodes added using addnode (or -connect) are protected from DoS disconnection and are not required to be
+/// full nodes/support SegWit as other outbound peers are (though such peers will not be synced from).
 /// Addnode connections are limited to 8 at a time and are counted separately from the -maxconnections limit.
 ///
 /// # Usage

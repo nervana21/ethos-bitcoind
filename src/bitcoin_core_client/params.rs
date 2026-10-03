@@ -78,7 +78,7 @@ pub struct AbortprivatebroadcastParams {
 pub struct AddconnectionParams {
     /// The IP address and port to attempt connecting to.
     pub address: bitcoin::Address,
-    /// Type of connection to open ("outbound-full-relay", "block-relay-only", "addr-fetch", "feeler" or "manual").
+    /// Type of connection to open ("outbound-full-relay", "block-relay-only", "addr-fetch" or "feeler").
     pub connection_type: String,
     /// Attempt to connect using BIP324 v2 transport protocol
     pub v2transport: bool,
@@ -93,9 +93,8 @@ pub struct AddhdkeyParams {
 
 /// Attempts to add or remove a node from the addnode list.
 /// Or try a connection to a node once.
-/// Nodes added using addnode (or -connect) are protected from DoS disconnection and IBD block stalling
-/// disconnection, and are not required to be full nodes or support SegWit as other outbound peers are (though
-/// such peers will not be synced from).
+/// Nodes added using addnode (or -connect) are protected from DoS disconnection and are not required to be
+/// full nodes/support SegWit as other outbound peers are (though such peers will not be synced from).
 /// Addnode connections are limited to 8 at a time and are counted separately from the -maxconnections limit.
 #[derive(Debug, Serialize)]
 pub struct AddnodeParams {
@@ -1165,7 +1164,7 @@ pub struct LockunspentParams {
 /// When called with arguments, adds or removes categories from debug logging and return the lists above.
 /// The arguments are evaluated in order "include", "exclude".
 /// If an item is both included and excluded, it will thus end up being excluded.
-/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, mempool, mempoolrej, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
+/// The valid logging categories are: addrman, bench, blockstorage, cmpctblock, coindb, estimatefee, http, i2p, ipc, kernel, leveldb, mempool, mempoolrej, mining, net, privatebroadcast, proxy, prune, qt, rand, reindex, rpc, scan, selectcoins, tor, txpackages, txreconciliation, validation, walletdb, zmq
 /// In addition, the following are available as category names with special meanings:
 /// - "all",  "1" : represent all logging categories.
 #[derive(Debug, Serialize)]
@@ -1449,12 +1448,14 @@ pub struct SendmsgtopeerParams {
 /// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
 /// privacy by leaking the transaction's origin, as nodes will normally not
 /// rebroadcast non-wallet transactions already in their mempool.
-/// If -privatebroadcast is enabled, then the transaction will be sent only via
-/// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
-/// via the Tor network. This conceals the transaction's origin. The transaction
-/// will only enter the local mempool when it is received back from the network.
+/// If -privatebroadcast is enabled, then the transaction will be sent via
+/// dedicated, short-lived connections to Tor or I2P peers, or to IPv4/IPv6 peers
+/// via the Tor network. This provides best-effort concealment of the transaction's origin.
+/// Private broadcast is experimental and may change in future releases.
+/// Submission does not itself add the transaction to the local mempool; normal
+/// mempool acceptance and relay apply when it is received back from the network.
 /// The private broadcast queue is bounded: when it is full, this RPC fails and
-/// the transaction is not scheduled, until an existing one completes or is
+/// the transaction is not scheduled until an existing one completes or is
 /// aborted. Use getprivatebroadcastinfo to inspect the queue and abortprivatebroadcast to abort.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey

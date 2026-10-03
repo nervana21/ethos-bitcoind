@@ -399,12 +399,14 @@ pub async fn join_psbts(
 /// connected peers, so using sendrawtransaction for manual rebroadcast will degrade
 /// privacy by leaking the transaction's origin, as nodes will normally not
 /// rebroadcast non-wallet transactions already in their mempool.
-/// If -privatebroadcast is enabled, then the transaction will be sent only via
-/// dedicated, short-lived connections to Tor or I2P peers or IPv4/IPv6 peers
-/// via the Tor network. This conceals the transaction's origin. The transaction
-/// will only enter the local mempool when it is received back from the network.
+/// If -privatebroadcast is enabled, then the transaction will be sent via
+/// dedicated, short-lived connections to Tor or I2P peers, or to IPv4/IPv6 peers
+/// via the Tor network. This provides best-effort concealment of the transaction's origin.
+/// Private broadcast is experimental and may change in future releases.
+/// Submission does not itself add the transaction to the local mempool; normal
+/// mempool acceptance and relay apply when it is received back from the network.
 /// The private broadcast queue is bounded: when it is full, this RPC fails and
-/// the transaction is not scheduled, until an existing one completes or is
+/// the transaction is not scheduled until an existing one completes or is
 /// aborted. Use getprivatebroadcastinfo to inspect the queue and abortprivatebroadcast to abort.
 /// A specific exception, RPC_TRANSACTION_ALREADY_IN_UTXO_SET, may throw if the transaction cannot be added to the mempool.
 /// Related RPCs: createrawtransaction, signrawtransactionwithkey
