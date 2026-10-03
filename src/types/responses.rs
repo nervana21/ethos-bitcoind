@@ -2484,10 +2484,6 @@ pub struct GetMiningInfoNext {
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct GetMiningInfoResult {
-    /// The hash of the current best block
-    /// Wire JSON key: `bestblockhash` (Rust field `best_block_hash`).
-    #[serde(rename = "bestblockhash")]
-    pub best_block_hash: String,
     /// The current nBits, compact representation of the block difficulty target
     pub bits: String,
     /// Minimum feerate of packages selected for block inclusion in BTC/kvB
@@ -8970,10 +8966,6 @@ pub struct GetMempoolInfoResponse {
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "serde-deny-unknown-fields", serde(deny_unknown_fields))]
 pub struct GetMiningInfoResponse {
-    /// The hash of the current best block
-    /// Wire JSON key: `bestblockhash` (Rust field `best_block_hash`).
-    #[serde(rename = "bestblockhash")]
-    pub best_block_hash: String,
     /// The current nBits, compact representation of the block difficulty target
     pub bits: String,
     /// Minimum feerate of packages selected for block inclusion in BTC/kvB
