@@ -14,7 +14,7 @@ fn schema_error(
     method: &str,
     direction: &str,
     error: &jsonschema::error::ValidationError<'_>,
-) -> String {
+) -> super::core::SchemaError {
     let reason = match error.kind() {
         jsonschema::error::ValidationErrorKind::OneOfMultipleValid { .. } => {
             "matches multiple oneOf branches".to_owned()
@@ -26,14 +26,27 @@ fn schema_error(
     };
     let path = error.instance_path().to_string();
     let path = if path.is_empty() { "root" } else { &path };
-    format!("{method} {direction}: {reason} at {path}")
+    super::core::SchemaError {
+        method: method.to_owned(),
+        path: path.to_owned(),
+        message: format!("{direction}: {reason}"),
+    }
 }
 
-fn validate(method: &str, direction: &str, schema: &Value, instance: &Value) -> Result<(), String> {
+fn validate(
+    method: &str,
+    direction: &str,
+    schema: &Value,
+    instance: &Value,
+) -> Result<(), super::core::SchemaError> {
     let validator = jsonschema::options()
         .with_draft(jsonschema::Draft::Draft7)
         .build(schema)
-        .map_err(|error| format!("{method} {direction} schema: {error}"))?;
+        .map_err(|error| super::core::SchemaError {
+            method: method.to_owned(),
+            path: "root".to_owned(),
+            message: format!("{direction} schema: {error}"),
+        })?;
     validator
         .validate(instance)
         .map_err(|error| schema_error(method, direction, &error))
@@ -757,7 +770,7 @@ fn registry() -> &'static HashMap<&'static str, MethodSchemas> {
 }
 
 /// Validate positional JSON-RPC params. Unknown methods are skipped.
-pub fn validate_params(method: &str, params: &[Value]) -> Result<(), String> {
+pub fn validate_params(method: &str, params: &[Value]) -> Result<(), super::core::SchemaError> {
     let Some(schemas) = registry().get(method) else {
         return Ok(());
     };
@@ -766,9 +779,77 @@ pub fn validate_params(method: &str, params: &[Value]) -> Result<(), String> {
 }
 
 /// Validate an RPC result. Unknown methods are skipped.
-pub fn validate_result(method: &str, result: &Value) -> Result<(), String> {
+pub fn validate_result(method: &str, result: &Value) -> Result<(), super::core::SchemaError> {
     let Some(schemas) = registry().get(method) else {
         return Ok(());
     };
     validate(method, "result", &schemas.result, result)
+}
+
+/// Validate each JSON-RPC 2.0 batch request frame before send.
+pub fn validate_batch_requests(bodies: &[Value]) -> Result<(), super::core::SchemaError> {
+    for (index, body) in bodies.iter().enumerate() {
+        let method =
+            body.get("method")
+                .and_then(Value::as_str)
+                .ok_or_else(|| super::core::SchemaError {
+                    method: format!("batch[{index}]"),
+                    path: "/method".to_owned(),
+                    message: "JSON-RPC batch frame missing method".to_owned(),
+                })?;
+        let empty = [];
+        let params = match body.get("params") {
+            None => &empty[..],
+            Some(Value::Array(items)) => items.as_slice(),
+            Some(_) => {
+                return Err(super::core::SchemaError {
+                    method: method.to_owned(),
+                    path: "/params".to_owned(),
+                    message: "parameters: batch params must be a JSON array".to_owned(),
+                });
+            }
+        };
+        validate_params(method, params)?;
+    }
+    Ok(())
+}
+
+/// Validate each JSON-RPC 2.0 batch result after receive. Frames with a non-null `error` skip.
+pub fn validate_batch_responses(
+    bodies: &[Value],
+    responses: &[Value],
+) -> Result<(), super::core::SchemaError> {
+    use std::collections::HashMap;
+    let mut method_by_id: HashMap<&Value, &str> = HashMap::new();
+    for body in bodies {
+        if let (Some(id), Some(method)) =
+            (body.get("id"), body.get("method").and_then(Value::as_str))
+        {
+            method_by_id.insert(id, method);
+        }
+    }
+    for (index, response) in responses.iter().enumerate() {
+        if let Some(error) = response.get("error") {
+            if !error.is_null() {
+                continue;
+            }
+        }
+        let method = response
+            .get("id")
+            .and_then(|id| method_by_id.get(id).copied())
+            .ok_or_else(|| super::core::SchemaError {
+                method: format!("batch[{index}]"),
+                path: "/id".to_owned(),
+                message: "batch response id does not match a request".to_owned(),
+            })?;
+        let Some(result) = response.get("result") else {
+            return Err(super::core::SchemaError {
+                method: method.to_owned(),
+                path: "/result".to_owned(),
+                message: "batch response missing result".to_owned(),
+            });
+        };
+        validate_result(method, result)?;
+    }
+    Ok(())
 }

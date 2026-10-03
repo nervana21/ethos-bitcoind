@@ -8,6 +8,23 @@ use thiserror::Error;
 use tokio::time::sleep;
 use tracing::warn;
 
+/// OpenRPC JSON Schema validation failure (feature `schema-validate`).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct SchemaError {
+    /// RPC method name.
+    pub method: String,
+    /// JSON Schema instance path (`root` when empty).
+    pub path: String,
+    /// Human-readable reason, including params vs result.
+    pub message: String,
+}
+
+impl std::fmt::Display for SchemaError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {} at {}", self.method, self.message, self.path)
+    }
+}
+
 /// Errors that can occur during RPC transport operations
 #[derive(Debug, Error, serde::Serialize, serde::Deserialize)]
 pub enum TransportError {
@@ -37,7 +54,7 @@ pub enum TransportError {
     MaxRetriesExceeded(u8),
     /// OpenRPC JSON Schema validation failure (feature `schema-validate`)
     #[error("Schema validation: {0}")]
-    Schema(String),
+    Schema(SchemaError),
 }
 
 impl From<BitreqError> for TransportError {
@@ -385,6 +402,9 @@ impl TransportTrait for DefaultTransport {
         let authorization = self.authorization.clone();
         let timeout_secs = self.timeout_secs;
         Box::pin(async move {
+            #[cfg(feature = "schema-validate")]
+            crate::transport::wire_schema::validate_batch_requests(bodies)
+                .map_err(TransportError::Schema)?;
             let bodies_vec: Vec<Value> = bodies.to_vec();
             let body =
                 serde_json::to_vec(&bodies_vec).map_err(|e| TransportError::Json(e.to_string()))?;
@@ -405,6 +425,9 @@ impl TransportTrait for DefaultTransport {
                 .map_err(|e: BitreqError| TransportError::Parse(e.to_string()))?;
             let v: Vec<Value> =
                 serde_json::from_str(raw).map_err(|e| TransportError::Parse(e.to_string()))?;
+            #[cfg(feature = "schema-validate")]
+            crate::transport::wire_schema::validate_batch_responses(bodies, &v)
+                .map_err(TransportError::Schema)?;
             Ok(v)
         })
     }
