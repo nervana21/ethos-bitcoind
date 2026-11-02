@@ -2,7 +2,7 @@
 publish = true
 
 name = "ethos-bitcoind"
-version = "32.0.0"
+version = "32.1.0"
 edition = "2021"
 authors = ["Ethos Developers"]
 license = "CC0-1.0"

@@ -1,4 +1,4 @@
-// Generated client trait for Bitcoin Core v32.0
+// Generated client trait for Bitcoin Core v32.1
 
 use std::future::Future;
 
@@ -10,7 +10,7 @@ use crate::transport::core::TransportExt;
 use crate::transport::{TransportError, TransportTrait};
 use crate::types::{FeeRate, HashOrHeight, *};
 
-#[doc = r#"A versioned client trait for Bitcoin Core v32.0"#]
+#[doc = r#"A versioned client trait for Bitcoin Core v32.1"#]
 #[async_trait]
 pub trait BitcoinClient: Send + Sync + TransportTrait + TransportExt + RpcDispatchExt {
     type Error;

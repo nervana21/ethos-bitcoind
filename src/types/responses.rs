@@ -1,6 +1,6 @@
 // Generated version-specific RPC response types
 //
-// Generated for Bitcoin Core v32.0
+// Generated for Bitcoin Core v32.1
 //
 // These types are version-specific and may not match other versions.
 //

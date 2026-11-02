@@ -4,7 +4,7 @@
 [![Docs.rs](https://img.shields.io/docsrs/ethos-bitcoind)](https://docs.rs/ethos-bitcoind)
 [![crates.io](https://img.shields.io/crates/v/ethos-bitcoind)](https://crates.io/crates/ethos-bitcoind)
 
-A type-safe Rust client for Bitcoin Core v32.0 RPCs.
+A type-safe Rust client for Bitcoin Core v32.1 RPCs.
 
 ## Why Use This?
 
@@ -28,7 +28,7 @@ This async example (using [Tokio](https://tokio.rs)) demonstrates integration te
 
 ```toml
 [dependencies]
-ethos-bitcoind = "32.0.0"
+ethos-bitcoind = "32.1.0"
 tokio = { version = "1.49", features = ["io-util", "macros", "net", "process", "rt", "rt-multi-thread", "sync", "time"] }
 ```
 
